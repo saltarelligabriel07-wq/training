@@ -1278,8 +1278,9 @@ svg { display: block; }
   <section class="view" id="view-gym" data-view="gym">
 
     <div class="segmented" id="gymSegmented" style="margin-bottom:var(--sp-4);">
-      <div class="seg-thumb" style="width:calc(33.33% - 2px);"></div>
+      <div class="seg-thumb" style="width:calc(25% - 2px);"></div>
       <button class="is-active" data-seg="log">Registra</button>
+      <button data-seg="corsa">Corsa</button>
       <button data-seg="esercizi">Esercizi</button>
       <button data-seg="storico">Storico</button>
     </div>
@@ -1291,6 +1292,63 @@ svg { display: block; }
       </div>
       <div class="chip-row" id="exerciseCategoryFilter" style="margin-bottom:var(--sp-3);"></div>
       <div id="exerciseListForLog"><!-- popolato via JS --></div>
+    </div>
+
+    <div id="gymPanelCorsa" class="hidden">
+      <div class="card" style="background:var(--bg-elevated);border:none;margin-bottom:var(--sp-4);padding:var(--sp-4);">
+        <div class="fs-sm fw-700" style="margin-bottom:4px;"><i class="fa-solid fa-person-running" style="color:var(--accent-2);"></i> Non vai in palestra?</div>
+        <p class="fs-xs text-secondary" style="line-height:1.6;">Qui puoi registrare le tue uscite di corsa, camminata o bici: teniamo traccia di calorie bruciate, XP e andamento del peso, anche senza allenamenti coi pesi.</p>
+      </div>
+
+      <div class="section-title">Tipo di attività</div>
+      <div class="segmented" id="cardioTypeSegmented" style="margin-bottom:var(--sp-4);">
+        <div class="seg-thumb" style="width:calc(33.33% - 2px);"></div>
+        <button class="is-active" data-cardio-type="corsa">Corsa</button>
+        <button data-cardio-type="camminata">Camminata</button>
+        <button data-cardio-type="bici">Bici</button>
+      </div>
+
+      <div class="input-row">
+        <div class="field">
+          <label class="field-label">Distanza (km)</label>
+          <div class="input-suffix-wrap">
+            <input type="number" step="0.1" min="0" class="input" id="cardioDistance" placeholder="5.0" value="5">
+            <span class="input-suffix">km</span>
+          </div>
+        </div>
+        <div class="field">
+          <label class="field-label">Durata (minuti)</label>
+          <div class="input-suffix-wrap">
+            <input type="number" step="1" min="0" class="input" id="cardioDuration" placeholder="30" value="30">
+            <span class="input-suffix">min</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="background:var(--bg-elevated);border:none;margin-top:var(--sp-2);">
+        <div class="flex justify-between items-center">
+          <span class="fs-sm text-secondary fw-600"><i class="fa-solid fa-fire" style="color:var(--accent-warn);"></i> Calorie stimate</span>
+          <span class="fs-lg fw-800 mono" id="cardioEstimatedCal" style="color:var(--accent-warn);">0 kcal</span>
+        </div>
+        <div class="flex justify-between items-center" style="margin-top:8px;">
+          <span class="fs-xs text-tertiary">Passo medio</span>
+          <span class="fs-xs fw-700 mono" id="cardioEstimatedPace">--</span>
+        </div>
+        <div class="flex justify-between items-center" style="margin-top:8px;">
+          <span class="fs-xs text-tertiary">XP stimati</span>
+          <span class="fs-xs fw-700 mono text-accent" id="cardioEstimatedXp">0</span>
+        </div>
+      </div>
+
+      <button class="btn btn-primary btn-block" id="btnSaveCardioLog" style="margin-top:var(--sp-4);"><i class="fa-solid fa-check"></i> Registra uscita</button>
+
+      <div class="section-title" style="margin-top:var(--sp-6);">Le tue uscite</div>
+      <div id="cardioHistoryList"><!-- popolato via JS --></div>
+      <div class="empty-state hidden" id="cardioEmptyState">
+        <i class="fa-solid fa-person-running"></i>
+        <div class="es-title">Nessuna uscita registrata</div>
+        <div class="es-sub">Registra la tua prima corsa, camminata o uscita in bici per iniziare a guadagnare XP e monitorare le calorie.</div>
+      </div>
     </div>
 
     <div id="gymPanelEsercizi" class="hidden">
@@ -1340,7 +1398,10 @@ svg { display: block; }
     <div class="section-title">Andamento peso corporeo</div>
     <div class="chart-card">
       <div class="chart-header">
-        <span class="chart-title">Peso (kg)</span>
+        <div class="flex-col gap-1">
+          <span class="chart-title">Peso (kg)</span>
+          <span class="fs-2xs text-tertiary" id="weightDeltaText"></span>
+        </div>
         <button class="btn btn-ghost btn-sm" id="btnAddWeightPoint"><i class="fa-solid fa-plus"></i> aggiungi</button>
       </div>
       <div class="chart-container"><canvas id="chartWeight"></canvas></div>
@@ -1348,6 +1409,14 @@ svg { display: block; }
 
     <div class="section-title">XP guadagnati (30 giorni)</div>
     <div class="chart-card"><div class="chart-container"><canvas id="chartXp"></canvas></div></div>
+
+    <div class="section-title">Calorie bruciate (14 giorni)</div>
+    <div class="chart-card">
+      <div class="chart-header">
+        <span class="chart-title" id="caloriesBurnedAvgText">Media giornaliera: 0 kcal/giorno</span>
+      </div>
+      <div class="chart-container"><canvas id="chartCaloriesBurned"></canvas></div>
+    </div>
 
     <div class="section-title">Tonnellaggio settimanale</div>
     <div class="chart-card"><div class="chart-container"><canvas id="chartTonnage"></canvas></div></div>
@@ -1538,6 +1607,10 @@ svg { display: block; }
           <span class="fs-xs text-tertiary">Tonnellaggio serie</span>
           <span class="fs-xs fw-700 mono" id="logEstimatedTonnage">0 kg</span>
         </div>
+        <div class="flex justify-between items-center" style="margin-top:8px;">
+          <span class="fs-xs text-tertiary"><i class="fa-solid fa-fire" style="color:var(--accent-warn);"></i> Calorie stimate</span>
+          <span class="fs-xs fw-700 mono" id="logEstimatedCal" style="color:var(--accent-warn);">0 kcal</span>
+        </div>
       </div>
     </div>
     <div class="sheet-footer">
@@ -1697,12 +1770,13 @@ svg { display: block; }
       <div class="field">
         <label class="field-label">Obiettivo</label>
         <div class="segmented" id="profGoalSegmented">
-          <div class="seg-thumb" style="width:calc(33.33% - 2px);"></div>
+          <div class="seg-thumb" style="width:calc(25% - 2px);"></div>
+          <button data-goal="lose">Dimagrimento</button>
           <button data-goal="cut">Definizione</button>
           <button class="is-active" data-goal="maintain">Mantenimento</button>
           <button data-goal="bulk">Massa</button>
         </div>
-        <p class="field-hint">Definizione: -20% calorie · Mantenimento: TDEE · Massa: +15% calorie.</p>
+        <p class="field-hint">Dimagrimento: -25% calorie, pensato per chi fa jogging/cardio e vuole perdere peso · Definizione: -20% calorie con focus muscolare · Mantenimento: TDEE · Massa: +15% calorie.</p>
       </div>
       <div class="card" style="background:var(--bg-elevated);border:none;">
         <div class="flex justify-between items-center">
@@ -2234,6 +2308,7 @@ const DEFAULT_STATE = () => ({
   water: { goalMl: 2500, logs: {} },
   nutrition: { logs: {} },
   workouts: { logs: [] },
+  cardio: { logs: [] },
   weightHistory: [],
   settings: { lastBackup: null },
 });
@@ -2251,6 +2326,7 @@ function loadState() {
     STATE.water = Object.assign(DEFAULT_STATE().water, parsed.water || {});
     STATE.nutrition = Object.assign(DEFAULT_STATE().nutrition, parsed.nutrition || {});
     STATE.workouts = Object.assign(DEFAULT_STATE().workouts, parsed.workouts || {});
+    STATE.cardio = Object.assign(DEFAULT_STATE().cardio, parsed.cardio || {});
     STATE.settings = Object.assign(DEFAULT_STATE().settings, parsed.settings || {});
     if (!Array.isArray(STATE.habits)) STATE.habits = [];
     if (!Array.isArray(STATE.weightHistory)) STATE.weightHistory = [];
@@ -2408,6 +2484,87 @@ const XP_ENGINE = {
       tonnage: Math.round(tonnage * 10) / 10,
       breakdown: { ageFactor, heightFactor, rpeFactor, difficultyFactor, consistencyFactor, logScale },
     };
+  },
+};
+
+
+/* ----------------------------------------------------------------------
+   7bis. MOTORE CALORIE — stima calorie bruciate (metodo MET)
+   ---------------------------------------------------------------------- */
+/*
+  Le calorie bruciate si stimano con la formula standard basata sul MET
+  (Metabolic Equivalent of Task):
+      kcal = MET × peso corporeo (kg) × durata (ore)
+
+  - Per gli esercizi con i pesi il MET viene derivato dall'RPE (intensità
+    percepita) e la durata dalla stima di tempo sotto sforzo + recupero.
+  - Per le attività cardio (corsa/camminata/bici) il MET viene derivato
+    dalla velocità media (km/h) calcolata da distanza e durata inserite.
+*/
+const CALORIE_ENGINE = {
+  /** MET stimato per una serie di allenamento pesi, in base all'RPE. */
+  metForWeights(rpe) {
+    if (!rpe) rpe = 6;
+    if (rpe <= 3) return 3.5;
+    if (rpe <= 5) return 4.5;
+    if (rpe <= 7) return 5.5;
+    if (rpe <= 9) return 6.5;
+    return 7.5;
+  },
+  /** Stima la durata (in ore) di un blocco di serie: tempo sotto sforzo + recupero tra le serie. */
+  estimateSetDurationHours(sets, reps) {
+    sets = Math.max(1, sets || 1);
+    reps = Math.max(1, reps || 1);
+    const workSec = sets * reps * 3.5;           // ~3.5s per ripetizione
+    const restSec = Math.max(0, sets - 1) * 75;    // ~75s di recupero tra le serie
+    return (workSec + restSec) / 3600;
+  },
+  /** Calorie stimate per un blocco di serie con i pesi. */
+  caloriesForSet({ sets, reps, rpe, profile }) {
+    const met = this.metForWeights(rpe);
+    const hours = this.estimateSetDurationHours(sets, reps);
+    const weightKg = (profile && profile.weight) || 70;
+    return Math.max(1, Math.round(met * weightKg * hours));
+  },
+  /** MET stimato per un'attività cardio, in base al tipo e alla velocità media (km/h). */
+  metForCardio(type, speedKmh) {
+    if (type === 'camminata') {
+      if (speedKmh < 4) return 2.8;
+      if (speedKmh < 5) return 3.5;
+      if (speedKmh < 6) return 4.3;
+      if (speedKmh < 7) return 5.0;
+      return 6.3;
+    }
+    if (type === 'bici') {
+      if (speedKmh < 16) return 6.0;
+      if (speedKmh < 19) return 8.0;
+      if (speedKmh < 22) return 10.0;
+      return 12.0;
+    }
+    // corsa / jogging
+    if (speedKmh <= 0) return 7.0;
+    if (speedKmh < 6.4) return 6.0;
+    if (speedKmh < 8) return 8.3;
+    if (speedKmh < 9.7) return 9.8;
+    if (speedKmh < 10.8) return 10.5;
+    if (speedKmh < 11.3) return 11.0;
+    if (speedKmh < 12.5) return 11.8;
+    if (speedKmh < 13.8) return 12.8;
+    if (speedKmh < 16) return 14.5;
+    return 16.0;
+  },
+  /** Calorie stimate per un'uscita cardio (corsa/camminata/bici). */
+  caloriesForCardio({ type, distanceKm, durationMin, profile }) {
+    const hours = Math.max(1/60, (durationMin || 0) / 60);
+    const speedKmh = (distanceKm && durationMin) ? (distanceKm / hours) : 0;
+    const met = this.metForCardio(type, speedKmh);
+    const weightKg = (profile && profile.weight) || 70;
+    return Math.max(1, Math.round(met * weightKg * hours));
+  },
+  /** XP guadagnati da un'uscita cardio: proporzionali a calorie e durata. */
+  xpForCardio(calories, durationMin) {
+    const raw = (calories / 8) + (durationMin || 0) * 0.5;
+    return Math.max(15, Math.min(220, Math.round(raw / 5) * 5));
   },
 };
 
@@ -2572,7 +2729,8 @@ function $_onReady(fn) {
    11. MODULO PROFILO & CALCOLO CALORICO (Mifflin-St Jeor + TDEE)
    ---------------------------------------------------------------------- */
 const GOAL_ADJUSTMENTS = {
-  cut: { factor: 0.80, label: 'Definizione', detail: 'Deficit del 20% per una perdita di peso graduale e sostenibile.' },
+  lose: { factor: 0.75, label: 'Dimagrimento', detail: 'Deficit del 25%, pensato per chi non fa pesi ma corsa/camminata/bici e vuole perdere peso in modo deciso ma sano.' },
+  cut: { factor: 0.80, label: 'Definizione', detail: 'Deficit del 20% per una perdita di peso graduale e sostenibile, con focus sul mantenimento della massa muscolare.' },
   maintain: { factor: 1.00, label: 'Mantenimento', detail: 'Calorie di mantenimento (TDEE) per stabilizzare il peso attuale.' },
   bulk: { factor: 1.15, label: 'Massa', detail: 'Surplus del 15% per favorire la crescita muscolare minimizzando il grasso.' },
 };
@@ -2708,8 +2866,9 @@ function isDayActive(dateStr) {
   const habitDone = habitLog && Object.values(habitLog).some(v => v === true || (typeof v === 'number' && v > 0));
   const waterLogged = (STATE.water.logs[dateStr] || 0) > 0;
   const workoutDone = STATE.workouts.logs.some(l => l.date === dateStr);
+  const cardioDone = STATE.cardio.logs.some(l => l.date === dateStr);
   const foodLogged = (STATE.nutrition.logs[dateStr] || []).length > 0;
-  return !!(habitDone || waterLogged || workoutDone || foodLogged);
+  return !!(habitDone || waterLogged || workoutDone || cardioDone || foodLogged);
 }
 
 function renderAchievements(rank, level) {
@@ -2868,7 +3027,7 @@ function renderHabitsView() {
     const habitId = itemEl.dataset.habitId;
     const habit = STATE.habits.find(h => h.id === habitId);
     if (!habit) return;
-    itemEl.querySelector('.habit-toggle-zone').addEventListener('click', () => toggleHabitToday(habit));
+    $all('.habit-toggle-zone', itemEl).forEach(zone => zone.addEventListener('click', () => toggleHabitToday(habit)));
     const editBtn = itemEl.querySelector('.habit-edit-btn');
     if (editBtn) editBtn.addEventListener('click', (e) => { e.stopPropagation(); openHabitForm(habit); });
     const delBtn = itemEl.querySelector('.habit-delete-btn');
@@ -3350,19 +3509,108 @@ function renderGymView() {
   $('#settingsExerciseCount').textContent = EXERCISES_DB.length;
   renderGymSegmented();
   if (gymActiveSegment === 'log') renderExerciseLogPanel();
+  else if (gymActiveSegment === 'corsa') renderCardioPanel();
   else if (gymActiveSegment === 'esercizi') renderExerciseRankFullPanel();
   else renderWorkoutHistoryPanel();
 }
 
 function renderGymSegmented() {
-  const segs = ['log','esercizi','storico'];
+  const segs = ['log','corsa','esercizi','storico'];
   const idx = segs.indexOf(gymActiveSegment);
   const thumb = $('#gymSegmented .seg-thumb');
+  thumb.style.width = `calc(${100/segs.length}% - 2px)`;
   thumb.style.transform = `translateX(${idx * 100}%)`;
   $all('#gymSegmented button[data-seg]').forEach(b => b.classList.toggle('is-active', b.dataset.seg === gymActiveSegment));
   $('#gymPanelLog').classList.toggle('hidden', gymActiveSegment !== 'log');
+  $('#gymPanelCorsa').classList.toggle('hidden', gymActiveSegment !== 'corsa');
   $('#gymPanelEsercizi').classList.toggle('hidden', gymActiveSegment !== 'esercizi');
   $('#gymPanelStorico').classList.toggle('hidden', gymActiveSegment !== 'storico');
+}
+
+/* --- Pannello "Corsa": log dedicato a chi fa jogging/camminata/bici invece dei pesi --- */
+let cardioFormType = 'corsa';
+
+function renderCardioPanel() {
+  updateCardioEstimate();
+  renderCardioHistory();
+}
+
+function updateCardioEstimate() {
+  const distance = parseFloat($('#cardioDistance').value) || 0;
+  const duration = parseFloat($('#cardioDuration').value) || 0;
+  const cal = CALORIE_ENGINE.caloriesForCardio({ type: cardioFormType, distanceKm: distance, durationMin: duration, profile: STATE.profile });
+  const xp = CALORIE_ENGINE.xpForCardio(cal, duration);
+  $('#cardioEstimatedCal').textContent = `${cal} kcal`;
+  $('#cardioEstimatedXp').textContent = xp;
+  if (distance > 0 && duration > 0) {
+    const paceMinKm = duration / distance;
+    const paceMin = Math.floor(paceMinKm);
+    const paceSec = Math.round((paceMinKm - paceMin) * 60);
+    $('#cardioEstimatedPace').textContent = `${paceMin}:${String(paceSec).padStart(2,'0')} min/km`;
+  } else {
+    $('#cardioEstimatedPace').textContent = '--';
+  }
+}
+
+function saveCardioLogFromForm() {
+  const distance = parseFloat($('#cardioDistance').value) || 0;
+  const duration = parseFloat($('#cardioDuration').value) || 0;
+  if (distance <= 0 || duration <= 0) {
+    showToast('Inserisci distanza e durata valide', 'warn', 'fa-solid fa-triangle-exclamation');
+    return;
+  }
+  const cal = CALORIE_ENGINE.caloriesForCardio({ type: cardioFormType, distanceKm: distance, durationMin: duration, profile: STATE.profile });
+  const xp = CALORIE_ENGINE.xpForCardio(cal, duration);
+  const prevTotalXp = STATE.totalXp;
+  const entry = {
+    id: uid(), type: cardioFormType, distanceKm: distance, durationMin: duration,
+    caloriesBurned: cal, xpEarned: xp, date: todayStr(), timestamp: Date.now(),
+  };
+  STATE.cardio.logs.push(entry);
+  STATE.totalXp += xp;
+  saveState();
+  showXpFloater(xp);
+  renderCardioPanel();
+  renderProfileHeaderMinimal();
+  const leveledUp = maybeTriggerLevelUp(prevTotalXp, STATE.totalXp);
+  if (!leveledUp) showToast(`Uscita registrata: +${cal} kcal · +${xp} XP`, 'success', 'fa-solid fa-person-running');
+}
+
+function renderCardioHistory() {
+  const sorted = [...STATE.cardio.logs].sort((a,b) => b.timestamp - a.timestamp);
+  const list = $('#cardioHistoryList');
+  const emptyState = $('#cardioEmptyState');
+  if (sorted.length === 0) { list.innerHTML = ''; emptyState.classList.remove('hidden'); return; }
+  emptyState.classList.add('hidden');
+  const typeIcons = { corsa:'fa-solid fa-person-running', camminata:'fa-solid fa-person-walking', bici:'fa-solid fa-person-biking' };
+  const typeLabels = { corsa:'Corsa', camminata:'Camminata', bici:'Bici' };
+  list.innerHTML = `<div class="card card-list">${sorted.slice(0, 50).map(l => `
+    <div class="card-row">
+      <div class="habit-icon" style="background:var(--bg-elevated);color:var(--accent-2);"><i class="${typeIcons[l.type] || typeIcons.corsa}"></i></div>
+      <div class="habit-info">
+        <div class="habit-name">${typeLabels[l.type] || 'Corsa'} · ${formatDateHuman(l.date)}</div>
+        <div class="habit-meta">${round1(l.distanceKm)} km in ${l.durationMin} min · 🔥 ${l.caloriesBurned} kcal</div>
+      </div>
+      <div class="text-accent fw-700 mono">+${l.xpEarned}</div>
+      <button class="icon-btn delete-cardio-btn" data-log-id="${l.id}" style="width:28px;height:28px;color:var(--accent-danger);"><i class="fa-solid fa-trash" style="font-size:10px;"></i></button>
+    </div>`).join('')}</div>`;
+  $all('.delete-cardio-btn', list).forEach(btn => btn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    deleteCardioLog(btn.dataset.logId);
+  }));
+}
+
+function deleteCardioLog(logId) {
+  const log = STATE.cardio.logs.find(l => l.id === logId);
+  if (!log) return;
+  askConfirm('Eliminare questa uscita?', 'Gli XP e le calorie di questa uscita verranno rimossi dal tuo totale.', () => {
+    STATE.totalXp = Math.max(0, STATE.totalXp - log.xpEarned);
+    STATE.cardio.logs = STATE.cardio.logs.filter(l => l.id !== logId);
+    saveState();
+    renderCardioHistory();
+    renderProfileHeaderMinimal();
+    showToast('Uscita eliminata', 'success', 'fa-solid fa-trash');
+  });
 }
 
 function renderExerciseCategoryChips(containerId, activeVar, onSelect) {
@@ -3432,8 +3680,10 @@ function updateLogEstimatedXp() {
     exercise: ex, reps: reps * sets, weightKg: weight, rpe,
     profile: STATE.profile, workoutLogs: STATE.workouts.logs, dateStr: todayStr(),
   });
+  const cal = CALORIE_ENGINE.caloriesForSet({ sets, reps, rpe, profile: STATE.profile });
   $('#logEstimatedXp').textContent = result.xp;
   $('#logEstimatedTonnage').textContent = `${result.tonnage.toLocaleString('it-IT')} kg`;
+  $('#logEstimatedCal').textContent = `${cal} kcal`;
 }
 
 function saveExerciseLogFromForm() {
@@ -3449,11 +3699,12 @@ function saveExerciseLogFromForm() {
     exercise: ex, reps: totalReps, weightKg: weight, rpe,
     profile: STATE.profile, workoutLogs: STATE.workouts.logs, dateStr: todayStr(),
   });
+  const caloriesBurned = CALORIE_ENGINE.caloriesForSet({ sets, reps, rpe, profile: STATE.profile });
 
   const prevTotalXp = STATE.totalXp;
   const logEntry = {
     id: uid(), exerciseId: ex.id, date: todayStr(), sets, reps, weight, rpe,
-    tonnage: result.tonnage, xpEarned: result.xp, timestamp: Date.now(),
+    tonnage: result.tonnage, xpEarned: result.xp, caloriesBurned, timestamp: Date.now(),
   };
   STATE.workouts.logs.push(logEntry);
   STATE.totalXp += result.xp;
@@ -3618,7 +3869,7 @@ function renderWorkoutHistoryPanel() {
             <div class="habit-icon" style="background:var(--bg-elevated);color:var(--accent-1);"><i class="${ex.icon}"></i></div>
             <div class="habit-info">
               <div class="habit-name">${escapeHtml(ex.name)}</div>
-              <div class="habit-meta">${l.sets}×${l.reps} @ ${l.weight}kg · RPE ${l.rpe}</div>
+              <div class="habit-meta">${l.sets}×${l.reps} @ ${l.weight}kg · RPE ${l.rpe} · 🔥 ${l.caloriesBurned || 0} kcal</div>
             </div>
             <div class="text-accent fw-700 mono">+${l.xpEarned}</div>
             <button class="icon-btn delete-log-btn" data-log-id="${l.id}" style="width:28px;height:28px;color:var(--accent-danger);"><i class="fa-solid fa-trash" style="font-size:10px;"></i></button>
@@ -3687,6 +3938,7 @@ function renderStatsView() {
 
   renderWeightChart();
   renderXpChart();
+  renderCaloriesBurnedChart();
   renderTonnageChart();
   renderCaloriesChart();
   renderMuscleDistChart();
@@ -3700,6 +3952,36 @@ function renderWeightChart() {
   upsertChart('chartWeight', {
     type: 'line',
     data: { labels, datasets: [{ label: 'Peso', data: values, borderColor: '#00D9C0', backgroundColor: 'rgba(0,217,192,0.12)', fill: true, tension: 0.3, pointRadius: 3, pointBackgroundColor: '#00D9C0' }] },
+    options: chartBaseOptions({}),
+  });
+  const deltaEl = $('#weightDeltaText');
+  if (deltaEl) {
+    if (sorted.length >= 2) {
+      const delta = round1(sorted[sorted.length - 1].weight - sorted[0].weight);
+      const sign = delta > 0 ? '+' : '';
+      const cls = delta < 0 ? 'text-success' : (delta > 0 ? 'text-warn' : 'text-tertiary');
+      deltaEl.innerHTML = `<span class="${cls} fw-700">${sign}${delta} kg</span> dal ${formatDateHuman(sorted[0].date)}`;
+    } else {
+      deltaEl.textContent = 'Registra il peso regolarmente per vedere l\'andamento';
+    }
+  }
+}
+
+/** Calorie bruciate ogni giorno, somma tra serie con i pesi e uscite cardio (corsa/camminata/bici). */
+function renderCaloriesBurnedChart() {
+  const days = last14Days();
+  const values = days.map(d => {
+    const fromWorkouts = STATE.workouts.logs.filter(l => l.date === d).reduce((s,l) => s + (l.caloriesBurned || 0), 0);
+    const fromCardio = STATE.cardio.logs.filter(l => l.date === d).reduce((s,l) => s + (l.caloriesBurned || 0), 0);
+    return fromWorkouts + fromCardio;
+  });
+  const labels = days.map(d => formatDateHuman(d));
+  const avg = values.length ? Math.round(values.reduce((s,v) => s + v, 0) / values.length) : 0;
+  const avgEl = $('#caloriesBurnedAvgText');
+  if (avgEl) avgEl.textContent = `Media giornaliera: ${avg.toLocaleString('it-IT')} kcal/giorno`;
+  upsertChart('chartCaloriesBurned', {
+    type: 'bar',
+    data: { labels, datasets: [{ label: 'Calorie bruciate', data: values.map(Math.round), backgroundColor: 'rgba(255,92,92,0.7)', borderRadius: 4, maxBarThickness: 18 }] },
     options: chartBaseOptions({}),
   });
 }
@@ -3725,12 +4007,13 @@ function renderXpChart() {
   const days = last30Days();
   const xpPerDay = days.map(d => {
     const workoutXp = STATE.workouts.logs.filter(l => l.date === d).reduce((s,l)=>s+l.xpEarned,0);
+    const cardioXp = STATE.cardio.logs.filter(l => l.date === d).reduce((s,l)=>s+l.xpEarned,0);
     const log = STATE.habitLogs[d] || {};
     const habitXp = STATE.habits.reduce((s,h) => {
       if (h.type === 'counter') return s + ((log[h.id]||0) >= h.target ? h.xp : 0);
       return s + (log[h.id] ? h.xp : 0);
     }, 0);
-    return workoutXp + habitXp;
+    return workoutXp + cardioXp + habitXp;
   });
   const labels = days.map(d => formatDateHuman(d));
   upsertChart('chartXp', {
@@ -4072,6 +4355,10 @@ function wireAllEvents() {
 
   // --- Gym RPG ---
   wireSegmented('gymSegmented', 'data-seg', (val) => { gymActiveSegment = val; renderGymView(); });
+  wireSegmented('cardioTypeSegmented', 'data-cardio-type', (val) => { cardioFormType = val; updateCardioEstimate(); });
+  $('#cardioDistance').addEventListener('input', updateCardioEstimate);
+  $('#cardioDuration').addEventListener('input', updateCardioEstimate);
+  $('#btnSaveCardioLog').addEventListener('click', saveCardioLogFromForm);
   $('#exerciseSearchInput').addEventListener('input', (e) => { exerciseSearchQuery = e.target.value; renderExerciseLogPanel(); });
   $('#exerciseRankSearchInput').addEventListener('input', (e) => { exerciseRankSearchQuery = e.target.value; renderExerciseRankFullPanel(); });
   wireStepper('logSetsMinus', 'logSetsPlus', 'logSets', { min:1, max:20, onChange: updateLogEstimatedXp });
