@@ -4,6 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#0E1512">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='24' fill='%230E1512'/%3E%3Ctext x='50' y='68' font-family='Georgia,serif' font-weight='700' font-size='58' fill='%23CBA135' text-anchor='middle'%3ES%3C/text%3E%3C/svg%3E">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='24' fill='%230E1512'/%3E%3Ctext x='50' y='68' font-family='Georgia,serif' font-weight='700' font-size='58' fill='%23CBA135' text-anchor='middle'%3ES%3C/text%3E%3C/svg%3E">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="mobile-web-app-capable" content="yes">
 <title>SIA — Il tuo libro mastro</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -217,6 +222,67 @@ input:focus, select:focus, textarea:focus{outline:none; border-color:var(--gold-
 .sheet-close{background:none; border:none; color:var(--ink-dim); font-size:1.3rem; cursor:pointer; padding:4px;}
 
 /* -------------------- FOCUS / TIMER -------------------- */
+.switch{position:relative; display:inline-block; width:46px; height:27px;}
+.switch input{opacity:0; width:0; height:0;}
+.switch-track{position:absolute; cursor:pointer; inset:0; background:var(--surface-2); border:1px solid var(--line); border-radius:20px; transition:.2s;}
+.switch-track::before{content:''; position:absolute; height:19px; width:19px; left:3px; bottom:3px; background:var(--ink-faint); border-radius:50%; transition:.2s;}
+.switch input:checked + .switch-track{background:var(--gold-dim); border-color:var(--gold);}
+.switch input:checked + .switch-track::before{transform:translateX(19px); background:var(--gold);}
+
+.onboarding{
+  position:fixed; inset:0; background:var(--bg); z-index:200; display:none; flex-direction:column;
+  padding:calc(30px + var(--safe-top)) 24px calc(24px + var(--safe-bottom)); max-width:480px; margin:0 auto; overflow-y:auto;
+}
+.onboarding.open{display:flex;}
+.ob-step{display:none; flex:1; flex-direction:column;}
+.ob-step.active{display:flex;}
+.ob-mark{width:56px; height:56px; border-radius:16px; background:linear-gradient(155deg,var(--gold),var(--gold-dim)); display:flex; align-items:center; justify-content:center; color:#12160f; font-family:'Source Serif 4',serif; font-weight:700; font-size:26px; margin-bottom:20px;}
+.ob-dots{display:flex; gap:6px; margin-bottom:22px;}
+.ob-dot{width:7px; height:7px; border-radius:50%; background:var(--line);}
+.ob-dot.active{background:var(--gold); width:20px; border-radius:4px;}
+.ob-title{font-size:1.6rem; margin-bottom:8px;}
+.ob-sub{color:var(--ink-dim); font-size:0.88rem; margin-bottom:26px; line-height:1.5;}
+.ob-spacer{flex:1;}
+.ob-choice{background:var(--surface); border:1px solid var(--line); border-radius:var(--radius-m); padding:14px 16px; margin-bottom:10px; cursor:pointer; display:flex; justify-content:space-between; align-items:center;}
+.ob-choice.selected{border-color:var(--gold);}
+.ob-choice .oc-title{font-size:0.92rem;}
+.ob-choice .oc-sub{font-size:0.72rem; color:var(--ink-faint); margin-top:2px;}
+
+/* -------------------- TRAGUARDI -------------------- */
+.badge-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:10px;}
+.badge-item{background:var(--surface-2); border:1px solid var(--line); border-radius:var(--radius-s); padding:12px 6px; text-align:center; opacity:0.35;}
+.badge-item.unlocked{opacity:1; border-color:var(--gold-dim);}
+.badge-item .bi-ico{font-size:1.5rem;}
+.badge-item .bi-name{font-size:0.62rem; color:var(--ink-dim); margin-top:5px; line-height:1.2;}
+
+.mode-chips{display:flex; gap:8px; overflow-x:auto; padding-bottom:2px; scrollbar-width:none;}
+.mode-chips::-webkit-scrollbar{display:none;}
+.mode-chip{
+  flex:0 0 auto; background:var(--surface); border:1px solid var(--line); border-radius:var(--radius-s);
+  padding:9px 13px; font-size:0.78rem; color:var(--ink-dim); cursor:pointer; white-space:nowrap; text-align:left;
+  display:flex; flex-direction:column; gap:2px;
+}
+.mode-chip span{font-family:'IBM Plex Mono',monospace; font-size:0.62rem; color:var(--ink-faint);}
+.mode-chip.active{border-color:var(--gold); color:var(--gold);}
+.mode-chip.active span{color:var(--gold-dim);}
+.sound-chip{flex-direction:row; align-items:center; gap:6px; padding:8px 12px;}
+
+.fullscreen-focus{
+  position:fixed; inset:0; background:var(--bg); z-index:100; display:none; flex-direction:column; align-items:center; justify-content:center;
+  padding:24px;
+}
+.fullscreen-focus.open{display:flex;}
+.fs-exit{position:absolute; top:calc(20px + var(--safe-top)); right:20px; background:none; border:none; color:var(--ink-dim); font-size:1.4rem; cursor:pointer;}
+.fs-phase{color:var(--ink-dim); font-size:0.85rem; margin-bottom:10px; letter-spacing:0.02em;}
+.fs-timer-ring{
+  width:min(72vw,300px); height:min(72vw,300px); border-radius:50%;
+  background:conic-gradient(var(--gold) calc(var(--prog,0)*1%), var(--surface-2) 0);
+  display:flex; align-items:center; justify-content:center; position:relative; margin-bottom:26px;
+}
+.fs-timer-ring::before{content:''; position:absolute; inset:14px; border-radius:50%; background:var(--bg);}
+.fs-timer-display{position:relative; font-family:'IBM Plex Mono',monospace; font-size:3.2rem; font-weight:600;}
+.fs-sound-row{display:flex; gap:8px; margin-top:24px; flex-wrap:wrap; justify-content:center;}
+
 .timer-ring{
   width:210px; height:210px; margin:10px auto 18px; border-radius:50%;
   background:conic-gradient(var(--gold) calc(var(--prog,0)*1%), var(--surface-2) 0);
@@ -276,8 +342,8 @@ canvas{max-width:100%;}
     <div class="mark">
       <div class="ledger-mark">S</div>
       <div>
-        <h1>SIA</h1>
-        <div class="sub">Il tuo libro mastro tascabile</div>
+        <h1 id="greetingName">SIA</h1>
+        <div class="sub" id="greetingSub">Il tuo libro mastro tascabile</div>
       </div>
     </div>
     <div class="level-pill" id="levelPill">LV.1</div>
@@ -302,6 +368,10 @@ canvas{max-width:100%;}
 
     <div class="section-title">Ultimi movimenti <span class="link" onclick="switchView('movimenti')">Tutti</span></div>
     <div class="card" id="recentTx"><div class="empty">Nessun movimento registrato.</div></div>
+
+    <div class="section-title">La tua situazione</div>
+    <div class="card" id="statsSummary"></div>
+    <div class="card" id="statsChartCard"><canvas id="statsDoughnut" height="200"></canvas></div>
   </div>
 
   <!-- ============== MOVIMENTI ============== -->
@@ -314,12 +384,16 @@ canvas{max-width:100%;}
       <input type="month" id="monthFilter" onchange="renderTransactions()">
       <select id="catFilter" onchange="renderTransactions()"><option value="">Tutte le categorie</option></select>
     </div>
+    <div class="field" style="margin-bottom:14px;"><input type="text" id="txSearch" placeholder="🔎 Cerca per descrizione..." oninput="renderTransactions()"></div>
     <div class="card" id="txList"><div class="empty">Nessun movimento questo mese.</div></div>
   </div>
 
   <!-- ============== UNI ============== -->
   <div class="view" id="view-uni">
-    <div class="section-title" style="margin-top:14px;">Media ponderata</div>
+    <div class="section-title" style="margin-top:14px;">Percorso di laurea <span class="link" onclick="openUniProfileSheet()">Modifica</span></div>
+    <div class="card" id="uniProgressCard"></div>
+
+    <div class="section-title">Media ponderata</div>
     <div class="card">
       <div class="gpa-grid">
         <div class="gpa-box"><div class="gv" id="gpaTot">0.0</div><div class="gl">GENERALE</div></div>
@@ -337,14 +411,41 @@ canvas{max-width:100%;}
 
   <!-- ============== FOCUS ============== -->
   <div class="view" id="view-focus">
-    <div class="section-title" style="margin-top:14px;">Sessione di studio</div>
+    <div class="section-title" style="margin-top:14px;">Modalità</div>
+    <div class="mode-chips" id="focusModeChips">
+      <button class="mode-chip active" data-mode="pomodoro" onclick="selectFocusMode('pomodoro')">🍅 Pomodoro<span>25/5</span></button>
+      <button class="mode-chip" data-mode="5217" onclick="selectFocusMode('5217')">⚡ 52/17<span>Ritmo lungo</span></button>
+      <button class="mode-chip" data-mode="deepwork" onclick="selectFocusMode('deepwork')">🌊 Deep Work<span>90/20</span></button>
+      <button class="mode-chip" data-mode="custom" onclick="selectFocusMode('custom')">✎ Personalizzato<span id="customModeLabel">—</span></button>
+    </div>
+    <div class="card card-tight" id="customDurationCard" style="display:none; margin-top:10px;">
+      <div class="field-row" style="margin-bottom:0;">
+        <div class="field" style="margin-bottom:0;"><label>Studio (min)</label><input type="number" id="customWorkMin" min="1" value="25" onchange="applyCustomDuration()"></div>
+        <div class="field" style="margin-bottom:0;"><label>Pausa (min)</label><input type="number" id="customBreakMin" min="1" value="5" onchange="applyCustomDuration()"></div>
+      </div>
+    </div>
+
+    <div class="section-title">Sessione di studio</div>
     <div class="card" style="text-align:center;">
       <div class="timer-ring" id="timerRing" style="--prog:0;"><div class="timer-display" id="timerDisplay">25:00</div></div>
+      <div style="font-size:0.72rem; color:var(--ink-faint); margin-top:-10px; margin-bottom:4px;" id="phaseLabel">Studio</div>
       <div class="timer-btns">
         <button class="play" id="timerPlayBtn" onclick="toggleFocusTimer()">▶</button>
         <button class="pause" onclick="resetFocusTimer()">↺</button>
       </div>
       <div style="margin-top:14px; color:var(--ink-dim); font-size:0.78rem;">Pomodori completati oggi: <span class="num" id="pomodoroCount">0</span></div>
+      <button class="btn ghost btn-sm" style="width:100%; margin-top:14px;" onclick="enterFullscreenFocus()">⛶ Solo timer, a schermo intero</button>
+    </div>
+
+    <div class="section-title">Suono di sottofondo</div>
+    <div class="card card-tight">
+      <div class="mode-chips" id="soundChips">
+        <button class="mode-chip sound-chip active" data-sound="none" onclick="selectAmbientSound('none')">🔇 Nessuno</button>
+        <button class="mode-chip sound-chip" data-sound="rain" onclick="selectAmbientSound('rain')">🌧️ Pioggia</button>
+        <button class="mode-chip sound-chip" data-sound="waves" onclick="selectAmbientSound('waves')">🌊 Onde</button>
+        <button class="mode-chip sound-chip" data-sound="white" onclick="selectAmbientSound('white')">📻 Rumore bianco</button>
+        <button class="mode-chip sound-chip" data-sound="wind" onclick="selectAmbientSound('wind')">🍃 Vento</button>
+      </div>
     </div>
 
     <div class="section-title">Abitudini <span class="link" onclick="openHabitSheet()">+ Nuova</span></div>
@@ -356,8 +457,23 @@ canvas{max-width:100%;}
 
   <!-- ============== ALTRO ============== -->
   <div class="view" id="view-altro">
-    <div class="section-title" style="margin-top:14px;">Portafogli <span class="link" onclick="openWalletSheet()">Gestisci</span></div>
+    <div class="section-title" style="margin-top:14px;">Profilo</div>
+    <div class="card stack">
+      <div class="field" style="margin-bottom:0;">
+        <label>Il tuo nome</label>
+        <input type="text" id="profileNameSetting" placeholder="Come ti chiami?" onchange="updateProfileName(this.value)">
+      </div>
+    </div>
+
+    <div class="section-title">Portafogli <span class="link" onclick="openWalletSheet()">Gestisci</span></div>
     <div class="card" id="walletsSummary"><div class="empty">—</div></div>
+
+    <div class="section-title">Moduli</div>
+    <div class="card row-between">
+      <span style="font-size:0.9rem;">🎓 Modulo Università</span>
+      <label class="switch"><input type="checkbox" id="uniModuleToggle" onchange="setUniModule(this.checked)"><span class="switch-track"></span></label>
+    </div>
+    <div style="font-size:0.72rem; color:var(--ink-faint); margin-top:-4px; padding:0 2px;">Puoi disattivarlo per un'app più snella e riattivarlo quando vuoi: i tuoi esami e scadenze restano salvati.</div>
 
     <div class="section-title">Aspetto</div>
     <div class="card row-between">
@@ -374,6 +490,9 @@ canvas{max-width:100%;}
       <button class="btn secondary" onclick="importData()">📤 Ripristina da backup (JSON)</button>
       <button class="btn secondary" onclick="exportCSV()">📊 Esporta movimenti (CSV)</button>
     </div>
+
+    <div class="section-title">Traguardi</div>
+    <div class="card"><div class="badge-grid" id="badgeGrid"></div></div>
 
     <div class="section-title">Configurazione</div>
     <div class="card stack">
@@ -400,12 +519,89 @@ canvas{max-width:100%;}
 <div class="tabbar">
   <button class="tab active" data-v="home" onclick="switchView('home')"><span class="ic">🏠</span>Home</button>
   <button class="tab" data-v="movimenti" onclick="switchView('movimenti')"><span class="ic">📒</span>Movimenti</button>
-  <button class="tab" data-v="uni" onclick="switchView('uni')"><span class="ic">🎓</span>Uni</button>
+  <button class="tab" data-v="uni" id="tabUni" onclick="switchView('uni')"><span class="ic">🎓</span>Uni</button>
   <button class="tab" data-v="focus" onclick="switchView('focus')"><span class="ic">⏱</span>Focus</button>
   <button class="tab" data-v="altro" onclick="switchView('altro')"><span class="ic">⚙️</span>Altro</button>
 </div>
 
+<!-- ============== ONBOARDING ============== -->
+<div class="onboarding" id="onboarding">
+  <div class="ob-dots" id="obDots">
+    <div class="ob-dot active" data-step="1"></div>
+    <div class="ob-dot" data-step="2"></div>
+    <div class="ob-dot" data-step="3"></div>
+    <div class="ob-dot" data-step="4"></div>
+    <div class="ob-dot" data-step="5"></div>
+  </div>
+
+  <div class="ob-step active" id="ob-step-1">
+    <div class="ob-mark">S</div>
+    <div class="ob-title">Benvenuto su SIA</div>
+    <div class="ob-sub">Il tuo libro mastro tascabile: soldi, studio e obiettivi in un unico posto. Come ti chiami?</div>
+    <div class="field"><input type="text" id="obName" placeholder="Il tuo nome"></div>
+    <div class="ob-spacer"></div>
+    <button class="btn" onclick="obGoStep(2)">Continua</button>
+  </div>
+
+  <div class="ob-step" id="ob-step-2">
+    <div class="ob-title">Da quanto parti?</div>
+    <div class="ob-sub">Inserisci il saldo che hai già oggi sul tuo conto principale: SIA partirà da lì, non da zero.</div>
+    <div class="field"><label>Saldo attuale (€)</label><input type="number" id="obBalance" placeholder="0.00" step="0.01" inputmode="decimal"></div>
+    <div class="field"><label>Obiettivo di liquidità — quanto vuoi tenere sempre da parte (€)</label><input type="number" id="obLiquidity" placeholder="1000" step="10"></div>
+    <div class="field"><label>Giorno dello stipendio / paghetta nel mese</label><input type="number" id="obPayday" min="1" max="31" placeholder="27"></div>
+    <div class="ob-spacer"></div>
+    <button class="btn" onclick="obGoStep(3)">Continua</button>
+  </div>
+
+  <div class="ob-step" id="ob-step-3">
+    <div class="ob-title">Sei uno studente?</div>
+    <div class="ob-sub">Attiva il modulo Università se vuoi tracciare esami, media e scadenze accademiche. Puoi cambiare idea quando vuoi da Impostazioni.</div>
+    <div class="ob-choice selected" id="obUniYes" onclick="obSelectUni(true)">
+      <div><div class="oc-title">🎓 Sì, attiva il modulo Università</div><div class="oc-sub">Esami, media ponderata, percorso di laurea</div></div>
+    </div>
+    <div class="ob-choice" id="obUniNo" onclick="obSelectUni(false)">
+      <div><div class="oc-title">✕ No, tienila semplice</div><div class="oc-sub">Solo finanze, focus e abitudini — più leggera</div></div>
+    </div>
+    <div class="ob-spacer"></div>
+    <button class="btn" id="obStep3Btn" onclick="obStep3Next()">Continua</button>
+  </div>
+
+  <div class="ob-step" id="ob-step-4">
+    <div class="ob-title">Il tuo percorso</div>
+    <div class="ob-sub">Qualche dettaglio in più per seguire il tuo avanzamento verso la laurea.</div>
+    <div class="field"><label>Corso di laurea</label><input type="text" id="obCourse" placeholder="Es. Informatica, Economia..."></div>
+    <div class="field-row">
+      <div class="field"><label>Durata (anni)</label><input type="number" id="obYears" min="1" max="6" value="3"></div>
+      <div class="field"><label>Anno in corso</label><input type="number" id="obCurrentYear" min="1" max="6" value="1"></div>
+    </div>
+    <div class="field"><label>Obiettivo CFU totali</label><input type="number" id="obCfuTarget" value="180" min="1"></div>
+    <div class="ob-spacer"></div>
+    <button class="btn" onclick="obGoStep(5)">Continua</button>
+  </div>
+
+  <div class="ob-step" id="ob-step-5">
+    <div class="ob-title">Tutto pronto</div>
+    <div class="ob-sub">Ecco un riepilogo di come parte SIA. Puoi modificare qualunque cosa in seguito da Impostazioni.</div>
+    <div class="card stack" id="obSummary" style="margin-bottom:0;"></div>
+    <div class="ob-spacer"></div>
+    <button class="btn" onclick="finishOnboarding()">Inizia a usare SIA</button>
+  </div>
+</div>
+
+
 <div class="toast" id="toast"></div>
+
+<!-- ============== FOCUS A SCHERMO INTERO ============== -->
+<div class="fullscreen-focus" id="fullscreenFocus">
+  <button class="fs-exit" onclick="exitFullscreenFocus()">✕</button>
+  <div class="fs-phase" id="fsPhaseLabel">Studio</div>
+  <div class="fs-timer-ring" id="fsTimerRing" style="--prog:0;"><div class="fs-timer-display" id="fsTimerDisplay">25:00</div></div>
+  <div class="timer-btns">
+    <button class="play" id="fsPlayBtn" onclick="toggleFocusTimer()">▶</button>
+    <button class="pause" onclick="resetFocusTimer()">↺</button>
+  </div>
+  <div class="fs-sound-row" id="fsSoundChips"></div>
+</div>
 
 <!-- ============== SHEETS ============== -->
 <div class="sheet-overlay" id="overlay-tx" onclick="closeSheetOnOverlay(event,'tx')">
@@ -486,6 +682,7 @@ canvas{max-width:100%;}
   <div class="sheet" onclick="event.stopPropagation()">
     <div class="sheet-handle"></div>
     <div class="sheet-head"><h3>Portafogli</h3><button class="sheet-close" onclick="closeSheet('wallet')">✕</button></div>
+    <div style="font-size:0.76rem; color:var(--ink-dim); margin-bottom:12px;">Puoi correggere il saldo di un portafoglio in qualsiasi momento — utile al primo avvio se hai già dei soldi da inserire.</div>
     <div id="walletManageList" class="stack" style="margin-bottom:16px;"></div>
     <div class="field-row">
       <div class="field"><label>Nuovo portafoglio</label><input type="text" id="newWalletName" placeholder="Es. Contanti"></div>
@@ -525,6 +722,20 @@ canvas{max-width:100%;}
   </div>
 </div>
 
+<div class="sheet-overlay" id="overlay-uniprofile" onclick="closeSheetOnOverlay(event,'uniprofile')">
+  <div class="sheet" onclick="event.stopPropagation()">
+    <div class="sheet-handle"></div>
+    <div class="sheet-head"><h3>Il tuo percorso</h3><button class="sheet-close" onclick="closeSheet('uniprofile')">✕</button></div>
+    <div class="field"><label>Corso di laurea</label><input type="text" id="upCourse" placeholder="Es. Informatica"></div>
+    <div class="field-row">
+      <div class="field"><label>Durata (anni)</label><input type="number" id="upYears" min="1" max="6"></div>
+      <div class="field"><label>Anno in corso</label><input type="number" id="upCurrentYear" min="1" max="6"></div>
+    </div>
+    <div class="field"><label>Obiettivo CFU totali</label><input type="number" id="upCfuTarget" min="1"></div>
+    <button class="btn" onclick="executeSaveUniProfile()">Salva</button>
+  </div>
+</div>
+
 <script>
 /* =========================================================================
    SIA MANAGER — motore dati (compatibile con le versioni precedenti:
@@ -543,20 +754,25 @@ let appData = {
     splits: [],
     smartRules: { roundUp: false, paydayPercent: 0, selectedGoalId: null },
     budgetLimits: {},
-    gamification: { exp: 0, level: 1, pomodorosToday: 0, lastDate: "", badges: { saver: false, pomodoro: false, habit: false } },
+    gamification: { exp: 0, level: 1, pomodorosToday: 0, pomodorosTotal: 0, lastDate: "", badges: {} },
     habits: [],
     uniExams: [],
     deadlines: [],
     uniDeadlines: [],
     focusTasks: [],
     recurring: [],
-    skills: []
+    skills: [],
+    profile: { name: '', onboarded: false },
+    moduleUni: true,
+    uniProfile: { course: '', years: 3, currentYear: 1, cfuTarget: 180, startDate: '' }
 };
 
 let monthlyChartInstance = null;
+let statsChartInstance = null;
 let currentTxType = 'expense';
 let currentRecType = 'expense';
 let editingDeadlineIsUni = false;
+let obUniChoice = true;
 
 function loadData() {
     try {
@@ -566,8 +782,11 @@ function loadData() {
             appData = { ...appData, ...parsed };
             if (!appData.wallets) appData.wallets = { "Principale": appData.wallet || 0 };
             appData.smartRules = { ...{ roundUp: false, paydayPercent: 0, selectedGoalId: null }, ...(parsed.smartRules || {}) };
-            appData.gamification = { ...{ exp: 0, level: 1, pomodorosToday: 0, lastDate: "", badges: { saver: false, pomodoro: false, habit: false } }, ...(parsed.gamification || {}) };
-            if (!appData.gamification.badges) appData.gamification.badges = { saver: false, pomodoro: false, habit: false };
+            appData.gamification = { ...{ exp: 0, level: 1, pomodorosToday: 0, pomodorosTotal: 0, lastDate: "", badges: {} }, ...(parsed.gamification || {}) };
+            if (!appData.gamification.badges || Array.isArray(appData.gamification.badges)) appData.gamification.badges = {};
+            appData.profile = { ...{ name: '', onboarded: false }, ...(parsed.profile || {}) };
+            if (appData.moduleUni === undefined) appData.moduleUni = true;
+            appData.uniProfile = { ...{ course: '', years: 3, currentYear: 1, cfuTarget: 180, startDate: '' }, ...(parsed.uniProfile || {}) };
         }
         ['transactions', 'categories', 'goals', 'skills', 'uniExams', 'focusTasks', 'recurring', 'deadlines', 'splits', 'habits', 'uniDeadlines'].forEach(arr => {
             if (!Array.isArray(appData[arr])) appData[arr] = [];
@@ -581,7 +800,13 @@ function loadData() {
         document.getElementById('txDate').value = todayStr;
         document.getElementById('paydaySetting').value = appData.paydayDay || 27;
         document.getElementById('liquiditySetting').value = appData.liquidityTarget || 1000;
+        document.getElementById('profileNameSetting').value = appData.profile.name || '';
         applyLightMode(!!appData.lightMode);
+        applyUniModuleUI();
+
+        if (!appData.profile.onboarded) {
+            document.getElementById('onboarding').classList.add('open');
+        }
 
         renderAll();
     } catch (err) {
@@ -610,6 +835,7 @@ function saveData() {
 }
 
 function renderAll() {
+    try { renderGreeting(); } catch (e) { console.error("renderGreeting", e); }
     try { renderHome(); } catch (e) { console.error("renderHome", e); }
     try { renderCategorySelects(); } catch (e) { console.error("renderCategorySelects", e); }
     try { renderTransactions(); } catch (e) { console.error("renderTransactions", e); }
@@ -619,9 +845,13 @@ function renderAll() {
     try { renderHabits(); } catch (e) { console.error("renderHabits", e); }
     try { renderDeadlines(); } catch (e) { console.error("renderDeadlines", e); }
     try { renderUni(); } catch (e) { console.error("renderUni", e); }
+    try { renderUniProgress(); } catch (e) { console.error("renderUniProgress", e); }
     try { renderWallets(); } catch (e) { console.error("renderWallets", e); }
     try { renderCategoriesManage(); } catch (e) { console.error("renderCategoriesManage", e); }
     try { renderLevel(); } catch (e) { console.error("renderLevel", e); }
+    try { renderStats(); } catch (e) { console.error("renderStats", e); }
+    try { checkAchievements(); } catch (e) { console.error("checkAchievements", e); }
+    try { renderBadges(); } catch (e) { console.error("renderBadges", e); }
 }
 
 function fmt(n) { return (n || 0).toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
@@ -758,7 +988,7 @@ window.executeAddTx = function () {
     if (appData.wallets[wallet] === undefined) appData.wallets[wallet] = 0;
     appData.wallets[wallet] += (currentTxType === 'income' ? amount : -amount);
 
-    awardExp(currentTxType === 'income' ? 5 : 2);
+    awardExp(currentTxType === 'income' ? 5 : 2); vibrate(12);
     saveData();
     closeSheet('tx');
     toast("Movimento salvato.");
@@ -775,7 +1005,13 @@ window.executeDeleteTx = function (id) {
 function renderTransactions() {
     const month = document.getElementById('monthFilter').value;
     const catF = document.getElementById('catFilter').value;
-    let list = appData.transactions.filter(t => (!month || (t.date || '').startsWith(month)) && (!catF || t.cat === catF));
+    const searchEl = document.getElementById('txSearch');
+    const q = searchEl ? searchEl.value.trim().toLowerCase() : '';
+    let list = appData.transactions.filter(t =>
+        (!month || (t.date || '').startsWith(month)) &&
+        (!catF || t.cat === catF) &&
+        (!q || (t.desc || '').toLowerCase().includes(q) || (t.cat || '').toLowerCase().includes(q))
+    );
     list.sort((a, b) => (b.date || '').localeCompare(a.date || '') || b.id - a.id);
     const el = document.getElementById('txList');
     el.innerHTML = list.length === 0 ? `<div class="empty">Nessun movimento con questi filtri.</div>` : list.map(t => txRowHTML(t)).join('');
@@ -948,7 +1184,7 @@ window.toggleHabitToday = function (id) {
     if (!h) return;
     if (!h.history) h.history = {};
     if (h.history[today]) { delete h.history[today]; }
-    else { h.history[today] = true; awardExp(3); }
+    else { h.history[today] = true; awardExp(3); vibrate(12); }
     saveData();
 };
 
@@ -980,54 +1216,210 @@ function renderHabits() {
 }
 
 /* =========================================================================
-   FOCUS TIMER (Pomodoro)
+   FOCUS TIMER — modalità multiple, fasi studio/pausa, schermo intero, suoni
 ========================================================================= */
-let focusTotalSeconds = 25 * 60;
-let focusSecondsLeft = 25 * 60;
+const FOCUS_MODES = {
+    pomodoro: { work: 25, break: 5, label: '25/5' },
+    '5217': { work: 52, break: 17, label: '52/17' },
+    deepwork: { work: 90, break: 20, label: '90/20' },
+    custom: { work: 25, break: 5, label: 'Personalizzato' }
+};
+let currentFocusMode = 'pomodoro';
+let focusPhase = 'work'; // 'work' | 'break'
+let focusTotalSeconds = FOCUS_MODES.pomodoro.work * 60;
+let focusSecondsLeft = focusTotalSeconds;
 let focusInterval = null;
 let focusRunning = false;
+
+function phaseMinutes(phase) {
+    const m = FOCUS_MODES[currentFocusMode];
+    return phase === 'work' ? m.work : m.break;
+}
+
+window.selectFocusMode = function (mode) {
+    if (focusRunning) { toast("Metti in pausa il timer prima di cambiare modalità."); return; }
+    currentFocusMode = mode;
+    document.querySelectorAll('#focusModeChips .mode-chip').forEach(c => c.classList.toggle('active', c.dataset.mode === mode));
+    document.getElementById('customDurationCard').style.display = mode === 'custom' ? 'block' : 'none';
+    focusPhase = 'work';
+    focusTotalSeconds = phaseMinutes('work') * 60;
+    focusSecondsLeft = focusTotalSeconds;
+    updateTimerDisplay();
+};
+
+window.applyCustomDuration = function () {
+    const w = Math.max(1, parseInt(document.getElementById('customWorkMin').value) || 25);
+    const b = Math.max(1, parseInt(document.getElementById('customBreakMin').value) || 5);
+    FOCUS_MODES.custom.work = w;
+    FOCUS_MODES.custom.break = b;
+    document.getElementById('customModeLabel').textContent = `${w}/${b}`;
+    if (currentFocusMode === 'custom') {
+        focusTotalSeconds = phaseMinutes(focusPhase) * 60;
+        focusSecondsLeft = focusTotalSeconds;
+        updateTimerDisplay();
+    }
+};
 
 function updateTimerDisplay() {
     const m = Math.floor(focusSecondsLeft / 60).toString().padStart(2, '0');
     const s = (focusSecondsLeft % 60).toString().padStart(2, '0');
-    document.getElementById('timerDisplay').textContent = `${m}:${s}`;
+    const label = `${m}:${s}`;
+    document.getElementById('timerDisplay').textContent = label;
     const prog = ((focusTotalSeconds - focusSecondsLeft) / focusTotalSeconds) * 100;
     document.getElementById('timerRing').style.setProperty('--prog', prog);
+    const phaseTxt = focusPhase === 'work' ? 'Studio' : 'Pausa';
+    document.getElementById('phaseLabel').textContent = phaseTxt;
+
+    const fsD = document.getElementById('fsTimerDisplay');
+    if (fsD) {
+        fsD.textContent = label;
+        document.getElementById('fsTimerRing').style.setProperty('--prog', prog);
+        document.getElementById('fsPhaseLabel').textContent = phaseTxt;
+        document.getElementById('fsPlayBtn').textContent = focusRunning ? '⏸' : '▶';
+    }
 }
 
 window.toggleFocusTimer = function () {
-    const btn = document.getElementById('timerPlayBtn');
     if (focusRunning) {
         clearInterval(focusInterval);
         focusRunning = false;
-        btn.textContent = '▶';
     } else {
         focusRunning = true;
-        btn.textContent = '⏸';
         focusInterval = setInterval(() => {
             focusSecondsLeft--;
             updateTimerDisplay();
             if (focusSecondsLeft <= 0) {
                 clearInterval(focusInterval);
                 focusRunning = false;
-                btn.textContent = '▶';
-                appData.gamification.pomodorosToday = (appData.gamification.pomodorosToday || 0) + 1;
-                appData.gamification.lastDate = new Date().toISOString().split('T')[0];
-                awardExp(15);
-                saveData();
-                toast("Pomodoro completato! 🎉");
-                resetFocusTimer();
+                if (focusPhase === 'work') {
+                    appData.gamification.pomodorosToday = (appData.gamification.pomodorosToday || 0) + 1;
+                    appData.gamification.pomodorosTotal = (appData.gamification.pomodorosTotal || 0) + 1;
+                    appData.gamification.lastDate = new Date().toISOString().split('T')[0];
+                    awardExp(15);
+                    saveData();
+                    toast("Sessione di studio completata! Ora una pausa. 🎉");
+                    focusPhase = 'break';
+                } else {
+                    toast("Pausa finita, si torna a studiare. 💪");
+                    focusPhase = 'work';
+                }
+                focusTotalSeconds = phaseMinutes(focusPhase) * 60;
+                focusSecondsLeft = focusTotalSeconds;
+                updateTimerDisplay();
             }
         }, 1000);
     }
+    document.getElementById('timerPlayBtn').textContent = focusRunning ? '⏸' : '▶';
+    const fsBtn = document.getElementById('fsPlayBtn');
+    if (fsBtn) fsBtn.textContent = focusRunning ? '⏸' : '▶';
 };
 
 window.resetFocusTimer = function () {
     clearInterval(focusInterval);
     focusRunning = false;
     document.getElementById('timerPlayBtn').textContent = '▶';
+    const fsBtn = document.getElementById('fsPlayBtn');
+    if (fsBtn) fsBtn.textContent = '▶';
+    focusPhase = 'work';
+    focusTotalSeconds = phaseMinutes('work') * 60;
     focusSecondsLeft = focusTotalSeconds;
     updateTimerDisplay();
+};
+
+/* -------------------- Schermo intero -------------------- */
+window.enterFullscreenFocus = function () {
+    const chips = document.getElementById('soundChips').innerHTML;
+    document.getElementById('fsSoundChips').innerHTML = chips;
+    document.getElementById('fullscreenFocus').classList.add('open');
+    updateTimerDisplay();
+};
+window.exitFullscreenFocus = function () {
+    document.getElementById('fullscreenFocus').classList.remove('open');
+};
+
+/* -------------------- Suoni ambientali (generati via Web Audio, offline) -------------------- */
+let audioCtx = null;
+let ambientNodes = null;
+let currentSound = 'none';
+
+function ensureAudioCtx() {
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+    return audioCtx;
+}
+
+function makeNoiseBuffer(ctx) {
+    const bufferSize = ctx.sampleRate * 2;
+    const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+    const data = buffer.getChannelData(0);
+    for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
+    return buffer;
+}
+
+function stopAmbientSound() {
+    if (ambientNodes) {
+        try { ambientNodes.forEach(n => { if (n.stop) n.stop(); if (n.disconnect) n.disconnect(); }); } catch (e) {}
+        ambientNodes = null;
+    }
+}
+
+function startAmbientSound(type) {
+    stopAmbientSound();
+    if (type === 'none') return;
+    const ctx = ensureAudioCtx();
+    const src = ctx.createBufferSource();
+    src.buffer = makeNoiseBuffer(ctx);
+    src.loop = true;
+
+    const gain = ctx.createGain();
+    const filter = ctx.createBiquadFilter();
+    const nodes = [src, gain, filter];
+
+    if (type === 'white') {
+        filter.type = 'allpass';
+        gain.gain.value = 0.06;
+    } else if (type === 'rain') {
+        filter.type = 'highpass';
+        filter.frequency.value = 900;
+        gain.gain.value = 0.09;
+    } else if (type === 'waves') {
+        filter.type = 'lowpass';
+        filter.frequency.value = 500;
+        gain.gain.value = 0.12;
+        const lfo = ctx.createOscillator();
+        const lfoGain = ctx.createGain();
+        lfo.frequency.value = 0.12;
+        lfoGain.gain.value = 0.06;
+        lfo.connect(lfoGain);
+        lfoGain.connect(gain.gain);
+        lfo.start();
+        nodes.push(lfo, lfoGain);
+    } else if (type === 'wind') {
+        filter.type = 'bandpass';
+        filter.frequency.value = 700;
+        filter.Q.value = 0.6;
+        gain.gain.value = 0.08;
+        const lfo = ctx.createOscillator();
+        const lfoGain = ctx.createGain();
+        lfo.frequency.value = 0.07;
+        lfoGain.gain.value = 300;
+        lfo.connect(lfoGain);
+        lfoGain.connect(filter.frequency);
+        lfo.start();
+        nodes.push(lfo, lfoGain);
+    }
+
+    src.connect(filter);
+    filter.connect(gain);
+    gain.connect(ctx.destination);
+    src.start();
+    ambientNodes = nodes;
+}
+
+window.selectAmbientSound = function (type) {
+    currentSound = type;
+    document.querySelectorAll('.sound-chip').forEach(c => c.classList.toggle('active', c.dataset.sound === type));
+    startAmbientSound(type);
 };
 
 /* =========================================================================
@@ -1077,6 +1469,62 @@ window.executeDeleteExam = function (id) {
     appData.uniExams = appData.uniExams.filter(x => x.id !== id);
     saveData();
 };
+
+window.openUniProfileSheet = function () {
+    document.getElementById('upCourse').value = appData.uniProfile.course || '';
+    document.getElementById('upYears').value = appData.uniProfile.years || 3;
+    document.getElementById('upCurrentYear').value = appData.uniProfile.currentYear || 1;
+    document.getElementById('upCfuTarget').value = appData.uniProfile.cfuTarget || 180;
+    openSheet('uniprofile');
+};
+
+window.executeSaveUniProfile = function () {
+    appData.uniProfile.course = document.getElementById('upCourse').value.trim();
+    appData.uniProfile.years = parseInt(document.getElementById('upYears').value) || 3;
+    appData.uniProfile.currentYear = parseInt(document.getElementById('upCurrentYear').value) || 1;
+    appData.uniProfile.cfuTarget = parseInt(document.getElementById('upCfuTarget').value) || 180;
+    if (!appData.uniProfile.startDate) appData.uniProfile.startDate = new Date().toISOString().split('T')[0];
+    saveData();
+    closeSheet('uniprofile');
+    toast("Percorso aggiornato.");
+};
+
+function fillUniProfileSettings() { /* i campi si popolano quando si apre il foglio "Il tuo percorso" */ }
+
+function renderUniProgress() {
+    const el = document.getElementById('uniProgressCard');
+    if (!el) return;
+    const up = appData.uniProfile || {};
+    const cfuDone = (appData.uniExams || []).reduce((s, e) => s + (e.cfu || 0), 0);
+    const target = up.cfuTarget || 180;
+    const perc = Math.min(100, Math.round((cfuDone / target) * 100));
+
+    let projectionTxt = '';
+    if (up.startDate && cfuDone > 0 && cfuDone < target) {
+        const months = Math.max(1, (new Date() - new Date(up.startDate)) / (1000 * 60 * 60 * 24 * 30.44));
+        const pace = cfuDone / months;
+        if (pace > 0) {
+            const monthsLeft = Math.ceil((target - cfuDone) / pace);
+            const projDate = new Date();
+            projDate.setMonth(projDate.getMonth() + monthsLeft);
+            projectionTxt = `Al tuo ritmo attuale, potresti laurearti verso <strong style="color:var(--gold)">${projDate.toLocaleDateString('it-IT', { month: 'long', year: 'numeric' })}</strong>.`;
+        }
+    } else if (cfuDone >= target && target > 0) {
+        projectionTxt = `Obiettivo CFU raggiunto! 🎓`;
+    } else {
+        projectionTxt = `Registra i tuoi esami per vedere una proiezione di laurea.`;
+    }
+
+    el.innerHTML = `
+        <div class="row-between" style="margin-bottom:10px;">
+            <span style="font-size:0.92rem;">${up.course ? escapeHtml(up.course) : 'Corso non impostato'}</span>
+            <span class="num" style="color:var(--gold); font-size:0.85rem;">${up.currentYear || 1}° / ${up.years || 3} anni</span>
+        </div>
+        <div class="bar-bg" style="margin-bottom:8px;"><div class="bar-fill" style="width:${perc}%; background:var(--gold);"></div></div>
+        <div class="row-between" style="margin-bottom:12px;"><span style="font-size:0.76rem; color:var(--ink-dim);">${cfuDone} / ${target} CFU</span><span style="font-size:0.76rem; color:var(--gold);">${perc}%</span></div>
+        <div style="font-size:0.8rem; color:var(--ink-dim); line-height:1.5;">${projectionTxt}</div>
+    `;
+}
 
 function renderUni() {
     const exams = appData.uniExams || [];
@@ -1167,11 +1615,11 @@ window.openWalletSheet = function () {
     el.innerHTML = keys.map(w => `
         <div class="wallet-row">
             <span class="wname">${w}</span>
-            <span style="display:flex; align-items:center; gap:10px;">
-                <span class="wval">€${fmt(appData.wallets[w])}</span>
+            <span style="display:flex; align-items:center; gap:8px;">
+                <input type="number" step="0.01" class="wallet-edit-input" data-wallet="${w.replace(/"/g,'&quot;')}" value="${appData.wallets[w]}" style="width:100px; padding:8px 9px; font-family:'IBM Plex Mono',monospace; text-align:right;">
                 ${keys.length > 1 ? `<button class="tx-del" onclick="executeDeleteWallet('${w.replace(/'/g, "\\'")}')">✕</button>` : ''}
             </span>
-        </div>`).join('');
+        </div>`).join('') + `<button class="btn secondary btn-sm" style="width:100%; margin-top:10px;" onclick="executeUpdateWalletBalances()">💾 Aggiorna saldi</button>`;
     const from = document.getElementById('giroFrom'), to = document.getElementById('giroTo');
     from.innerHTML = keys.map(w => `<option value="${w}">${w}</option>`).join('');
     to.innerHTML = keys.map(w => `<option value="${w}">${w}</option>`).join('');
@@ -1188,6 +1636,17 @@ window.executeAddWallet = function () {
     appData.wallets[name] = bal;
     saveData();
     openWalletSheet();
+};
+
+window.executeUpdateWalletBalances = function () {
+    document.querySelectorAll('.wallet-edit-input').forEach(inp => {
+        const w = inp.dataset.wallet;
+        const v = parseFloat(inp.value);
+        if (!isNaN(v) && appData.wallets[w] !== undefined) appData.wallets[w] = v;
+    });
+    saveData();
+    openWalletSheet();
+    toast("Saldi aggiornati.");
 };
 
 window.executeDeleteWallet = function (name) {
@@ -1303,6 +1762,223 @@ window.executeDeleteCategory = function (name) {
 };
 
 /* =========================================================================
+   PROFILO, ONBOARDING, MODULO UNIVERSITÀ
+========================================================================= */
+function renderGreeting() {
+    const name = (appData.profile && appData.profile.name) ? appData.profile.name.trim() : '';
+    const h = new Date().getHours();
+    const moment = h < 6 ? 'Buonanotte' : h < 12 ? 'Buongiorno' : h < 18 ? 'Buon pomeriggio' : 'Buonasera';
+    document.getElementById('greetingName').textContent = name ? `Ciao, ${name}` : 'SIA';
+    document.getElementById('greetingSub').textContent = name ? `${moment}, ecco la tua situazione` : 'Il tuo libro mastro tascabile';
+}
+
+window.updateProfileName = function (v) {
+    appData.profile.name = v.trim();
+    saveData();
+};
+
+window.obGoStep = function (step) {
+    document.querySelectorAll('.ob-step').forEach(s => s.classList.remove('active'));
+    document.getElementById('ob-step-' + step).classList.add('active');
+    document.querySelectorAll('.ob-dot').forEach(d => d.classList.toggle('active', parseInt(d.dataset.step) === step));
+    if (step === 5) buildObSummary();
+};
+
+window.obSelectUni = function (yes) {
+    obUniChoice = yes;
+    document.getElementById('obUniYes').classList.toggle('selected', yes);
+    document.getElementById('obUniNo').classList.toggle('selected', !yes);
+    document.getElementById('obStep3Btn').textContent = yes ? 'Continua' : 'Continua';
+};
+
+window.obStep3Next = function () {
+    if (obUniChoice) obGoStep(4);
+    else { document.querySelectorAll('.ob-dot')[3].style.display = 'none'; obGoStep(5); }
+};
+
+function buildObSummary() {
+    const name = document.getElementById('obName').value.trim() || 'Utente';
+    const bal = parseFloat(document.getElementById('obBalance').value) || 0;
+    const liq = parseFloat(document.getElementById('obLiquidity').value) || 1000;
+    const payday = parseInt(document.getElementById('obPayday').value) || 27;
+    let rows = [
+        `<div class="row-between"><span style="color:var(--ink-dim); font-size:0.85rem;">Nome</span><span style="font-size:0.9rem;">${escapeHtml(name)}</span></div>`,
+        `<div class="row-between"><span style="color:var(--ink-dim); font-size:0.85rem;">Saldo iniziale</span><span class="num" style="font-size:0.9rem;">€${fmt(bal)}</span></div>`,
+        `<div class="row-between"><span style="color:var(--ink-dim); font-size:0.85rem;">Obiettivo liquidità</span><span class="num" style="font-size:0.9rem;">€${fmt(liq)}</span></div>`,
+        `<div class="row-between"><span style="color:var(--ink-dim); font-size:0.85rem;">Giorno stipendio</span><span class="num" style="font-size:0.9rem;">${payday}</span></div>`
+    ];
+    if (obUniChoice) {
+        const course = document.getElementById('obCourse').value.trim() || 'Non specificato';
+        const years = document.getElementById('obYears').value || 3;
+        const cfu = document.getElementById('obCfuTarget').value || 180;
+        rows.push(`<div class="divider" style="margin:10px 0;"></div>`);
+        rows.push(`<div class="row-between"><span style="color:var(--ink-dim); font-size:0.85rem;">Corso</span><span style="font-size:0.9rem;">${escapeHtml(course)}</span></div>`);
+        rows.push(`<div class="row-between"><span style="color:var(--ink-dim); font-size:0.85rem;">Durata / obiettivo CFU</span><span class="num" style="font-size:0.9rem;">${years} anni · ${cfu} CFU</span></div>`);
+    } else {
+        rows.push(`<div class="divider" style="margin:10px 0;"></div>`);
+        rows.push(`<div style="font-size:0.82rem; color:var(--ink-faint);">Modulo Università non attivo — riattivabile quando vuoi.</div>`);
+    }
+    document.getElementById('obSummary').innerHTML = rows.join('');
+}
+
+window.finishOnboarding = function () {
+    const name = document.getElementById('obName').value.trim();
+    const bal = parseFloat(document.getElementById('obBalance').value);
+    const liq = parseFloat(document.getElementById('obLiquidity').value);
+    const payday = parseInt(document.getElementById('obPayday').value);
+
+    appData.profile = { name, onboarded: true };
+    appData.wallets['Principale'] = isNaN(bal) ? 0 : bal;
+    if (!isNaN(liq) && liq >= 0) appData.liquidityTarget = liq;
+    if (!isNaN(payday) && payday >= 1 && payday <= 31) appData.paydayDay = payday;
+    appData.moduleUni = obUniChoice;
+
+    if (obUniChoice) {
+        appData.uniProfile = {
+            course: document.getElementById('obCourse').value.trim(),
+            years: parseInt(document.getElementById('obYears').value) || 3,
+            currentYear: parseInt(document.getElementById('obCurrentYear').value) || 1,
+            cfuTarget: parseInt(document.getElementById('obCfuTarget').value) || 180,
+            startDate: new Date().toISOString().split('T')[0]
+        };
+    }
+
+    document.getElementById('onboarding').classList.remove('open');
+    document.getElementById('profileNameSetting').value = name;
+    document.getElementById('liquiditySetting').value = appData.liquidityTarget;
+    document.getElementById('paydaySetting').value = appData.paydayDay;
+    document.getElementById('uniModuleToggle').checked = appData.moduleUni;
+    fillUniProfileSettings();
+    applyUniModuleUI();
+    saveData();
+    toast(name ? `Benvenuto, ${name}!` : "Benvenuto su SIA!");
+};
+
+function applyUniModuleUI() {
+    const on = appData.moduleUni !== false;
+    document.getElementById('tabUni').style.display = on ? 'flex' : 'none';
+    document.getElementById('uniModuleToggle').checked = on;
+    if (!on && document.getElementById('view-uni').classList.contains('active')) switchView('home');
+}
+
+window.setUniModule = function (checked) {
+    appData.moduleUni = checked;
+    applyUniModuleUI();
+    saveData();
+    toast(checked ? "Modulo Università attivato." : "Modulo Università disattivato (dati conservati).");
+};
+
+/* =========================================================================
+   STATISTICHE
+========================================================================= */
+function renderStats() {
+    const now = new Date();
+    const prefix = m => `${m.getFullYear()}-${String(m.getMonth() + 1).padStart(2, '0')}`;
+    const thisMonthTx = appData.transactions.filter(t => (t.date || '').startsWith(prefix(now)));
+    const lastMonthDate = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+    const lastMonthTx = appData.transactions.filter(t => (t.date || '').startsWith(prefix(lastMonthDate)));
+
+    const inc = thisMonthTx.filter(t => t.type === 'income').reduce((s, t) => s + t.amount, 0);
+    const exp = thisMonthTx.filter(t => t.type === 'expense').reduce((s, t) => s + t.amount, 0);
+    const lastExp = lastMonthTx.filter(t => t.type === 'expense').reduce((s, t) => s + t.amount, 0);
+    const savingRate = inc > 0 ? Math.round(((inc - exp) / inc) * 100) : (exp > 0 ? -100 : 0);
+
+    const byCat = {};
+    thisMonthTx.filter(t => t.type === 'expense').forEach(t => { byCat[t.cat] = (byCat[t.cat] || 0) + t.amount; });
+    const topCat = Object.keys(byCat).sort((a, b) => byCat[b] - byCat[a])[0];
+
+    let trendTxt, trendColor;
+    if (lastExp === 0 && exp === 0) { trendTxt = 'Nessuna spesa registrata finora.'; trendColor = 'var(--ink-dim)'; }
+    else if (lastExp === 0) { trendTxt = 'Prime spese di questo mese registrate.'; trendColor = 'var(--ink-dim)'; }
+    else {
+        const diffPerc = Math.round(((exp - lastExp) / lastExp) * 100);
+        if (diffPerc > 5) { trendTxt = `Stai spendendo il ${diffPerc}% in più rispetto al mese scorso.`; trendColor = 'var(--red)'; }
+        else if (diffPerc < -5) { trendTxt = `Stai spendendo il ${Math.abs(diffPerc)}% in meno rispetto al mese scorso.`; trendColor = 'var(--green)'; }
+        else { trendTxt = 'Le tue spese sono stabili rispetto al mese scorso.'; trendColor = 'var(--ink-dim)'; }
+    }
+
+    const el = document.getElementById('statsSummary');
+    if (thisMonthTx.length === 0) {
+        el.innerHTML = `<div class="empty">Registra qualche movimento per vedere le tue statistiche.</div>`;
+    } else {
+        el.innerHTML = `
+        <div class="grid2" style="margin-bottom:14px;">
+            <div class="card-tight" style="background:var(--surface-2); border-radius:var(--radius-s);">
+                <div style="font-size:0.68rem; color:var(--ink-faint);">TASSO DI RISPARMIO</div>
+                <div class="num" style="font-size:1.3rem; font-weight:600; color:${savingRate >= 0 ? 'var(--green)' : 'var(--red)'};">${savingRate}%</div>
+            </div>
+            <div class="card-tight" style="background:var(--surface-2); border-radius:var(--radius-s);">
+                <div style="font-size:0.68rem; color:var(--ink-faint);">CATEGORIA TOP</div>
+                <div style="font-size:1rem; font-weight:600; margin-top:2px;">${topCat ? catIcon(topCat) + ' ' + topCat : '—'}</div>
+            </div>
+        </div>
+        <div style="font-size:0.85rem; color:${trendColor};">${trendTxt}</div>`;
+    }
+
+    const ctx = document.getElementById('statsDoughnut');
+    document.getElementById('statsChartCard').style.display = Object.keys(byCat).length ? 'block' : 'none';
+    if (Object.keys(byCat).length === 0) return;
+    const labels = Object.keys(byCat);
+    const data = labels.map(l => byCat[l]);
+    const palette = ['#CBA135', '#4FAE7C', '#D9705C', '#E0A93E', '#7A9E8E', '#B08968', '#8f7226', '#5C7A6A'];
+    if (statsChartInstance) statsChartInstance.destroy();
+    statsChartInstance = new Chart(ctx, {
+        type: 'doughnut',
+        data: { labels, datasets: [{ data, backgroundColor: labels.map((_, i) => palette[i % palette.length]), borderWidth: 0 }] },
+        options: {
+            responsive: true,
+            cutout: '65%',
+            plugins: { legend: { position: 'bottom', labels: { color: '#96A69B', font: { family: 'Inter', size: 11 }, boxWidth: 10 } } }
+        }
+    });
+}
+
+/* =========================================================================
+   TRAGUARDI
+========================================================================= */
+const BADGES = [
+    { id: 'primo_movimento', icon: '📝', name: 'Primo passo', cond: () => appData.transactions.length >= 1 },
+    { id: 'dieci_movimenti', icon: '📒', name: '10 movimenti', cond: () => appData.transactions.length >= 10 },
+    { id: 'risparmiatore', icon: '🏆', name: 'Risparmiatore', cond: () => appData.goals.some(g => g.current >= g.target && g.target > 0) },
+    { id: 'costanza', icon: '🔥', name: '7 giorni di fila', cond: () => appData.habits.some(h => habitStreak(h) >= 7) },
+    { id: 'concentrazione', icon: '⏱', name: '10 sessioni focus', cond: () => (appData.gamification.pomodorosTotal || 0) >= 10 },
+    { id: 'bilancio_verde', icon: '💚', name: 'In verde', cond: () => Object.values(appData.wallets).reduce((s, v) => s + v, 0) >= (appData.liquidityTarget || 0) && (appData.liquidityTarget || 0) > 0 },
+    { id: 'primo_esame', icon: '🎓', name: 'Debutto in aula', cond: () => appData.moduleUni && appData.uniExams.length >= 1 },
+    { id: 'a_meta', icon: '📚', name: 'A metà strada', cond: () => appData.moduleUni && appData.uniProfile.cfuTarget > 0 && (appData.uniExams.reduce((s, e) => s + (e.cfu || 0), 0)) >= appData.uniProfile.cfuTarget / 2 },
+    { id: 'veterano', icon: '⭐', name: 'Livello 5', cond: () => (appData.gamification.level || 1) >= 5 }
+];
+
+function checkAchievements() {
+    if (!appData.gamification.badges) appData.gamification.badges = {};
+    let unlocked = [];
+    BADGES.forEach(b => {
+        if (!appData.gamification.badges[b.id] && b.cond()) {
+            appData.gamification.badges[b.id] = true;
+            unlocked.push(b);
+        }
+    });
+    if (unlocked.length) {
+        unlocked.forEach(b => toast(`Traguardo sbloccato: ${b.icon} ${b.name}`));
+        vibrate([15, 40, 15]);
+    }
+}
+
+function renderBadges() {
+    const el = document.getElementById('badgeGrid');
+    if (!el) return;
+    const badges = appData.gamification.badges || {};
+    el.innerHTML = BADGES.filter(b => (b.id !== 'primo_esame' && b.id !== 'a_meta') || appData.moduleUni).map(b => `
+        <div class="badge-item ${badges[b.id] ? 'unlocked' : ''}">
+            <div class="bi-ico">${badges[b.id] ? b.icon : '🔒'}</div>
+            <div class="bi-name">${b.name}</div>
+        </div>`).join('');
+}
+
+function vibrate(pattern) {
+    if (navigator.vibrate) { try { navigator.vibrate(pattern); } catch (e) {} }
+}
+
+/* =========================================================================
    IMPOSTAZIONI VARIE
 ========================================================================= */
 window.updatePayday = function (v) {
@@ -1403,6 +2079,7 @@ window.exportCSV = function () {
 
 window.addEventListener('error', (e) => console.error("Errore non gestito:", e.error || e.message));
 window.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('customModeLabel').textContent = `${FOCUS_MODES.custom.work}/${FOCUS_MODES.custom.break}`;
     updateTimerDisplay();
     loadData();
 });
