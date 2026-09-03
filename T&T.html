@@ -1,0 +1,2005 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1">
+<meta name="theme-color" content="#1C2333">
+<title>Turni & Trame</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Work+Sans:wght@400;500;600&display=swap');
+
+:root{
+  --ink:#1C2333;
+  --ink-2:#2A3347;
+  --paper:#F1EFE6;
+  --paper-dim:#E7E2CF;
+  --paper-line:#D9D2B8;
+  --gold:#D79A3B;
+  --gold-dark:#A9761E;
+  --teal:#1E6E76;
+  --teal-dark:#134E54;
+  --coral:#C1553B;
+  --white:#FFFDF7;
+  --shadow: 0 10px 30px rgba(28,35,51,.18);
+  font-size: 16px;
+}
+*{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+html,body{height:100%;}
+body{
+  margin:0;
+  font-family:'Work Sans', sans-serif;
+  background:var(--ink);
+  color:var(--ink);
+  background-image:
+    radial-gradient(circle at 1px 1px, rgba(255,255,255,.06) 1px, transparent 1.5px);
+  background-size:18px 18px;
+  min-height:100dvh;
+  display:flex;
+  align-items:flex-start;
+  justify-content:center;
+}
+h1,h2,h3,.display{font-family:'Space Grotesk', sans-serif;}
+
+.app-shell{
+  position:relative;
+  width:100%;
+  max-width:430px;
+  min-height:100dvh;
+  background:var(--paper);
+  overflow-x:hidden;
+  display:flex;
+  flex-direction:column;
+}
+@media (min-width:480px){
+  body{padding:32px 0;}
+  .app-shell{
+    min-height:860px;
+    height:860px;
+    border-radius:34px;
+    box-shadow: var(--shadow), 0 0 0 8px #0e121c;
+    overflow:hidden;
+  }
+}
+
+/* ---------- Topbar ---------- */
+.topbar{
+  padding:22px 20px 14px;
+  display:flex;
+  align-items:flex-end;
+  justify-content:space-between;
+  flex-shrink:0;
+}
+.topbar .brand{
+  font-size:.72rem;
+  letter-spacing:.03em;
+  color:var(--gold-dark);
+  margin:0 0 2px;
+  font-weight:600;
+}
+.topbar h1{
+  margin:0;
+  font-size:1.5rem;
+  line-height:1.15;
+  font-weight:700;
+}
+.topbar .sub{
+  margin:2px 0 0;
+  font-size:.85rem;
+  color:#5b5f52;
+}
+.icon-btn{
+  width:38px;height:38px;border-radius:12px;
+  border:1px solid var(--paper-line);
+  background:var(--white);
+  display:flex;align-items:center;justify-content:center;
+  color:var(--ink);
+  cursor:pointer;
+}
+.icon-btn svg{width:19px;height:19px;}
+
+/* ---------- Views ---------- */
+.view{
+  display:none;
+  flex:1;
+  overflow-y:auto;
+  padding:4px 18px 110px;
+}
+.view.active{display:block;}
+.view-head{
+  margin:10px 0 14px;
+}
+.view-head h2{margin:0 0 2px; font-size:1.3rem;}
+.view-head p{margin:0; font-size:.85rem; color:#5b5f52;}
+
+/* ---------- Cards ---------- */
+.card{
+  background:var(--white);
+  border:1px solid var(--paper-line);
+  border-radius:16px;
+  padding:16px;
+  margin-bottom:12px;
+}
+.card-ink{
+  background:var(--ink);
+  color:var(--paper);
+  border-radius:16px;
+  padding:18px;
+  margin-bottom:12px;
+  position:relative;
+  overflow:hidden;
+}
+.card-ink .tag{
+  font-size:.7rem;
+  text-transform:uppercase;
+  letter-spacing:.08em;
+  color:var(--gold);
+  font-weight:600;
+}
+.card-ink .big{
+  font-family:'Space Grotesk',sans-serif;
+  font-size:1.6rem;
+  font-weight:700;
+  margin:4px 0 2px;
+}
+.card-ink .note{font-size:.82rem; color:#c9cadb;}
+
+.stat-row{display:flex; gap:10px;}
+.stat{
+  flex:1;
+  background:var(--white);
+  border:1px solid var(--paper-line);
+  border-radius:14px;
+  padding:12px 12px;
+}
+.stat .label{font-size:.72rem; color:#6b6f60; text-transform:uppercase; letter-spacing:.04em;}
+.stat .val{font-family:'Space Grotesk',sans-serif; font-size:1.25rem; font-weight:700; margin-top:2px;}
+.stat.gold{border-color:#e9cf9c;}
+.stat.gold .val{color:var(--gold-dark);}
+.stat.teal{border-color:#a9d3d6;}
+.stat.teal .val{color:var(--teal-dark);}
+
+/* ---------- Ticket-stub shift row ---------- */
+.shift-row{
+  position:relative;
+  display:flex;
+  align-items:center;
+  gap:12px;
+  background:var(--white);
+  border:1px solid var(--paper-line);
+  border-radius:14px;
+  padding:12px 14px;
+  margin-bottom:10px;
+  cursor:pointer;
+}
+.shift-row::before{
+  content:"";
+  position:absolute;
+  left:64px; top:-1px; bottom:-1px;
+  width:0;
+  border-left:1.5px dashed var(--paper-line);
+}
+.shift-date{
+  width:52px; flex-shrink:0; text-align:center;
+}
+.shift-date .d{font-family:'Space Grotesk',sans-serif; font-size:1.25rem; font-weight:700; line-height:1;}
+.shift-date .m{font-size:.68rem; text-transform:uppercase; color:#6b6f60;}
+.shift-body{flex:1; padding-left:6px; min-width:0;}
+.shift-body .time{font-weight:600; font-size:.95rem;}
+.shift-body .job{
+  display:inline-flex; align-items:center; gap:5px;
+  font-size:.78rem; color:#5b5f52; margin-top:2px;
+}
+.dot{width:8px;height:8px;border-radius:50%; flex-shrink:0;}
+.shift-hours{
+  font-family:'Space Grotesk',sans-serif;
+  font-size:.85rem; font-weight:600;
+  color:var(--gold-dark);
+  white-space:nowrap;
+}
+.del-x{
+  border:none; background:none; color:#9a9d8f;
+  font-size:1rem; padding:4px 2px; cursor:pointer; flex-shrink:0;
+}
+
+/* ---------- Calendario ---------- */
+.cal-card{padding:12px 12px 10px;}
+.cal-nav{display:flex; align-items:center; justify-content:center; gap:8px; margin-bottom:8px; position:relative;}
+.cal-nav .lbl{font-weight:600; font-size:.8rem; text-transform:capitalize; min-width:112px; text-align:center;}
+.cal-nav .icon-btn{width:26px; height:26px; border-radius:8px; flex-shrink:0;}
+.cal-nav .icon-btn svg{width:13px; height:13px;}
+.cal-today-btn{
+  position:absolute; right:0; top:50%; transform:translateY(-50%);
+  border:1px solid var(--paper-line); background:var(--paper); color:#5b5f52;
+  font-size:.62rem; font-weight:600; padding:4px 8px; border-radius:999px; cursor:pointer;
+  font-family:'Work Sans',sans-serif;
+}
+.cal-collapse-btn{
+  border:none; background:none; color:#9a9d8f; font-size:.66rem; font-weight:600;
+  padding:2px 4px; cursor:pointer; font-family:'Work Sans',sans-serif;
+  display:flex; align-items:center; gap:3px; margin:0 0 8px; width:100%; justify-content:center;
+}
+.cal-collapse-btn svg{width:11px; height:11px; transition:transform .2s ease;}
+.cal-collapse-btn.is-open svg{transform:rotate(180deg);}
+.cal-body{overflow:hidden; max-height:280px; transition:max-height .25s ease, opacity .2s ease; opacity:1;}
+.cal-body.collapsed{max-height:0; opacity:0;}
+.cal-grid{display:grid; grid-template-columns:repeat(7,1fr); gap:2px; touch-action:pan-y;}
+.cal-head{font-size:.56rem; text-align:center; color:#9a9d8f; text-transform:uppercase; padding-bottom:3px;}
+.cal-day{
+  aspect-ratio:1; max-height:27px; border:none; border-radius:7px; background:var(--paper-dim);
+  display:flex; align-items:center; justify-content:center; position:relative;
+  font-size:.64rem; color:var(--ink); cursor:pointer; font-family:'Work Sans',sans-serif;
+}
+.cal-day.empty{background:transparent; cursor:default;}
+.cal-day.has-shift{color:#fff; font-weight:700;}
+.cal-day.is-today{box-shadow:0 0 0 2px var(--ink) inset;}
+.cal-day.is-today::after{
+  content:""; position:absolute; left:50%; bottom:2px; transform:translateX(-50%);
+  width:3px; height:3px; border-radius:50%; background:var(--ink);
+}
+.cal-day.has-shift.is-today::after{background:#fff;}
+.cal-leave-dot{position:absolute; top:2px; right:2px; width:4px; height:4px; border-radius:50%; background:var(--coral);}
+
+.badge-fisso{
+  display:inline-block; font-size:.62rem; padding:2px 7px; border-radius:999px;
+  background:var(--paper-dim); color:#6b6f60; border:1px solid var(--paper-line); margin-left:4px;
+}
+.info-note{
+  font-size:.78rem; color:#5b5f52; background:var(--paper-dim);
+  border-radius:10px; padding:9px 11px; margin-bottom:12px;
+}
+.days-picker{display:flex; gap:6px; flex-wrap:wrap;}
+.day-chip{
+  width:40px; height:36px; display:flex; align-items:center; justify-content:center;
+  border-radius:10px; border:1px solid var(--paper-line); background:var(--white);
+  font-size:.72rem; font-weight:600; cursor:pointer;
+}
+.day-chip.on{background:var(--ink); color:var(--paper); border-color:var(--ink);}
+
+/* ---------- Chips ---------- */
+.chip-row{display:flex; flex-wrap:wrap; gap:7px; margin-top:4px;}
+.chip{
+  font-size:.75rem;
+  padding:5px 11px;
+  border-radius:999px;
+  border:1px solid var(--paper-line);
+  background:var(--white);
+  color:var(--ink);
+  cursor:pointer;
+  user-select:none;
+}
+.chip.on{background:var(--ink); color:var(--paper); border-color:var(--ink);}
+.chip.status-richiesto{background:#fff3e6; border-color:#e9cf9c; color:var(--gold-dark);}
+.chip.status-confermato{background:#e7f3ec; border-color:#a9d3b8; color:#2c6e4a;}
+
+/* ---------- Segmented control ---------- */
+.segmented{
+  display:flex;
+  background:var(--paper-dim);
+  border-radius:12px;
+  padding:3px;
+  margin-bottom:14px;
+}
+.segmented button{
+  flex:1;
+  border:none;
+  background:transparent;
+  padding:9px 4px;
+  border-radius:9px;
+  font-family:'Work Sans',sans-serif;
+  font-size:.82rem;
+  font-weight:600;
+  color:#5b5f52;
+  cursor:pointer;
+}
+.segmented button.active{
+  background:var(--white);
+  color:var(--ink);
+  box-shadow:0 2px 6px rgba(28,35,51,.12);
+}
+
+/* ---------- Index-card watch item ---------- */
+.watch-card{
+  position:relative;
+  background:var(--white);
+  border:1px solid var(--paper-line);
+  border-radius:4px 14px 14px 4px;
+  border-left:4px solid var(--teal);
+  padding:13px 14px;
+  margin-bottom:10px;
+  cursor:pointer;
+}
+.watch-card[data-type="Libro"]{border-left-color:var(--gold);}
+.watch-card[data-type="Film"]{border-left-color:var(--coral);}
+.watch-card .row1{display:flex; justify-content:space-between; align-items:flex-start; gap:8px;}
+.watch-card .title{font-weight:600; font-size:.98rem; line-height:1.25;}
+.watch-card .type{font-size:.68rem; text-transform:uppercase; letter-spacing:.05em; color:#6b6f60; margin-top:2px;}
+.watch-card .meta{font-size:.8rem; color:#5b5f52; margin-top:6px;}
+.watch-card .stars{color:var(--gold-dark); font-size:.85rem; margin-top:4px;}
+.watch-card .note-preview{font-size:.78rem; color:#7a7d6e; margin-top:5px; font-style:italic;}
+
+.empty{
+  text-align:center;
+  padding:34px 14px;
+  color:#7a7d6e;
+  font-size:.88rem;
+}
+.empty .glyph{font-size:1.8rem; display:block; margin-bottom:6px;}
+.empty .btn{margin-top:14px;}
+
+/* ---------- Buttons ---------- */
+.btn{
+  display:inline-flex; align-items:center; justify-content:center; gap:6px;
+  border:none; border-radius:12px;
+  padding:12px 16px;
+  font-family:'Work Sans',sans-serif;
+  font-weight:600; font-size:.9rem;
+  cursor:pointer;
+}
+.btn-primary{background:var(--ink); color:var(--paper); width:100%;}
+.btn-gold{background:var(--gold); color:#3a2a0e; width:100%;}
+.btn-teal{background:var(--teal); color:#eafafb; width:100%;}
+.btn-ghost{background:transparent; border:1px solid var(--paper-line); color:var(--ink);}
+.btn-danger{background:transparent; color:var(--coral); border:1px solid #e3bcae;}
+.btn-danger-solid{background:var(--coral); color:#fff;}
+.btn-block{width:100%; margin-top:6px;}
+.btn-sm{padding:8px 12px; font-size:.8rem; border-radius:10px;}
+.btn:active{transform:scale(.97);}
+.btn[disabled]{opacity:.5; pointer-events:none;}
+
+/* ---------- Forms ---------- */
+.field{margin-bottom:13px;}
+.field label{
+  display:block; font-size:.76rem; font-weight:600;
+  color:#5b5f52; margin-bottom:5px; text-transform:uppercase; letter-spacing:.03em;
+}
+.field input[type=text], .field input[type=date], .field input[type=time],
+.field input[type=number], .field select, .field textarea{
+  width:100%;
+  padding:11px 12px;
+  border-radius:11px;
+  border:1px solid var(--paper-line);
+  background:var(--paper);
+  font-family:'Work Sans',sans-serif;
+  font-size:.92rem;
+  color:var(--ink);
+}
+.field textarea{resize:vertical; min-height:60px;}
+.field-2col{display:flex; gap:10px;}
+.field-2col .field{flex:1;}
+.stars-input{font-size:1.5rem; letter-spacing:4px; color:#d8d2ba; cursor:pointer;}
+.stars-input span.on{color:var(--gold-dark);}
+.section-label{
+  font-size:.7rem; text-transform:uppercase; letter-spacing:.06em;
+  color:var(--gold-dark); font-weight:700; margin:16px 0 8px;
+}
+.section-label:first-child{margin-top:0;}
+
+/* ---------- FAB ---------- */
+.fab{
+  position:absolute;
+  right:20px; bottom:86px;
+  width:56px; height:56px; border-radius:18px;
+  background:var(--gold);
+  color:#3a2a0e;
+  border:none;
+  font-size:1.8rem;
+  line-height:1;
+  box-shadow:0 8px 20px rgba(215,154,59,.45);
+  cursor:pointer;
+  z-index:30;
+  display:flex; align-items:center; justify-content:center;
+}
+
+/* ---------- Tab bar ---------- */
+.tabbar{
+  position:absolute; left:0; right:0; bottom:0;
+  display:flex;
+  background:var(--white);
+  border-top:1px solid var(--paper-line);
+  padding:8px 6px calc(8px + env(safe-area-inset-bottom));
+  z-index:25;
+}
+.tab-btn{
+  flex:1;
+  background:none; border:none;
+  display:flex; flex-direction:column; align-items:center; gap:3px;
+  padding:6px 2px;
+  color:#9a9d8f;
+  font-size:.66rem;
+  font-family:'Work Sans',sans-serif;
+  font-weight:600;
+  cursor:pointer;
+}
+.tab-btn svg{width:21px; height:21px;}
+.tab-btn.active{color:var(--ink);}
+.tab-btn.active svg{color:var(--gold-dark);}
+
+/* ---------- Bottom sheet ---------- */
+.sheet-overlay{
+  position:absolute; inset:0; background:rgba(20,24,35,.45);
+  opacity:0; pointer-events:none; transition:opacity .2s ease;
+  z-index:40;
+}
+.sheet-overlay.show{opacity:1; pointer-events:auto;}
+.bottom-sheet{
+  position:absolute; left:0; right:0; bottom:0;
+  max-height:88%;
+  background:var(--paper);
+  border-radius:22px 22px 0 0;
+  box-shadow:0 -10px 30px rgba(0,0,0,.25);
+  transform:translateY(102%);
+  transition:transform .28s cubic-bezier(.2,.8,.3,1);
+  z-index:41;
+  display:flex; flex-direction:column;
+}
+.bottom-sheet.show{transform:translateY(0);}
+.sheet-handle{
+  width:40px; height:4px; border-radius:2px; background:var(--paper-line);
+  margin:10px auto 4px;
+}
+.sheet-head{
+  display:flex; align-items:center; justify-content:space-between;
+  padding:6px 18px 10px; border-bottom:1px solid var(--paper-line); flex-shrink:0;
+}
+.sheet-head h3{margin:0; font-size:1.05rem;}
+.sheet-body{padding:16px 18px; overflow-y:auto;}
+.sheet-foot{padding:12px 18px calc(14px + env(safe-area-inset-bottom)); border-top:1px solid var(--paper-line); flex-shrink:0; display:flex; gap:10px;}
+.sheet-foot .btn-primary, .sheet-foot .btn-gold, .sheet-foot .btn-teal{flex:1;}
+
+/* ---------- Onboarding ---------- */
+.onboarding-overlay{
+  position:absolute; inset:0; background:var(--ink);
+  color:var(--paper); z-index:60;
+  display:flex; flex-direction:column;
+  padding:34px 26px 26px;
+  overflow-y:auto;
+}
+.onboarding-overlay h1{font-size:1.7rem; margin:0 0 6px;}
+.onboarding-overlay .lead{font-size:.9rem; color:#c9cadb; margin:0 0 26px; line-height:1.5;}
+.onboarding-overlay .field label{color:#c9cadb;}
+.onboarding-overlay .field input, .onboarding-overlay .field select{
+  background:var(--ink-2); border-color:#3a4258; color:var(--paper);
+}
+.ob-step{display:none;}
+.ob-step.active{display:block;}
+.ob-progress{display:flex; gap:6px; margin-bottom:24px;}
+.ob-progress span{flex:1; height:3px; border-radius:2px; background:#3a4258;}
+.ob-progress span.done{background:var(--gold);}
+
+/* ---------- Toast ---------- */
+.toast{
+  position:absolute; left:50%; bottom:96px; transform:translate(-50%,12px);
+  background:var(--ink); color:var(--paper);
+  padding:10px 18px; border-radius:999px; font-size:.82rem;
+  opacity:0; pointer-events:none; transition:all .25s ease;
+  z-index:80; white-space:nowrap; max-width:88%;
+  display:flex; align-items:center;
+}
+.toast.show{pointer-events:auto;}
+.toast.show{opacity:1; transform:translate(-50%,0);}
+
+.mood-check{display:inline-flex; align-items:center; gap:6px;}
+
+/* ---------- Weekly progress ---------- */
+.week-progress .bar-bg{background:var(--paper-dim); border-radius:8px; height:10px; overflow:hidden;}
+.week-progress .bar-fill{height:100%; background:var(--teal); border-radius:8px; transition:width .3s ease;}
+.week-progress .bar-fill.over{background:var(--coral);}
+
+/* ---------- Search ---------- */
+.search-box{
+  display:flex; align-items:center; gap:8px;
+  background:var(--white); border:1px solid var(--paper-line); border-radius:12px;
+  padding:9px 12px; margin-bottom:12px;
+}
+.search-box svg{width:16px; height:16px; color:#9a9d8f; flex-shrink:0;}
+.search-box input{
+  border:none; outline:none; background:transparent; flex:1;
+  font-family:'Work Sans',sans-serif; font-size:.88rem; color:var(--ink);
+}
+.search-box .clear-x{border:none; background:none; color:#9a9d8f; cursor:pointer; font-size:.9rem; padding:2px; flex-shrink:0;}
+
+/* ---------- Filter row ---------- */
+.filter-row{display:flex; gap:7px; margin-bottom:12px; overflow-x:auto; padding-bottom:2px;}
+.filter-row .chip{white-space:nowrap; flex-shrink:0;}
+
+/* ---------- Swipe hint / toast link ---------- */
+.toast-action{background:none; border:none; color:var(--gold); font-weight:700; margin-left:10px; cursor:pointer; font-family:'Work Sans',sans-serif; font-size:.82rem;}
+
+/* ---------- Card link row ---------- */
+.link-row{
+  display:flex; align-items:center; justify-content:space-between;
+  padding:13px 2px; border-bottom:1px solid var(--paper-line); cursor:pointer;
+}
+.link-row:last-child{border-bottom:none;}
+.link-row .lbl{font-size:.9rem; font-weight:500;}
+.link-row .chev{color:#9a9d8f;}
+
+@media (prefers-reduced-motion: reduce){
+  *{transition:none !important; animation:none !important;}
+}
+</style>
+</head>
+<body>
+
+<div class="app-shell" id="appShell">
+
+  <div class="topbar">
+    <div>
+      <p class="brand" id="brandLine">TURNI &amp; TRAME</p>
+      <h1 id="greeting">Ciao</h1>
+      <p class="sub" id="todayLine"></p>
+    </div>
+    <button class="icon-btn" data-nav="settings" aria-label="Impostazioni">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="12" cy="12" r="3.2"/><path d="M12 3v2.4M12 18.6V21M21 12h-2.4M5.4 12H3M18 6l-1.6 1.6M7.6 16.4 6 18M18 18l-1.6-1.6M7.6 7.6 6 6"/></svg>
+    </button>
+  </div>
+
+  <!-- OGGI -->
+  <main class="view active" id="view-oggi">
+    <div id="oggiContent"></div>
+  </main>
+
+  <!-- TURNI -->
+  <main class="view" id="view-turni">
+    <div class="view-head">
+      <h2>Turni</h2>
+      <p>Il tuo calendario di lavoro, un turno alla volta.</p>
+    </div>
+    <div id="turniContent"></div>
+  </main>
+
+  <!-- TRAME (watchlist) -->
+  <main class="view" id="view-watch">
+    <div class="view-head">
+      <h2>Trame</h2>
+      <p>Serie, film, libri — e cosa scegliere stasera.</p>
+    </div>
+    <div id="watchContent"></div>
+  </main>
+
+  <!-- IMPOSTAZIONI -->
+  <main class="view" id="view-settings">
+    <div class="view-head">
+      <h2>Impostazioni</h2>
+      <p>Il tuo profilo, i tuoi lavori, i tuoi dati.</p>
+    </div>
+    <div id="settingsContent"></div>
+  </main>
+
+  <button class="fab" id="fabBtn" aria-label="Aggiungi">+</button>
+
+  <nav class="tabbar">
+    <button class="tab-btn active" data-nav="oggi">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="13" r="7.5"/><path d="M12 9.2V13l2.6 1.6M9.5 3h5"/></svg>
+      Oggi
+    </button>
+    <button class="tab-btn" data-nav="turni">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="13" rx="2.2"/><path d="M3 11.5h18M8.5 6V3.6M15.5 6V3.6" stroke-dasharray="0"/></svg>
+      Turni
+    </button>
+    <button class="tab-btn" data-nav="watch">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4.5h11.5a2 2 0 0 1 2 2V21l-3.4-2.3a3 3 0 0 0-3.4 0L7.3 21V6.5a2 2 0 0 1-3.3-2Z"/><path d="M10 9.3 13 11l-3 1.7Z"/></svg>
+      Trame
+    </button>
+    <button class="tab-btn" data-nav="settings">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="12" cy="12" r="3.2"/><path d="M12 3v2.4M12 18.6V21M21 12h-2.4M5.4 12H3M18 6l-1.6 1.6M7.6 16.4 6 18M18 18l-1.6-1.6M7.6 7.6 6 6"/></svg>
+      Impostazioni
+    </button>
+  </nav>
+
+  <div class="sheet-overlay" id="sheetOverlay"></div>
+  <div class="bottom-sheet" id="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-head">
+      <h3 id="sheetTitle">Titolo</h3>
+      <button class="icon-btn" id="sheetClose" aria-label="Chiudi">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>
+      </button>
+    </div>
+    <div class="sheet-body" id="sheetBody"></div>
+    <div class="sheet-foot" id="sheetFoot"></div>
+  </div>
+
+  <div class="onboarding-overlay" id="onboarding" style="display:none;">
+    <div class="ob-progress"><span id="obp1"></span><span id="obp2"></span><span id="obp3"></span></div>
+
+    <div class="ob-step active" id="obStep1">
+      <h1>Turni &amp; Trame</h1>
+      <p class="lead">Un posto solo per i turni di lavoro e per tutto quello che stai guardando o leggendo. Iniziamo con due domande veloci.</p>
+      <div class="field">
+        <label>Come ti chiami?</label>
+        <input type="text" id="obName" placeholder="Il tuo nome">
+      </div>
+      <button class="btn btn-gold btn-block" data-ob="next1">Avanti</button>
+    </div>
+
+    <div class="ob-step" id="obStep2">
+      <h1>Il tuo lavoro</h1>
+      <p class="lead">Puoi aggiungerne altri in seguito, se hai più di un lavoretto.</p>
+      <div class="field">
+        <label>Nome del lavoro / locale</label>
+        <input type="text" id="obJobName" placeholder="Es. Bar Centrale">
+      </div>
+      <div class="field-2col">
+        <div class="field">
+          <label>Tariffa oraria (€)</label>
+          <input type="number" id="obRate" min="0" step="0.1" placeholder="8.50">
+        </div>
+        <div class="field">
+          <label>Ore/settimana circa</label>
+          <input type="number" id="obHours" min="0" step="1" placeholder="15">
+        </div>
+      </div>
+      <button class="btn btn-gold btn-block" data-ob="next2">Avanti</button>
+    </div>
+
+    <div class="ob-step" id="obStep3">
+      <h1>Pronto.</h1>
+      <p class="lead">Da qui puoi segnare i turni, tenere d'occhio la paga e riempire la tua lista di serie, film e libri. Tutto resta salvato solo sul tuo telefono.</p>
+      <button class="btn btn-gold btn-block" data-ob="finish">Inizia a usarla</button>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+</div>
+
+<script>
+(function(){
+"use strict";
+
+/* ================= STATE ================= */
+const STORAGE_KEY = 'tt_state_v1';
+const JOB_COLORS = ['#D79A3B','#1E6E76','#C1553B','#6C6F9E','#3E8E5A','#9B5C8F'];
+const MOODS = ['Rilassante','Intenso','Leggero','Impegnativo','Comfort','Novità'];
+
+function defaultState(){
+  return {
+    onboarded:false,
+    profile:{name:'', weeklyHours:15},
+    jobs:[],
+    shifts:[],
+    leaves:[],
+    payments:{},
+    watch:[],
+    recurring:[],
+    lastSuggested:null,
+    uiPrefs:{ calCollapsed:false }
+  };
+}
+function load(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(!raw) return defaultState();
+    const parsed = JSON.parse(raw);
+    return Object.assign(defaultState(), parsed);
+  }catch(e){ return defaultState(); }
+}
+let state = load();
+function save(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,7); }
+
+/* ================= HELPERS ================= */
+function toLocalDateStr(d){
+  const y=d.getFullYear(), m=String(d.getMonth()+1).padStart(2,'0'), day=String(d.getDate()).padStart(2,'0');
+  return `${y}-${m}-${day}`;
+}
+function todayStr(){ return toLocalDateStr(new Date()); }
+function nowMonthKey(){ return todayStr().slice(0,7); }
+function fmtDateShort(dateStr){
+  const dt = new Date(dateStr+'T00:00:00');
+  return { d: dt.getDate(), m: dt.toLocaleDateString('it-IT',{month:'short'}).replace('.','') };
+}
+function fmtDateLong(dateStr){
+  const dt = new Date(dateStr+'T00:00:00');
+  return dt.toLocaleDateString('it-IT',{weekday:'long', day:'numeric', month:'long'});
+}
+function monthLabel(mKey){
+  const [y,m] = mKey.split('-');
+  const dt = new Date(y, m-1, 1);
+  return dt.toLocaleDateString('it-IT',{month:'long', year:'numeric'});
+}
+function jobById(id){ return state.jobs.find(j=>j.id===id); }
+function jobColor(id){ const j=jobById(id); return j?j.color:'#999'; }
+function jobName(id){ const j=jobById(id); return j?j.name:'Lavoro eliminato'; }
+
+function shiftHours(s){
+  const [sh,sm] = s.start.split(':').map(Number);
+  const [eh,em] = s.end.split(':').map(Number);
+  let startMin = sh*60+sm, endMin = eh*60+em;
+  if(endMin <= startMin) endMin += 24*60;
+  const total = endMin - startMin - (Number(s.pause)||0);
+  return Math.max(total,0)/60;
+}
+function fmtHours(h){
+  const hh = Math.floor(h);
+  const mm = Math.round((h-hh)*60);
+  if(mm===0) return hh+'h';
+  return hh+'h '+mm+'m';
+}
+function fmtEuro(v){
+  return '€ '+ (Math.round(v*100)/100).toLocaleString('it-IT',{minimumFractionDigits:2, maximumFractionDigits:2});
+}
+
+function yearStats(year){
+  const shifts = state.shifts.filter(s=>s.date.slice(0,4)===String(year));
+  let totalHours=0; const byJob={};
+  shifts.forEach(s=>{ const h=shiftHours(s); totalHours+=h; byJob[s.jobId]=(byJob[s.jobId]||0)+h; });
+  let expected=0;
+  Object.keys(byJob).forEach(jid=>{ const j=jobById(jid); if(j) expected += byJob[jid]*j.rate; });
+  return {totalHours, byJob, expected, count:shifts.length};
+}
+function availableYears(){
+  const years = new Set(state.shifts.map(s=>s.date.slice(0,4)));
+  years.add(String(new Date().getFullYear()));
+  return Array.from(years).sort((a,b)=> b-a);
+}
+function monthStats(mKey){
+  const shifts = state.shifts.filter(s=>s.date.slice(0,7)===mKey);
+  let totalHours=0; const byJob={};
+  shifts.forEach(s=>{ const h=shiftHours(s); totalHours+=h; byJob[s.jobId]=(byJob[s.jobId]||0)+h; });
+  let expected=0;
+  Object.keys(byJob).forEach(jid=>{ const j=jobById(jid); if(j) expected += byJob[jid]*j.rate; });
+  return {totalHours, byJob, expected, count:shifts.length};
+}
+
+function weekBounds(d){
+  const day = (d.getDay()+6)%7; // lunedì=0
+  const mon = new Date(d); mon.setDate(d.getDate()-day); mon.setHours(0,0,0,0);
+  const sun = new Date(mon); sun.setDate(mon.getDate()+6);
+  return {mon, sun};
+}
+function currentWeekHours(){
+  const {mon, sun} = weekBounds(new Date());
+  const monS = toLocalDateStr(mon), sunS = toLocalDateStr(sun);
+  return state.shifts.filter(s=> s.date>=monS && s.date<=sunS).reduce((sum,s)=> sum+shiftHours(s), 0);
+}
+function nextShift(){
+  const now = new Date();
+  const upcoming = state.shifts
+    .map(s=>({...s, dt:new Date(s.date+'T'+s.start)}))
+    .filter(s=> (s.dt.getTime() + shiftHours(s)*3600000) > now.getTime())
+    .sort((a,b)=>a.dt-b.dt);
+  return upcoming[0];
+}
+function countdownText(s){
+  const now = new Date();
+  const start = new Date(s.date+'T'+s.start);
+  const endMs = start.getTime() + shiftHours(s)*3600000;
+  if(now>=start && now.getTime()<endMs) return 'sei in turno ora';
+  let diff = start-now; if(diff<0) diff=0;
+  const days = Math.floor(diff/86400000);
+  const hours = Math.floor((diff%86400000)/3600000);
+  const mins = Math.floor((diff%3600000)/60000);
+  if(days>0) return `tra ${days} g e ${hours} h`;
+  if(hours>0) return `tra ${hours} h ${mins} m`;
+  return `tra ${mins} min`;
+}
+
+const DAY_DEFS = [
+  {v:1, short:'Lun'}, {v:2, short:'Mar'}, {v:3, short:'Mer'}, {v:4, short:'Gio'},
+  {v:5, short:'Ven'}, {v:6, short:'Sab'}, {v:0, short:'Dom'}
+];
+function daysLabel(days){
+  return DAY_DEFS.filter(d=> days.includes(d.v)).map(d=>d.short).join(' · ');
+}
+
+const RECUR_HORIZON_DAYS = 60;
+function ensureGeneratedShifts(){
+  const todayD = new Date(todayStr()+'T00:00:00');
+  const horizonD = new Date(todayD); horizonD.setDate(horizonD.getDate()+RECUR_HORIZON_DAYS);
+  let changed = false;
+  (state.recurring||[]).forEach(p=>{
+    if(!p.from) return;
+    let start = new Date(p.from+'T00:00:00');
+    let end = p.to ? new Date(p.to+'T00:00:00') : horizonD;
+    if(end > horizonD) end = horizonD;
+    let cursor = new Date(start);
+    let iter = 0;
+    while(cursor <= end && iter < 800){
+      iter++;
+      const dow = cursor.getDay();
+      if(p.days.includes(dow)){
+        const dateStr = toLocalDateStr(cursor);
+        if(!(p.exceptions||[]).includes(dateStr)){
+          const exists = state.shifts.some(s=> s.recurringId===p.id && s.date===dateStr);
+          if(!exists){
+            state.shifts.push({id:uid(), jobId:p.jobId, date:dateStr, start:p.start, end:p.end, pause:p.pause||0, note:p.note||'', recurringId:p.id});
+            changed = true;
+          }
+        }
+      }
+      cursor.setDate(cursor.getDate()+1);
+    }
+  });
+  if(changed) save();
+}
+
+function greetingWord(){
+  const h = new Date().getHours();
+  if(h<6) return 'Ancora sveglio';
+  if(h<12) return 'Buongiorno';
+  if(h<18) return 'Buon pomeriggio';
+  return 'Buonasera';
+}
+
+/* ================= NAV ================= */
+let currentTab = 'oggi';
+function showView(name){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.getElementById('view-'+name).classList.add('active');
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.toggle('active', b.dataset.nav===name));
+  currentTab = name;
+  document.getElementById('fabBtn').style.display = (name==='settings') ? 'none' : 'flex';
+  renderCurrent();
+}
+document.querySelectorAll('[data-nav]').forEach(el=>{
+  el.addEventListener('click', ()=> showView(el.dataset.nav));
+});
+
+function renderCurrent(){
+  renderTopbar();
+  if(currentTab==='oggi') renderOggi();
+  else if(currentTab==='turni') renderTurni();
+  else if(currentTab==='watch') renderWatch();
+  else if(currentTab==='settings') renderSettings();
+}
+
+function renderTopbar(){
+  document.getElementById('greeting').textContent = greetingWord() + (state.profile.name? ', '+state.profile.name : '');
+  document.getElementById('todayLine').textContent = fmtDateLong(todayStr());
+}
+
+/* ================= TOAST ================= */
+let toastTimer;
+function toast(msg, actionLabel, actionFn){
+  const t = document.getElementById('toast');
+  t.innerHTML = escapeHtml(msg) + (actionLabel ? `<button class="toast-action" id="toastAction">${escapeHtml(actionLabel)}</button>` : '');
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=> t.classList.remove('show'), actionLabel ? 4000 : 2200);
+  if(actionLabel){
+    const btn = document.getElementById('toastAction');
+    if(btn) btn.addEventListener('click', ()=>{ clearTimeout(toastTimer); t.classList.remove('show'); actionFn && actionFn(); });
+  }
+}
+
+/* ================= SHEET ================= */
+const sheetOverlay = document.getElementById('sheetOverlay');
+const sheetEl = document.getElementById('sheet');
+function openSheet(title, bodyHTML, footHTML){
+  document.getElementById('sheetTitle').textContent = title;
+  document.getElementById('sheetBody').innerHTML = bodyHTML;
+  document.getElementById('sheetFoot').innerHTML = footHTML || '';
+  sheetOverlay.classList.add('show');
+  sheetEl.classList.add('show');
+  const foot = document.getElementById('sheetFoot');
+  const primaryBtn = foot.querySelector('.btn-gold, .btn-teal, .btn-primary, .btn-danger-solid');
+  const body = document.getElementById('sheetBody');
+  body.onkeydown = (e)=>{
+    if(e.key==='Enter' && (e.target.tagName==='INPUT' || e.target.tagName==='SELECT')){
+      e.preventDefault();
+      if(primaryBtn) primaryBtn.click();
+    }
+  };
+  clearTimeout(sheetFocusTimer);
+  sheetFocusTimer = setTimeout(()=>{
+    const firstField = body.querySelector('input[type=text], input:not([type]), textarea, select');
+    if(firstField && window.matchMedia('(min-width:768px)').matches) firstField.focus();
+  }, 320);
+}
+let sheetFocusTimer;
+function closeSheet(){
+  sheetOverlay.classList.remove('show');
+  sheetEl.classList.remove('show');
+}
+function vibrate(ms){ if(navigator.vibrate){ try{ navigator.vibrate(ms); }catch(e){} } }
+
+/* ---- In-app confirm (replaces native confirm() to match app style) ---- */
+function confirmSheet(message, confirmLabel, onConfirm, danger){
+  if(danger===undefined) danger = true;
+  openSheet('Conferma', `<p style="font-size:.92rem; line-height:1.5; margin:2px 0 0; color:var(--ink);">${escapeHtml(message)}</p>`, `
+    <button class="btn btn-ghost" id="cfCancel">Annulla</button>
+    <button class="btn ${danger?'btn-danger-solid':'btn-gold'}" id="cfOk">${escapeHtml(confirmLabel)}</button>
+  `);
+  document.getElementById('cfCancel').addEventListener('click', closeSheet);
+  document.getElementById('cfOk').addEventListener('click', ()=>{
+    closeSheet();
+    vibrate(12);
+    setTimeout(onConfirm, 180);
+  });
+}
+sheetOverlay.addEventListener('click', closeSheet);
+document.getElementById('sheetClose').addEventListener('click', closeSheet);
+document.addEventListener('keydown', (e)=>{
+  if(e.key==='Escape' && sheetEl.classList.contains('show')) closeSheet();
+});
+
+/* ================= FAB ================= */
+document.getElementById('fabBtn').addEventListener('click', ()=>{
+  if(currentTab==='oggi') openQuickActions();
+  else if(currentTab==='turni') openShiftForm();
+  else if(currentTab==='watch') openWatchForm();
+});
+function openQuickActions(){
+  openSheet('Cosa vuoi aggiungere?', `
+    <div style="display:flex; flex-direction:column; gap:10px;">
+      <button class="btn btn-gold" data-qa="shift">＋ Nuovo turno</button>
+      <button class="btn btn-teal" data-qa="watch">＋ Nuovo titolo in Trame</button>
+      <button class="btn btn-ghost" data-qa="leave">＋ Richiedi ferie / permesso</button>
+    </div>
+  `, '');
+  document.querySelectorAll('[data-qa]').forEach(b=>{
+    b.addEventListener('click', ()=>{
+      const t = b.dataset.qa;
+      closeSheet();
+      setTimeout(()=>{
+        if(t==='shift') openShiftForm();
+        else if(t==='watch') openWatchForm();
+        else if(t==='leave') openLeaveForm();
+      }, 180);
+    });
+  });
+}
+
+/* ================= OGGI ================= */
+function renderOggi(){
+  const el = document.getElementById('oggiContent');
+  if(state.jobs.length===0){
+    el.innerHTML = `<div class="empty"><span class="glyph">🕒</span>Aggiungi il tuo primo lavoro per iniziare a registrare i turni.<br><button class="btn btn-gold btn-sm" id="ctaAddJobOggi">＋ Aggiungi un lavoro</button></div>`;
+    document.getElementById('ctaAddJobOggi').addEventListener('click', ()=> openJobForm());
+    return;
+  }
+  const ns = nextShift();
+  const ms = monthStats(nowMonthKey());
+  const pendingLeaves = state.leaves.filter(l=>l.status==='richiesto').length;
+
+  // equilibrio del mese: ore lavorate vs ore guardate (finiti, terminati questo mese)
+  const watchedThisMonth = state.watch.filter(w=> w.list==='finiti' && w.finishedDate && w.finishedDate.slice(0,7)===nowMonthKey());
+  const watchedMinutes = watchedThisMonth.reduce((sum,w)=> sum + (Number(w.duration)||0), 0);
+  const watchedHours = watchedMinutes/60;
+  const maxBar = Math.max(ms.totalHours, watchedHours, 1);
+
+  let nextShiftBlock;
+  if(ns){
+    const fd = fmtDateShort(ns.date);
+    nextShiftBlock = `
+      <div class="card-ink">
+        <div class="tag">Prossimo turno</div>
+        <div class="big">${fd.d} ${fd.m} · ${ns.start}–${ns.end}</div>
+        <div class="note">${jobName(ns.jobId)} — ${countdownText(ns)}</div>
+      </div>`;
+  } else {
+    nextShiftBlock = `
+      <div class="card-ink">
+        <div class="tag">Prossimo turno</div>
+        <div class="big">Nessuno in programma</div>
+        <div class="note">Tocca ＋ per aggiungerne uno.</div>
+      </div>`;
+  }
+
+  el.innerHTML = `
+    ${nextShiftBlock}
+
+    <div class="stat-row" style="margin-bottom:12px;">
+      <div class="stat gold">
+        <div class="label">Ore ${monthLabel(nowMonthKey()).split(' ')[0]}</div>
+        <div class="val">${fmtHours(ms.totalHours)}</div>
+      </div>
+      <div class="stat gold">
+        <div class="label">Paga prevista</div>
+        <div class="val">${fmtEuro(ms.expected)}</div>
+      </div>
+    </div>
+
+    ${pendingLeaves>0 ? `
+    <div class="card" style="display:flex; align-items:center; justify-content:space-between;">
+      <div>
+        <div style="font-weight:600; font-size:.92rem;">${pendingLeaves} richiest${pendingLeaves===1?'a':'e'} in sospeso</div>
+        <div style="font-size:.8rem; color:#5b5f52;">Ferie o permessi da confermare</div>
+      </div>
+      <button class="btn btn-ghost btn-sm" data-nav="turni">Vedi</button>
+    </div>` : ''}
+
+    ${state.profile.weeklyHours>0 ? (()=>{
+      const wh = currentWeekHours();
+      const target = state.profile.weeklyHours;
+      const pct = Math.min(100, (wh/target*100));
+      const over = wh > target;
+      return `
+      <div class="card week-progress">
+        <div style="display:flex; align-items:baseline; justify-content:space-between; margin-bottom:8px;">
+          <div style="font-weight:600; font-size:.95rem;">Ore questa settimana</div>
+          <div style="font-size:.82rem; font-weight:600; color:${over?'var(--coral)':'var(--teal-dark)'};">${fmtHours(wh)} / ${fmtHours(target)}</div>
+        </div>
+        <div class="bar-bg"><div class="bar-fill${over?' over':''}" style="width:${pct}%;"></div></div>
+        <div style="font-size:.76rem; color:#5b5f52; margin-top:6px;">${over? 'Hai superato il tuo obiettivo settimanale.' : fmtHours(Math.max(target-wh,0))+' rimanenti per raggiungerlo.'}</div>
+      </div>`;
+    })() : ''}
+
+    <div class="card">
+      <div style="font-weight:600; font-size:.95rem; margin-bottom:2px;">Equilibrio del mese</div>
+      <div style="font-size:.8rem; color:#5b5f52; margin-bottom:10px;">Lavoro contro tempo libero, in ore</div>
+      <div style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">
+        <div style="width:64px; font-size:.76rem; color:#5b5f52;">Lavorate</div>
+        <div style="flex:1; background:var(--paper-dim); border-radius:8px; height:10px; overflow:hidden;">
+          <div style="width:${(ms.totalHours/maxBar*100).toFixed(0)}%; background:var(--gold); height:100%;"></div>
+        </div>
+        <div style="width:46px; text-align:right; font-size:.78rem; font-weight:600;">${fmtHours(ms.totalHours)}</div>
+      </div>
+      <div style="display:flex; align-items:center; gap:8px;">
+        <div style="width:64px; font-size:.76rem; color:#5b5f52;">Guardate</div>
+        <div style="flex:1; background:var(--paper-dim); border-radius:8px; height:10px; overflow:hidden;">
+          <div style="width:${(watchedHours/maxBar*100).toFixed(0)}%; background:var(--teal); height:100%;"></div>
+        </div>
+        <div style="width:46px; text-align:right; font-size:.78rem; font-weight:600;">${fmtHours(watchedHours)}</div>
+      </div>
+    </div>
+
+    <div class="card" style="display:flex; align-items:center; justify-content:space-between;">
+      <div>
+        <div style="font-weight:600; font-size:.95rem;">Cosa guardo stasera?</div>
+        <div style="font-size:.8rem; color:#5b5f52;">Un suggerimento dalla tua lista</div>
+      </div>
+      <button class="btn btn-teal btn-sm" data-nav="watch">Scopri</button>
+    </div>
+  `;
+  el.querySelectorAll('[data-nav]').forEach(b=> b.addEventListener('click', ()=> showView(b.dataset.nav)));
+}
+
+/* ================= TURNI ================= */
+let calMonth = nowMonthKey();
+
+function buildCalendarHTML(mKey){
+  const [y,m] = mKey.split('-').map(Number);
+  const firstDow = (new Date(y, m-1, 1).getDay()+6)%7; // Luned\u00ec=0
+  const daysInMonth = new Date(y, m, 0).getDate();
+  const todayS = todayStr();
+  let cells = '';
+  for(let i=0;i<firstDow;i++) cells += `<div class="cal-day empty"></div>`;
+  for(let d=1; d<=daysInMonth; d++){
+    const dateStr = `${y}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const dayShifts = state.shifts.filter(s=>s.date===dateStr);
+    const dayLeave = state.leaves.find(l=> l.dateFrom<=dateStr && (l.dateTo||l.dateFrom)>=dateStr);
+    let style = '';
+    if(dayShifts.length){
+      const colors = [...new Set(dayShifts.map(s=>jobColor(s.jobId)))];
+      style = colors.length>1
+        ? `background:linear-gradient(135deg, ${colors[0]} 50%, ${colors[1]} 50%);`
+        : `background:${colors[0]};`;
+    }
+    cells += `<button type="button" class="cal-day ${dayShifts.length?'has-shift':''} ${dateStr===todayS?'is-today':''}" style="${style}" data-calday="${dateStr}">
+      <span class="num">${d}</span>
+      ${dayLeave? `<span class="cal-leave-dot"></span>`:''}
+    </button>`;
+  }
+  return cells;
+}
+
+function renderTurni(){
+  const el = document.getElementById('turniContent');
+  if(state.jobs.length===0){
+    el.innerHTML = `<div class="empty"><span class="glyph">🧾</span>Aggiungi il tuo primo lavoro (nome e tariffa oraria) per iniziare a registrare i turni.<br><button class="btn btn-gold btn-sm" id="ctaAddJobTurni">＋ Aggiungi un lavoro</button></div>`;
+    document.getElementById('ctaAddJobTurni').addEventListener('click', ()=> openJobForm());
+    return;
+  }
+  const mKey = nowMonthKey();
+  const ms = monthStats(mKey);
+  const upcoming = state.shifts.filter(s=> s.date >= todayStr()).sort((a,b)=> a.date.localeCompare(b.date) || a.start.localeCompare(b.start));
+  const past = state.shifts.filter(s=> s.date < todayStr()).sort((a,b)=> b.date.localeCompare(a.date));
+
+  const jobLegend = state.jobs.length>1 ? `
+    <div class="chip-row" style="margin-bottom:14px;">
+      ${state.jobs.map(j=>`<span class="chip" style="display:flex; align-items:center; gap:6px; cursor:default;"><span class="dot" style="background:${j.color}"></span>${escapeHtml(j.name)}</span>`).join('')}
+    </div>` : '';
+
+  const shiftsHTML = (list)=> list.map(s=>{
+    const fd = fmtDateShort(s.date);
+    return `
+    <div class="shift-row" data-edit-shift="${s.id}">
+      <div class="shift-date"><div class="d">${fd.d}</div><div class="m">${fd.m}</div></div>
+      <div class="shift-body">
+        <div class="time">${s.start}–${s.end}</div>
+        <div class="job"><span class="dot" style="background:${jobColor(s.jobId)}"></span>${escapeHtml(jobName(s.jobId))}${s.note? ' · '+escapeHtml(s.note):''}${s.recurringId? ' <span class="badge-fisso">fisso</span>':''}</div>
+      </div>
+      <div class="shift-hours">${fmtHours(shiftHours(s))}</div>
+      <button class="del-x" data-del-shift="${s.id}">✕</button>
+    </div>`;
+  }).join('');
+
+  const payKey = mKey;
+  const pay = state.payments[payKey] || {};
+  const diff = (pay.received!=null && pay.received!=='') ? (Number(pay.received) - ms.expected) : null;
+
+  const leavesHTML = state.leaves.length ? state.leaves
+    .sort((a,b)=> b.dateFrom.localeCompare(a.dateFrom))
+    .map(l=>`
+    <div class="shift-row" data-edit-leave="${l.id}" style="align-items:flex-start;">
+      <div class="shift-date"><div class="d">${fmtDateShort(l.dateFrom).d}</div><div class="m">${fmtDateShort(l.dateFrom).m}</div></div>
+      <div class="shift-body">
+        <div class="time">${l.type==='ferie'?'Ferie':'Permesso'}${l.dateTo && l.dateTo!==l.dateFrom ? ' → '+fmtDateShort(l.dateTo).d+' '+fmtDateShort(l.dateTo).m : ''}</div>
+        <div class="chip-row" style="margin-top:5px;"><span class="chip status-${l.status}" style="cursor:default;">${l.status}</span>${l.hours? `<span class="chip" style="cursor:default;">${l.hours} h</span>`:''}</div>
+      </div>
+      <button class="del-x" data-del-leave="${l.id}">✕</button>
+    </div>`).join('') : `<div class="empty" style="padding:16px 4px;">Nessuna ferie o permesso registrato.</div>`;
+
+  el.innerHTML = `
+    ${jobLegend}
+
+    <div class="section-label">Calendario</div>
+    <div class="card cal-card">
+      <div class="cal-nav">
+        <button class="icon-btn" id="calPrev" aria-label="Mese precedente">‹</button>
+        <div class="lbl">${monthLabel(calMonth)}</div>
+        <button class="icon-btn" id="calNext" aria-label="Mese successivo">›</button>
+        ${calMonth!==nowMonthKey() ? `<button class="cal-today-btn" id="calToday">Oggi</button>` : ''}
+      </div>
+      <div class="cal-body${state.uiPrefs.calCollapsed?' collapsed':''}" id="calBody">
+        <div class="cal-grid" id="calGrid">
+          <div class="cal-head">L</div><div class="cal-head">M</div><div class="cal-head">M</div><div class="cal-head">G</div><div class="cal-head">V</div><div class="cal-head">S</div><div class="cal-head">D</div>
+          ${buildCalendarHTML(calMonth)}
+        </div>
+      </div>
+      <button class="cal-collapse-btn${state.uiPrefs.calCollapsed?'':' is-open'}" id="calCollapseBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg>
+        ${state.uiPrefs.calCollapsed?'Mostra calendario':'Comprimi'}
+      </button>
+    </div>
+
+    <div class="section-label" style="display:flex; align-items:center; justify-content:space-between;">
+      <span>Turni fissi</span>
+      <button class="btn btn-ghost btn-sm" id="btnAddRecurring">＋ Aggiungi</button>
+    </div>
+    ${state.recurring.length ? state.recurring.map(p=>`
+      <div class="card" style="display:flex; align-items:center; gap:10px;">
+        <span class="dot" style="width:14px; height:14px; background:${jobColor(p.jobId)}; flex-shrink:0;"></span>
+        <div style="flex:1;">
+          <div style="font-weight:600; font-size:.9rem;">${daysLabel(p.days)}</div>
+          <div style="font-size:.8rem; color:#5b5f52;">${p.start}–${p.end} · ${escapeHtml(jobName(p.jobId))}${p.to? ' · fino al '+fmtDateShort(p.to).d+' '+fmtDateShort(p.to).m : ' · a tempo indeterminato'}</div>
+        </div>
+        <button class="btn btn-ghost btn-sm" data-editrec="${p.id}">Modifica</button>
+        <button class="del-x" data-delrec="${p.id}">✕</button>
+      </div>`).join('') : `<div class="empty" style="padding:16px 4px;">Nessun turno fisso. Utile se lavori sempre negli stessi giorni e orari.</div>`}
+
+    <div class="section-label">Prossimi turni</div>
+    ${upcoming.length ? shiftsHTML(upcoming) : `<div class="empty" style="padding:16px 4px;"><span class="glyph">📭</span>Nessun turno in programma.</div>`}
+
+    <div class="section-label">Riepilogo ${monthLabel(mKey)}</div>
+    <div class="card">
+      <div class="stat-row">
+        <div class="stat gold"><div class="label">Ore totali</div><div class="val">${fmtHours(ms.totalHours)}</div></div>
+        <div class="stat gold"><div class="label">Turni</div><div class="val">${ms.count}</div></div>
+      </div>
+      ${state.jobs.filter(j=>ms.byJob[j.id]).map(j=>`
+        <div style="display:flex; justify-content:space-between; font-size:.85rem; margin-top:10px;">
+          <span style="display:flex; align-items:center; gap:6px;"><span class="dot" style="background:${j.color}"></span>${escapeHtml(j.name)}</span>
+          <span>${fmtHours(ms.byJob[j.id])} · ${fmtEuro(ms.byJob[j.id]*j.rate)}</span>
+        </div>`).join('')}
+      <div style="border-top:1px solid var(--paper-line); margin-top:12px; padding-top:10px; display:flex; justify-content:space-between; font-weight:700;">
+        <span>Paga prevista</span><span>${fmtEuro(ms.expected)}</span>
+      </div>
+    </div>
+
+    <div class="section-label">Confronto stipendio · ${monthLabel(mKey)}</div>
+    <div class="card">
+      <div class="field" style="margin-bottom:8px;">
+        <label>Importo ricevuto (€)</label>
+        <input type="number" step="0.01" id="receivedInput" placeholder="Non ancora arrivato" value="${pay.received!=null?pay.received:''}">
+      </div>
+      ${diff!==null ? `<div style="font-size:.85rem; font-weight:600; color:${diff<0?'var(--coral)':'#2c6e4a'};">
+        ${diff===0? 'Corrisponde esattamente alla previsione.' : diff>0 ? `${fmtEuro(diff)} in più del previsto` : `${fmtEuro(Math.abs(diff))} in meno del previsto`}
+      </div>` : `<div style="font-size:.8rem; color:#7a7d6e;">Inserisci l'importo quando arriva lo stipendio per confrontarlo con la previsione.</div>`}
+    </div>
+
+    <div class="section-label" style="display:flex; align-items:center; justify-content:space-between;">
+      <span>Ferie &amp; permessi</span>
+      <button class="btn btn-ghost btn-sm" id="btnAddLeave">＋ Richiedi</button>
+    </div>
+    ${leavesHTML}
+
+    ${past.length ? `<div class="section-label">Turni passati</div>${shiftsHTML(past.slice(0,8))}` : ''}
+  `;
+
+  el.querySelectorAll('[data-edit-shift]').forEach(row=>{
+    row.addEventListener('click', (e)=>{
+      if(e.target.closest('[data-del-shift]')) return;
+      openShiftForm(row.dataset.editShift);
+    });
+  });
+  el.querySelectorAll('[data-del-shift]').forEach(btn=>{
+    btn.addEventListener('click', (e)=>{
+      e.stopPropagation();
+      confirmSheet('Eliminare questo turno?', 'Elimina', ()=>{
+        const sObj = state.shifts.find(s=>s.id===btn.dataset.delShift);
+        if(sObj && sObj.recurringId){
+          const pattern = state.recurring.find(p=>p.id===sObj.recurringId);
+          if(pattern && !(pattern.exceptions||[]).includes(sObj.date)) pattern.exceptions.push(sObj.date);
+        }
+        state.shifts = state.shifts.filter(s=>s.id!==btn.dataset.delShift);
+        save(); renderTurni(); toast('Turno eliminato');
+      });
+    });
+  });
+  el.querySelectorAll('[data-edit-leave]').forEach(row=>{
+    row.addEventListener('click', (e)=>{
+      if(e.target.closest('[data-del-leave]')) return;
+      openLeaveForm(row.dataset.editLeave);
+    });
+  });
+  el.querySelectorAll('[data-del-leave]').forEach(btn=>{
+    btn.addEventListener('click', (e)=>{
+      e.stopPropagation();
+      confirmSheet('Eliminare questa richiesta?', 'Elimina', ()=>{
+        state.leaves = state.leaves.filter(l=>l.id!==btn.dataset.delLeave);
+        save(); renderTurni(); toast('Richiesta eliminata');
+      });
+    });
+  });
+  const btnAddLeave = document.getElementById('btnAddLeave');
+  if(btnAddLeave) btnAddLeave.addEventListener('click', ()=> openLeaveForm());
+  const recv = document.getElementById('receivedInput');
+  if(recv) recv.addEventListener('change', ()=>{
+    if(!state.payments[payKey]) state.payments[payKey] = {};
+    state.payments[payKey].received = recv.value===''? null : Number(recv.value);
+    save(); renderTurni();
+  });
+
+  const calPrev = document.getElementById('calPrev');
+  const calNext = document.getElementById('calNext');
+  if(calPrev) calPrev.addEventListener('click', ()=>{
+    const [y,m] = calMonth.split('-').map(Number);
+    const d = new Date(y, m-2, 1); calMonth = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+    renderTurni();
+  });
+  if(calNext) calNext.addEventListener('click', ()=>{
+    const [y,m] = calMonth.split('-').map(Number);
+    const d = new Date(y, m, 1); calMonth = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+    renderTurni();
+  });
+  const calToday = document.getElementById('calToday');
+  if(calToday) calToday.addEventListener('click', ()=>{ calMonth = nowMonthKey(); renderTurni(); });
+  const calCollapseBtn = document.getElementById('calCollapseBtn');
+  if(calCollapseBtn) calCollapseBtn.addEventListener('click', ()=>{
+    state.uiPrefs.calCollapsed = !state.uiPrefs.calCollapsed;
+    save(); renderTurni();
+  });
+  const calGrid = document.getElementById('calGrid');
+  if(calGrid){
+    let touchStartX=null, touchStartY=null;
+    calGrid.addEventListener('touchstart', (e)=>{
+      touchStartX = e.touches[0].clientX; touchStartY = e.touches[0].clientY;
+    }, {passive:true});
+    calGrid.addEventListener('touchend', (e)=>{
+      if(touchStartX===null) return;
+      const dx = e.changedTouches[0].clientX - touchStartX;
+      const dy = e.changedTouches[0].clientY - touchStartY;
+      if(Math.abs(dx)>44 && Math.abs(dx)>Math.abs(dy)*1.6){
+        const [y,m] = calMonth.split('-').map(Number);
+        const d = new Date(y, m-1+(dx<0?1:-1), 1);
+        calMonth = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+        renderTurni();
+      }
+      touchStartX=null; touchStartY=null;
+    }, {passive:true});
+  }
+  el.querySelectorAll('[data-calday]').forEach(cell=>{
+    cell.addEventListener('click', ()=> onCalDayClick(cell.dataset.calday));
+  });
+  const btnAddRecurring = document.getElementById('btnAddRecurring');
+  if(btnAddRecurring) btnAddRecurring.addEventListener('click', ()=> openRecurringForm());
+  el.querySelectorAll('[data-editrec]').forEach(b=> b.addEventListener('click', ()=> openRecurringForm(b.dataset.editrec)));
+  el.querySelectorAll('[data-delrec]').forEach(b=>{
+    b.addEventListener('click', ()=>{
+      confirmSheet('Eliminare questo turno fisso? I turni futuri generati verranno rimossi.', 'Elimina', ()=>{
+        const pid = b.dataset.delrec;
+        state.recurring = state.recurring.filter(p=>p.id!==pid);
+        state.shifts = state.shifts.filter(s=> !(s.recurringId===pid && s.date>=todayStr()));
+        save(); renderTurni(); toast('Turno fisso eliminato');
+      });
+    });
+  });
+}
+
+function openShiftForm(editId, prefillDate, prefillValues){
+  const editing = editId ? state.shifts.find(s=>s.id===editId) : null;
+  const pf = prefillValues || {};
+  const jobsOptions = state.jobs.map(j=>`<option value="${j.id}" ${(editing? editing.jobId===j.id : pf.jobId===j.id)?'selected':''}>${escapeHtml(j.name)}</option>`).join('');
+  const linkedInfo = editing && editing.recurringId ? `<div class="info-note">Fa parte di un turno fisso. Se lo modifichi diventerà un turno indipendente solo per questa data — lo schema fisso resta invariato.</div>` : '';
+  const dupInfo = (!editing && prefillValues) ? `<div class="info-note">Turno duplicato: controlla data e orari prima di salvare.</div>` : '';
+  openSheet(editing? 'Modifica turno' : 'Nuovo turno', `
+    ${linkedInfo}${dupInfo}
+    <div class="field">
+      <label>Lavoro</label>
+      <select id="fJob">${jobsOptions}</select>
+    </div>
+    <div class="field">
+      <label>Data</label>
+      <input type="date" id="fDate" value="${editing? editing.date : (prefillDate || todayStr())}">
+    </div>
+    <div class="field-2col">
+      <div class="field"><label>Inizio</label><input type="time" id="fStart" value="${editing? editing.start : (pf.start||'09:00')}"></div>
+      <div class="field"><label>Fine</label><input type="time" id="fEnd" value="${editing? editing.end : (pf.end||'13:00')}"></div>
+    </div>
+    <div class="field">
+      <label>Pausa (minuti, opzionale)</label>
+      <input type="number" id="fPause" min="0" step="5" value="${editing? (editing.pause||0) : (pf.pause||0)}">
+    </div>
+    <div class="field">
+      <label>Nota (opzionale)</label>
+      <input type="text" id="fNote" placeholder="Es. turno serale, banco cassa..." value="${editing? escapeAttr(editing.note||'') : escapeAttr(pf.note||'')}">
+    </div>
+  `, `
+    ${editing? `<button class="btn btn-danger" id="fDelete">Elimina</button><button class="btn btn-ghost" id="fDuplicate">Duplica</button>`:''}
+    <button class="btn btn-gold" id="fSave">${editing? 'Salva' : 'Aggiungi turno'}</button>
+  `);
+  const dup = document.getElementById('fDuplicate');
+  if(dup) dup.addEventListener('click', ()=>{
+    const jobId = document.getElementById('fJob').value;
+    const start = document.getElementById('fStart').value;
+    const end = document.getElementById('fEnd').value;
+    const pause = Number(document.getElementById('fPause').value)||0;
+    const note = document.getElementById('fNote').value.trim();
+    const d = new Date(document.getElementById('fDate').value+'T00:00:00');
+    d.setDate(d.getDate()+7);
+    closeSheet();
+    setTimeout(()=> openShiftForm(null, toLocalDateStr(d), {jobId, start, end, pause, note}), 180);
+  });
+  document.getElementById('fSave').addEventListener('click', ()=>{
+    const jobId = document.getElementById('fJob').value;
+    const date = document.getElementById('fDate').value;
+    const start = document.getElementById('fStart').value;
+    const end = document.getElementById('fEnd').value;
+    const pause = document.getElementById('fPause').value;
+    const note = document.getElementById('fNote').value.trim();
+    if(!jobId || !date || !start || !end){ toast('Compila data e orari'); return; }
+    if(editing){
+      if(editing.recurringId){
+        const pattern = state.recurring.find(p=>p.id===editing.recurringId);
+        if(pattern && !(pattern.exceptions||[]).includes(editing.date)) pattern.exceptions.push(editing.date);
+        delete editing.recurringId;
+      }
+      Object.assign(editing, {jobId, date, start, end, pause: Number(pause)||0, note});
+    } else {
+      state.shifts.push({id:uid(), jobId, date, start, end, pause:Number(pause)||0, note});
+    }
+    save(); closeSheet(); renderCurrent(); toast(editing? 'Turno aggiornato' : 'Turno aggiunto');
+  });
+  const del = document.getElementById('fDelete');
+  if(del) del.addEventListener('click', ()=>{
+    confirmSheet('Eliminare questo turno?', 'Elimina', ()=>{
+      if(editing.recurringId){
+        const pattern = state.recurring.find(p=>p.id===editing.recurringId);
+        if(pattern && !(pattern.exceptions||[]).includes(editing.date)) pattern.exceptions.push(editing.date);
+      }
+      state.shifts = state.shifts.filter(s=>s.id!==editing.id);
+      save(); closeSheet(); renderCurrent(); toast('Turno eliminato');
+    });
+  });
+}
+
+function openLeaveForm(editId){
+  const editing = editId ? state.leaves.find(l=>l.id===editId) : null;
+  openSheet(editing? 'Modifica richiesta' : 'Richiedi ferie / permesso', `
+    <div class="field">
+      <label>Tipo</label>
+      <select id="lType">
+        <option value="ferie" ${editing && editing.type==='ferie'?'selected':''}>Ferie</option>
+        <option value="permesso" ${editing && editing.type==='permesso'?'selected':''}>Permesso</option>
+      </select>
+    </div>
+    <div class="field-2col">
+      <div class="field"><label>Da</label><input type="date" id="lFrom" value="${editing? editing.dateFrom : todayStr()}"></div>
+      <div class="field"><label>A</label><input type="date" id="lTo" value="${editing? editing.dateTo : todayStr()}"></div>
+    </div>
+    <div class="field">
+      <label>Ore (opzionale, per i permessi brevi)</label>
+      <input type="number" id="lHours" min="0" step="0.5" value="${editing? (editing.hours||''):''}">
+    </div>
+    <div class="field">
+      <label>Stato</label>
+      <select id="lStatus">
+        <option value="richiesto" ${editing && editing.status==='richiesto'?'selected':''}>Richiesto</option>
+        <option value="confermato" ${editing && editing.status==='confermato'?'selected':''}>Confermato</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>Nota (opzionale)</label>
+      <input type="text" id="lNote" value="${editing? escapeAttr(editing.note||''):''}">
+    </div>
+  `, `
+    ${editing? `<button class="btn btn-danger" id="lDelete">Elimina</button>`:''}
+    <button class="btn btn-gold" id="lSave">${editing? 'Salva' : 'Invia richiesta'}</button>
+  `);
+  document.getElementById('lSave').addEventListener('click', ()=>{
+    const type = document.getElementById('lType').value;
+    const dateFrom = document.getElementById('lFrom').value;
+    const dateTo = document.getElementById('lTo').value || dateFrom;
+    const hours = document.getElementById('lHours').value;
+    const status = document.getElementById('lStatus').value;
+    const note = document.getElementById('lNote').value.trim();
+    if(!dateFrom){ toast('Indica una data'); return; }
+    if(editing){
+      Object.assign(editing, {type, dateFrom, dateTo, hours: hours?Number(hours):null, status, note});
+    } else {
+      state.leaves.push({id:uid(), type, dateFrom, dateTo, hours: hours?Number(hours):null, status, note});
+    }
+    save(); closeSheet(); renderCurrent(); toast(editing? 'Richiesta aggiornata' : 'Richiesta salvata');
+  });
+  const del = document.getElementById('lDelete');
+  if(del) del.addEventListener('click', ()=>{
+    confirmSheet('Eliminare questa richiesta?', 'Elimina', ()=>{
+      state.leaves = state.leaves.filter(l=>l.id!==editing.id);
+      save(); closeSheet(); renderCurrent(); toast('Richiesta eliminata');
+    });
+  });
+}
+
+function onCalDayClick(dateStr){
+  const dayShifts = state.shifts.filter(s=>s.date===dateStr);
+  if(dayShifts.length===0){ openShiftForm(null, dateStr); return; }
+  if(dayShifts.length===1){ openShiftForm(dayShifts[0].id); return; }
+  openSheet(fmtDateLong(dateStr), dayShifts.map(s=>`
+    <div class="shift-row" data-pick="${s.id}" style="margin-bottom:8px; cursor:pointer;">
+      <div class="shift-body">
+        <div class="time">${s.start}–${s.end}</div>
+        <div class="job"><span class="dot" style="background:${jobColor(s.jobId)}"></span>${escapeHtml(jobName(s.jobId))}</div>
+      </div>
+    </div>`).join(''), '');
+  document.querySelectorAll('[data-pick]').forEach(row=>{
+    row.addEventListener('click', ()=>{
+      const id = row.dataset.pick;
+      closeSheet();
+      setTimeout(()=> openShiftForm(id), 180);
+    });
+  });
+}
+
+function openRecurringForm(editId){
+  const editing = editId ? state.recurring.find(p=>p.id===editId) : null;
+  const jobsOptions = state.jobs.map(j=>`<option value="${j.id}" ${editing && editing.jobId===j.id?'selected':''}>${escapeHtml(j.name)}</option>`).join('');
+  const selDays = editing ? editing.days : [];
+  openSheet(editing? 'Modifica turno fisso' : 'Nuovo turno fisso', `
+    <div class="info-note">Il turno verrà creato in automatico nei giorni scelti, per le prossime settimane. Puoi sempre modificare o eliminare una singola data dal calendario senza toccare lo schema.</div>
+    <div class="field">
+      <label>Lavoro</label>
+      <select id="rJob">${jobsOptions}</select>
+    </div>
+    <div class="field">
+      <label>Giorni della settimana</label>
+      <div class="days-picker" id="rDays">
+        ${DAY_DEFS.map(d=>`<span class="day-chip ${selDays.includes(d.v)?'on':''}" data-dayval="${d.v}">${d.short}</span>`).join('')}
+      </div>
+    </div>
+    <div class="field-2col">
+      <div class="field"><label>Inizio</label><input type="time" id="rStart" value="${editing? editing.start:'16:00'}"></div>
+      <div class="field"><label>Fine</label><input type="time" id="rEnd" value="${editing? editing.end:'01:00'}"></div>
+    </div>
+    <div class="field">
+      <label>Pausa (minuti, opzionale)</label>
+      <input type="number" id="rPause" min="0" step="5" value="${editing? (editing.pause||0):0}">
+    </div>
+    <div class="field-2col">
+      <div class="field"><label>Dal</label><input type="date" id="rFrom" value="${editing? editing.from : todayStr()}"></div>
+      <div class="field"><label>Al (vuoto = indeterminato)</label><input type="date" id="rTo" value="${editing && editing.to? editing.to:''}"></div>
+    </div>
+    <div class="field">
+      <label>Nota (opzionale)</label>
+      <input type="text" id="rNote" value="${editing? escapeAttr(editing.note||''):''}">
+    </div>
+  `, `
+    ${editing? `<button class="btn btn-danger" id="rDelete">Elimina</button>`:''}
+    <button class="btn btn-gold" id="rSave">${editing? 'Salva' : 'Crea turno fisso'}</button>
+  `);
+
+  document.querySelectorAll('#rDays [data-dayval]').forEach(chip=>{
+    chip.addEventListener('click', ()=> chip.classList.toggle('on'));
+  });
+
+  document.getElementById('rSave').addEventListener('click', ()=>{
+    const jobId = document.getElementById('rJob').value;
+    const days = Array.from(document.querySelectorAll('#rDays [data-dayval].on')).map(c=>Number(c.dataset.dayval));
+    const start = document.getElementById('rStart').value;
+    const end = document.getElementById('rEnd').value;
+    const pause = Number(document.getElementById('rPause').value)||0;
+    const from = document.getElementById('rFrom').value;
+    const to = document.getElementById('rTo').value || null;
+    const note = document.getElementById('rNote').value.trim();
+    if(!jobId || !days.length || !start || !end || !from){ toast('Scegli almeno un giorno e compila gli orari'); return; }
+    if(editing){
+      state.shifts = state.shifts.filter(s=> !(s.recurringId===editing.id && s.date>=todayStr()));
+      Object.assign(editing, {jobId, days, start, end, pause, from, to, note});
+    } else {
+      state.recurring.push({id:uid(), jobId, days, start, end, pause, from, to, note, exceptions:[]});
+    }
+    ensureGeneratedShifts();
+    save(); closeSheet(); renderCurrent(); toast(editing? 'Turno fisso aggiornato' : 'Turno fisso creato');
+  });
+  const delRec = document.getElementById('rDelete');
+  if(delRec) delRec.addEventListener('click', ()=>{
+    confirmSheet('Eliminare questo turno fisso? I turni futuri generati verranno rimossi.', 'Elimina', ()=>{
+      state.recurring = state.recurring.filter(p=>p.id!==editing.id);
+      state.shifts = state.shifts.filter(s=> !(s.recurringId===editing.id && s.date>=todayStr()));
+      save(); closeSheet(); renderCurrent(); toast('Turno fisso eliminato');
+    });
+  });
+}
+
+/* ================= TRAME (watchlist) ================= */
+let watchTabState = 'davedere';
+let suggestMood = 'qualsiasi';
+let suggestTime = 'qualsiasi';
+let watchSearch = '';
+let watchTypeFilter = 'tutti';
+
+function renderWatch(){
+  const el = document.getElementById('watchContent');
+  const byType = (w)=> watchTypeFilter==='tutti' || w.type===watchTypeFilter;
+  const baseLists = {
+    davedere: state.watch.filter(w=>w.list==='davedere' && byType(w)),
+    incorso: state.watch.filter(w=>w.list==='incorso' && byType(w)),
+    finiti: state.watch.filter(w=>w.list==='finiti' && byType(w)).sort((a,b)=> (b.finishedDate||'').localeCompare(a.finishedDate||''))
+  };
+  const lists = {
+    davedere: applyWatchSearch(baseLists.davedere),
+    incorso: applyWatchSearch(baseLists.incorso),
+    finiti: applyWatchSearch(baseLists.finiti)
+  };
+  const totalItems = state.watch.length;
+
+  el.innerHTML = `
+    <div class="card" style="background:var(--teal); color:#eafafb; border:none;">
+      <div style="font-weight:700; font-size:1rem; margin-bottom:2px;">Cosa guardo stasera?</div>
+      <div style="font-size:.8rem; color:#cdeaec; margin-bottom:12px;">Dimmi il mood e quanto tempo hai</div>
+      <div class="chip-row" id="moodChips" style="margin-bottom:8px;">
+        ${['qualsiasi', ...MOODS].map(m=>`<span class="chip mood-chip ${suggestMood===m?'on':''}" data-mood="${m}" style="background:${suggestMood===m?'#eafafb':'transparent'}; color:${suggestMood===m?'var(--teal-dark)':'#eafafb'}; border-color:#5fa3a9;">${m}</span>`).join('')}
+      </div>
+      <div class="chip-row" id="timeChips" style="margin-bottom:14px;">
+        ${[['qualsiasi','Qualsiasi durata'],['breve','< 30 min'],['media','~1 ora'],['lunga','1h 30+']].map(([k,label])=>`<span class="chip time-chip ${suggestTime===k?'on':''}" data-time="${k}" style="background:${suggestTime===k?'#eafafb':'transparent'}; color:${suggestTime===k?'var(--teal-dark)':'#eafafb'}; border-color:#5fa3a9;">${label}</span>`).join('')}
+      </div>
+      <button class="btn" style="background:#eafafb; color:var(--teal-dark); width:100%;" id="btnSuggest">Suggeriscimi qualcosa</button>
+      <div id="suggestResult" style="margin-top:12px;"></div>
+    </div>
+
+    <div class="segmented">
+      <button class="${watchTabState==='davedere'?'active':''}" data-wtab="davedere">Da guardare (${baseLists.davedere.length})</button>
+      <button class="${watchTabState==='incorso'?'active':''}" data-wtab="incorso">In corso (${baseLists.incorso.length})</button>
+      <button class="${watchTabState==='finiti'?'active':''}" data-wtab="finiti">Finiti (${baseLists.finiti.length})</button>
+    </div>
+
+    ${totalItems>3 ? `
+    <div class="search-box">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+      <input type="text" id="watchSearchInput" placeholder="Cerca un titolo..." value="${escapeAttr(watchSearch)}">
+      ${watchSearch? `<button class="clear-x" id="watchSearchClear">✕</button>`:''}
+    </div>
+    <div class="filter-row">
+      ${['tutti','Serie','Film','Libro'].map(t=>`<span class="chip ${watchTypeFilter===t?'on':''}" data-typefilter="${t}">${t==='tutti'?'Tutti':t}</span>`).join('')}
+    </div>` : ''}
+
+    <div id="watchListBox"></div>
+  `;
+
+  renderWatchList(lists[watchTabState]);
+
+  el.querySelectorAll('[data-wtab]').forEach(b=>{
+    b.addEventListener('click', ()=>{ watchTabState = b.dataset.wtab; renderWatch(); });
+  });
+  el.querySelectorAll('.mood-chip').forEach(c=>{
+    c.addEventListener('click', ()=>{ suggestMood = c.dataset.mood; renderWatch(); });
+  });
+  el.querySelectorAll('.time-chip').forEach(c=>{
+    c.addEventListener('click', ()=>{ suggestTime = c.dataset.time; renderWatch(); });
+  });
+  document.getElementById('btnSuggest').addEventListener('click', runSuggest);
+
+  const searchInput = document.getElementById('watchSearchInput');
+  if(searchInput){
+    searchInput.addEventListener('input', ()=>{
+      watchSearch = searchInput.value;
+      renderWatchList(applyWatchSearch(baseLists[watchTabState]));
+    });
+    const clearBtn = document.getElementById('watchSearchClear');
+    if(clearBtn) clearBtn.addEventListener('click', ()=>{ watchSearch=''; renderWatch(); });
+  }
+  el.querySelectorAll('[data-typefilter]').forEach(c=>{
+    c.addEventListener('click', ()=>{ watchTypeFilter = c.dataset.typefilter; renderWatch(); });
+  });
+}
+function applyWatchSearch(items){
+  const q = watchSearch.trim().toLowerCase();
+  if(!q) return items;
+  return items.filter(w=> w.title.toLowerCase().includes(q));
+}
+
+function renderWatchList(items){
+  const box = document.getElementById('watchListBox');
+  if(!items.length){
+    if(watchSearch || watchTypeFilter!=='tutti'){
+      box.innerHTML = `<div class="empty"><span class="glyph">🔍</span>Nessun risultato per questo filtro.</div>`;
+      return;
+    }
+    const msgs = {
+      davedere:'Nulla in lista. Aggiungi un titolo con ＋.',
+      incorso:'Non stai seguendo nulla al momento.',
+      finiti:'Non hai ancora segnato nulla come finito.'
+    };
+    box.innerHTML = `<div class="empty"><span class="glyph">🎬</span>${msgs[watchTabState]}</div>`;
+    return;
+  }
+  box.innerHTML = items.map(w=>{
+    let meta = '';
+    if(watchTabState==='incorso' && w.progress) meta = `<div class="meta">${escapeHtml(w.progress)}</div>`;
+    if(watchTabState==='finiti'){
+      const parts = [];
+      if(w.finishedDate) parts.push('finito il '+fmtDateShort(w.finishedDate).d+' '+fmtDateShort(w.finishedDate).m);
+      if(w.timeSpent) parts.push(escapeHtml(w.timeSpent));
+      meta = parts.length? `<div class="meta">${parts.join(' · ')}</div>` : '';
+    }
+    const stars = w.rating ? `<div class="stars">${'★'.repeat(w.rating)}${'☆'.repeat(5-w.rating)}</div>` : '';
+    return `
+    <div class="watch-card" data-type="${w.type}" data-edit-watch="${w.id}">
+      <div class="row1">
+        <div>
+          <div class="title">${escapeHtml(w.title)}</div>
+          <div class="type">${w.type}</div>
+        </div>
+        <button class="del-x" data-del-watch="${w.id}">✕</button>
+      </div>
+      ${meta}
+      ${stars}
+      ${w.moods && w.moods.length ? `<div class="chip-row" style="margin-top:6px;">${w.moods.map(m=>`<span class="chip" style="cursor:default; padding:3px 9px; font-size:.68rem;">${m}</span>`).join('')}</div>`:''}
+      ${w.note ? `<div class="note-preview">“${escapeHtml(w.note)}”</div>` : ''}
+    </div>`;
+  }).join('');
+
+  box.querySelectorAll('[data-edit-watch]').forEach(card=>{
+    card.addEventListener('click', (e)=>{
+      if(e.target.closest('[data-del-watch]')) return;
+      openWatchForm(card.dataset.editWatch);
+    });
+  });
+  box.querySelectorAll('[data-del-watch]').forEach(btn=>{
+    btn.addEventListener('click', (e)=>{
+      e.stopPropagation();
+      confirmSheet('Eliminare questo titolo?', 'Elimina', ()=>{
+        state.watch = state.watch.filter(w=>w.id!==btn.dataset.delWatch);
+        save(); renderWatch(); toast('Titolo eliminato');
+      });
+    });
+  });
+}
+
+function runSuggest(){
+  let pool = state.watch.filter(w=>w.list==='davedere');
+  if(!pool.length){
+    document.getElementById('suggestResult').innerHTML = `<div style="font-size:.85rem; color:#eafafb;">La lista "da guardare" è vuota — aggiungi qualcosa prima.</div>`;
+    return;
+  }
+  let filtered = pool;
+  if(suggestMood!=='qualsiasi'){
+    const byMood = pool.filter(w=> w.moods && w.moods.includes(suggestMood));
+    if(byMood.length) filtered = byMood;
+  }
+  if(suggestTime!=='qualsiasi'){
+    const withDur = filtered.filter(w=> w.duration);
+    let byTime = withDur;
+    if(suggestTime==='breve') byTime = withDur.filter(w=> Number(w.duration) <= 30);
+    if(suggestTime==='media') byTime = withDur.filter(w=> Number(w.duration) > 30 && Number(w.duration) <= 90);
+    if(suggestTime==='lunga') byTime = withDur.filter(w=> Number(w.duration) > 90);
+    if(byTime.length) filtered = byTime;
+  }
+  let candidates = filtered.filter(w=> w.id !== state.lastSuggested);
+  if(!candidates.length) candidates = filtered;
+  const pick = candidates[Math.floor(Math.random()*candidates.length)];
+  state.lastSuggested = pick.id; save();
+
+  document.getElementById('suggestResult').innerHTML = `
+    <div style="background:#eafafb; color:var(--ink); border-radius:12px; padding:12px 14px;">
+      <div style="font-weight:700; font-size:1rem;">${escapeHtml(pick.title)}</div>
+      <div style="font-size:.78rem; color:#5b5f52; margin-bottom:6px;">${pick.type}${pick.duration? ' · ~'+pick.duration+' min':''}</div>
+      ${pick.note? `<div style="font-size:.8rem; font-style:italic; margin-bottom:8px;">“${escapeHtml(pick.note)}”</div>`:''}
+      <button class="btn btn-teal btn-sm" id="btnStartWatch" data-id="${pick.id}">Ho iniziato →</button>
+    </div>
+  `;
+  document.getElementById('btnStartWatch').addEventListener('click', ()=>{
+    const item = state.watch.find(w=>w.id===pick.id);
+    if(item){ item.list='incorso'; save(); watchTabState='incorso'; renderWatch(); toast('Spostato in "In corso"'); }
+  });
+}
+
+function openWatchForm(editId){
+  const editing = editId ? state.watch.find(w=>w.id===editId) : null;
+  const moods = editing ? (editing.moods||[]) : [];
+  openSheet(editing? 'Modifica titolo' : 'Nuovo titolo', `
+    <div class="section-label">Info base</div>
+    <div class="field">
+      <label>Titolo</label>
+      <input type="text" id="wTitle" placeholder="Nome della serie, film o libro" value="${editing? escapeAttr(editing.title):''}">
+    </div>
+    <div class="field-2col">
+      <div class="field">
+        <label>Tipo</label>
+        <select id="wType">
+          <option ${editing && editing.type==='Serie'?'selected':''}>Serie</option>
+          <option ${editing && editing.type==='Film'?'selected':''}>Film</option>
+          <option ${editing && editing.type==='Libro'?'selected':''}>Libro</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Lista</label>
+        <select id="wList">
+          <option value="davedere" ${editing && editing.list==='davedere'?'selected':''}>Da guardare</option>
+          <option value="incorso" ${editing && editing.list==='incorso'?'selected':''}>In corso</option>
+          <option value="finiti" ${editing && editing.list==='finiti'?'selected':''}>Finiti</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="section-label">Per la serata</div>
+    <div class="field">
+      <label>Mood (scegli quelli che si applicano)</label>
+      <div class="chip-row" id="wMoods">
+        ${MOODS.map(m=>`<span class="chip ${moods.includes(m)?'on':''}" data-moodpick="${m}">${m}</span>`).join('')}
+      </div>
+    </div>
+    <div class="field">
+      <label>Durata di un episodio / del film (min, opzionale)</label>
+      <input type="number" id="wDuration" min="0" step="5" value="${editing && editing.duration? editing.duration:''}">
+    </div>
+
+    <div class="section-label">Avanzamento</div>
+    <div class="field">
+      <label>A che punto sei (opzionale)</label>
+      <input type="text" id="wProgress" placeholder="Es. stagione 2, episodio 4" value="${editing? escapeAttr(editing.progress||''):''}">
+    </div>
+
+    <div class="section-label">Se l'hai finito</div>
+    <div class="field">
+      <label>Voto</label>
+      <div class="stars-input" id="wStars" data-val="${editing? (editing.rating||0):0}">
+        ${[1,2,3,4,5].map(i=>`<span data-star="${i}" class="${editing && editing.rating>=i?'on':''}">★</span>`).join('')}
+      </div>
+    </div>
+    <div class="field-2col">
+      <div class="field"><label>Data fine</label><input type="date" id="wFinished" value="${editing && editing.finishedDate? editing.finishedDate:''}"></div>
+      <div class="field"><label>Tempo impiegato</label><input type="text" id="wTimeSpent" placeholder="Es. 6h, 3 sere" value="${editing? escapeAttr(editing.timeSpent||''):''}"></div>
+    </div>
+
+    <div class="section-label">Note</div>
+    <div class="field">
+      <textarea id="wNote" placeholder="Es. riprendere dalla stagione 2...">${editing? escapeHtml(editing.note||''):''}</textarea>
+    </div>
+  `, `
+    ${editing? `<button class="btn btn-danger" id="wDelete">Elimina</button>`:''}
+    <button class="btn btn-teal" id="wSave">${editing? 'Salva' : 'Aggiungi'}</button>
+  `);
+
+  document.querySelectorAll('[data-moodpick]').forEach(c=>{
+    c.addEventListener('click', ()=> c.classList.toggle('on'));
+  });
+  const starsBox = document.getElementById('wStars');
+  starsBox.querySelectorAll('[data-star]').forEach(s=>{
+    s.addEventListener('click', ()=>{
+      const val = Number(s.dataset.star);
+      starsBox.dataset.val = (Number(starsBox.dataset.val)===val) ? 0 : val;
+      starsBox.querySelectorAll('[data-star]').forEach(el2=> el2.classList.toggle('on', Number(el2.dataset.star) <= Number(starsBox.dataset.val)));
+    });
+  });
+
+  document.getElementById('wSave').addEventListener('click', ()=>{
+    const title = document.getElementById('wTitle').value.trim();
+    if(!title){ toast('Serve almeno un titolo'); return; }
+    const type = document.getElementById('wType').value;
+    const list = document.getElementById('wList').value;
+    const selMoods = Array.from(document.querySelectorAll('[data-moodpick].on')).map(c=>c.dataset.moodpick);
+    const duration = document.getElementById('wDuration').value;
+    const progress = document.getElementById('wProgress').value.trim();
+    const rating = Number(starsBox.dataset.val)||0;
+    const finishedDate = document.getElementById('wFinished').value;
+    const timeSpent = document.getElementById('wTimeSpent').value.trim();
+    const note = document.getElementById('wNote').value.trim();
+    const payload = {title, type, list, moods:selMoods, duration: duration?Number(duration):null, progress, rating, finishedDate, timeSpent, note};
+    if(editing){ Object.assign(editing, payload); }
+    else { state.watch.push(Object.assign({id:uid()}, payload)); }
+    save(); closeSheet(); watchTabState = list; renderCurrent(); toast(editing?'Titolo aggiornato':'Titolo aggiunto');
+  });
+  const del = document.getElementById('wDelete');
+  if(del) del.addEventListener('click', ()=>{
+    confirmSheet('Eliminare questo titolo?', 'Elimina', ()=>{
+      state.watch = state.watch.filter(w=>w.id!==editing.id);
+      save(); closeSheet(); renderCurrent(); toast('Titolo eliminato');
+    });
+  });
+}
+
+/* ================= SETTINGS ================= */
+let settingsYear = new Date().getFullYear();
+function renderSettings(){
+  const el = document.getElementById('settingsContent');
+  const ys = yearStats(settingsYear);
+  const years = availableYears();
+  el.innerHTML = `
+    <div class="section-label">Profilo</div>
+    <div class="card">
+      <div class="field">
+        <label>Nome</label>
+        <input type="text" id="sName" value="${escapeAttr(state.profile.name)}">
+      </div>
+      <div class="field" style="margin-bottom:0;">
+        <label>Ore/settimana abituali</label>
+        <input type="number" id="sHours" min="0" value="${state.profile.weeklyHours||''}">
+      </div>
+    </div>
+
+    <div class="section-label" style="display:flex; align-items:center; justify-content:space-between;">
+      <span>I tuoi lavori</span>
+      <button class="btn btn-ghost btn-sm" id="btnAddJob">＋ Aggiungi</button>
+    </div>
+    <div id="jobsBox">
+      ${state.jobs.map(j=>`
+        <div class="card" style="display:flex; align-items:center; gap:10px;">
+          <span class="dot" style="width:14px; height:14px; background:${j.color}; flex-shrink:0;"></span>
+          <div style="flex:1;">
+            <div style="font-weight:600; font-size:.92rem;">${escapeHtml(j.name)}</div>
+            <div style="font-size:.8rem; color:#5b5f52;">${fmtEuro(j.rate)} / ora</div>
+          </div>
+          <button class="btn btn-ghost btn-sm" data-editjob="${j.id}">Modifica</button>
+          <button class="del-x" data-deljob="${j.id}">✕</button>
+        </div>`).join('') || `<div class="empty">Nessun lavoro ancora. Aggiungine uno.</div>`}
+    </div>
+
+    <div class="section-label" style="display:flex; align-items:center; justify-content:space-between;">
+      <span>Riepilogo annuale</span>
+      ${years.length>1 ? `<select id="sYear" style="border:1px solid var(--paper-line); border-radius:9px; padding:4px 8px; font-size:.78rem; background:var(--white); font-family:'Work Sans',sans-serif;">
+        ${years.map(y=>`<option value="${y}" ${String(y)===String(settingsYear)?'selected':''}>${y}</option>`).join('')}
+      </select>` : ''}
+    </div>
+    <div class="card">
+      <div class="stat-row">
+        <div class="stat gold"><div class="label">Ore totali</div><div class="val">${fmtHours(ys.totalHours)}</div></div>
+        <div class="stat teal"><div class="label">Turni</div><div class="val">${ys.count}</div></div>
+      </div>
+      ${state.jobs.filter(j=>ys.byJob[j.id]).map(j=>`
+        <div style="display:flex; justify-content:space-between; font-size:.85rem; margin-top:10px;">
+          <span style="display:flex; align-items:center; gap:6px;"><span class="dot" style="background:${j.color}"></span>${escapeHtml(j.name)}</span>
+          <span>${fmtHours(ys.byJob[j.id])} · ${fmtEuro(ys.byJob[j.id]*j.rate)}</span>
+        </div>`).join('')}
+      <div style="border-top:1px solid var(--paper-line); margin-top:12px; padding-top:10px; display:flex; justify-content:space-between; font-weight:700;">
+        <span>Paga prevista ${settingsYear}</span><span>${fmtEuro(ys.expected)}</span>
+      </div>
+      ${ys.count===0 ? `<div style="font-size:.78rem; color:#7a7d6e; margin-top:8px;">Nessun turno registrato in questo anno.</div>` : ''}
+    </div>
+
+    <div class="section-label">Dati</div>
+    <div class="card">
+      <p style="font-size:.82rem; color:#5b5f52; margin:0 0 12px;">Tutto quello che inserisci resta salvato solo su questo dispositivo. Esporta un backup ogni tanto per non perderlo.</p>
+      <button class="btn btn-ghost btn-block" id="btnExport">Esporta backup (JSON)</button>
+      <button class="btn btn-ghost btn-block" id="btnImport">Importa backup</button>
+      <input type="file" id="fileImport" accept="application/json" style="display:none;">
+      <button class="btn btn-danger btn-block" id="btnReset">Cancella tutti i dati</button>
+    </div>
+
+    <div style="text-align:center; font-size:.72rem; color:#9a9d8f; padding:10px 0 20px;">Turni &amp; Trame · i tuoi dati non lasciano questo telefono</div>
+  `;
+
+  document.getElementById('sName').addEventListener('change', e=>{ state.profile.name = e.target.value.trim(); save(); renderTopbar(); });
+  document.getElementById('sHours').addEventListener('change', e=>{ state.profile.weeklyHours = Number(e.target.value)||0; save(); });
+
+  const sYear = document.getElementById('sYear');
+  if(sYear) sYear.addEventListener('change', ()=>{ settingsYear = Number(sYear.value); renderSettings(); });
+
+  document.getElementById('btnAddJob').addEventListener('click', ()=> openJobForm());
+  el.querySelectorAll('[data-editjob]').forEach(b=> b.addEventListener('click', ()=> openJobForm(b.dataset.editjob)));
+  el.querySelectorAll('[data-deljob]').forEach(b=> b.addEventListener('click', ()=>{
+    const used = state.shifts.some(s=>s.jobId===b.dataset.deljob);
+    const msg = used ? 'Questo lavoro ha turni registrati. Eliminarlo comunque? I turni resteranno ma senza nome lavoro.' : 'Eliminare questo lavoro?';
+    confirmSheet(msg, 'Elimina', ()=>{
+      state.jobs = state.jobs.filter(j=>j.id!==b.dataset.deljob);
+      save(); renderSettings(); toast('Lavoro eliminato');
+    });
+  }));
+
+  document.getElementById('btnExport').addEventListener('click', ()=>{
+    const blob = new Blob([JSON.stringify(state,null,2)], {type:'application/json'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = 'turni-e-trame-backup-'+todayStr()+'.json';
+    document.body.appendChild(a); a.click(); a.remove();
+    URL.revokeObjectURL(url);
+    toast('Backup scaricato');
+  });
+  document.getElementById('btnImport').addEventListener('click', ()=> document.getElementById('fileImport').click());
+  document.getElementById('fileImport').addEventListener('change', (e)=>{
+    const file = e.target.files[0]; if(!file) return;
+    const reader = new FileReader();
+    reader.onload = ()=>{
+      try{
+        const parsed = JSON.parse(reader.result);
+        confirmSheet('Importare questo backup? Sostituirà i dati attuali.', 'Importa', ()=>{
+          state = Object.assign(defaultState(), parsed);
+          save(); renderCurrent(); toast('Backup importato');
+        }, false);
+      }catch(err){ toast('File non valido'); }
+    };
+    reader.readAsText(file);
+    e.target.value = '';
+  });
+  document.getElementById('btnReset').addEventListener('click', ()=>{
+    confirmSheet('Cancellare tutti i dati? Non si può annullare.', 'Cancella tutto', ()=>{
+      localStorage.removeItem(STORAGE_KEY);
+      state = defaultState();
+      save();
+      location.reload();
+    });
+  });
+}
+
+function openJobForm(editId){
+  const editing = editId ? state.jobs.find(j=>j.id===editId) : null;
+  openSheet(editing? 'Modifica lavoro' : 'Nuovo lavoro', `
+    <div class="field">
+      <label>Nome del lavoro / locale</label>
+      <input type="text" id="jName" value="${editing? escapeAttr(editing.name):''}" placeholder="Es. Libreria Nord">
+    </div>
+    <div class="field">
+      <label>Tariffa oraria (€)</label>
+      <input type="number" id="jRate" step="0.1" min="0" value="${editing? editing.rate:''}">
+    </div>
+  `, `
+    <button class="btn btn-gold" id="jSave">${editing?'Salva':'Aggiungi'}</button>
+  `);
+  document.getElementById('jSave').addEventListener('click', ()=>{
+    const name = document.getElementById('jName').value.trim();
+    const rate = Number(document.getElementById('jRate').value);
+    if(!name || !rate){ toast('Nome e tariffa sono obbligatori'); return; }
+    if(editing){ editing.name=name; editing.rate=rate; }
+    else { state.jobs.push({id:uid(), name, rate, color: JOB_COLORS[state.jobs.length % JOB_COLORS.length]}); }
+    save(); closeSheet(); renderCurrent(); toast('Lavoro salvato');
+  });
+}
+
+/* ================= UTIL ================= */
+function escapeHtml(str){
+  return String(str||'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+function escapeAttr(str){ return escapeHtml(str); }
+
+/* ================= ONBOARDING ================= */
+const ob = document.getElementById('onboarding');
+function showObStep(n){
+  document.querySelectorAll('.ob-step').forEach(s=>s.classList.remove('active'));
+  document.getElementById('obStep'+n).classList.add('active');
+  [1,2,3].forEach(i=> document.getElementById('obp'+i).classList.toggle('done', i<=n));
+}
+if(!state.onboarded){
+  ob.style.display = 'flex';
+  showObStep(1);
+} 
+document.querySelector('[data-ob="next1"]').addEventListener('click', ()=>{
+  const name = document.getElementById('obName').value.trim();
+  state.profile.name = name; save();
+  showObStep(2);
+});
+document.querySelector('[data-ob="next2"]').addEventListener('click', ()=>{
+  const jName = document.getElementById('obJobName').value.trim() || 'Il mio lavoro';
+  const rate = Number(document.getElementById('obRate').value) || 0;
+  const hours = Number(document.getElementById('obHours').value) || 0;
+  state.jobs.push({id:uid(), name:jName, rate, color:JOB_COLORS[0]});
+  state.profile.weeklyHours = hours;
+  save();
+  showObStep(3);
+});
+document.querySelector('[data-ob="finish"]').addEventListener('click', ()=>{
+  state.onboarded = true; save();
+  ob.style.display = 'none';
+  renderCurrent();
+});
+
+/* ================= INIT ================= */
+ensureGeneratedShifts();
+renderCurrent();
+
+})();
+</script>
+</body>
+</html>
