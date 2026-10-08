@@ -484,6 +484,14 @@ canvas{max-width:100%;}
       </label>
     </div>
 
+    <div class="section-title">Account e sincronizzazione</div>
+    <div class="card stack">
+      <div id="cloudStatus" style="font-size:0.88rem; color:var(--ink-dim); line-height:1.4;">Sincronizzazione non disponibile (serve connessione a internet).</div>
+      <button class="btn" id="cloudLoginBtn" style="display:none;" onclick="openAuth()">☁️ Accedi o crea account</button>
+      <button class="btn secondary" id="cloudSyncBtn" style="display:none;" onclick="cloudSyncNow()">🔄 Sincronizza ora</button>
+      <button class="btn danger-ghost" id="cloudLogoutBtn" style="display:none;" onclick="cloudLogout()">Esci dall'account</button>
+    </div>
+
     <div class="section-title">Dati</div>
     <div class="card stack">
       <button class="btn secondary" onclick="exportData()">📥 Scarica backup (JSON)</button>
@@ -541,6 +549,7 @@ canvas{max-width:100%;}
     <div class="field"><input type="text" id="obName" placeholder="Il tuo nome"></div>
     <div class="ob-spacer"></div>
     <button class="btn" onclick="obGoStep(2)">Continua</button>
+    <button class="btn ghost" id="obLoginBtn" style="display:none; margin-top:10px;" onclick="openAuth()">Ho già un account — Accedi</button>
   </div>
 
   <div class="ob-step" id="ob-step-2">
@@ -601,6 +610,23 @@ canvas{max-width:100%;}
     <button class="pause" onclick="resetFocusTimer()">↺</button>
   </div>
   <div class="fs-sound-row" id="fsSoundChips"></div>
+</div>
+
+<!-- ============== ACCOUNT ============== -->
+<div class="sheet-overlay" id="overlay-auth" style="z-index:300;" onclick="closeSheetOnOverlay(event,'auth')">
+  <div class="sheet" onclick="event.stopPropagation()">
+    <div class="sheet-handle"></div>
+    <div class="sheet-head"><h3>Account SIA</h3><button class="sheet-close" onclick="closeSheet('auth')">✕</button></div>
+    <div class="field"><label>Email o nome utente</label><input type="text" id="authId" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false"></div>
+    <div class="field"><label>Password (minimo 6 caratteri)</label><input type="password" id="authPw" autocomplete="current-password"></div>
+    <div id="authMsg" style="font-size:0.85rem; min-height:1.3em; margin-bottom:10px; color:var(--red);"></div>
+    <div style="display:flex; flex-direction:column; gap:10px;">
+      <button class="btn" id="authLoginBtn" onclick="authSubmit('login')">Accedi</button>
+      <button class="btn secondary" id="authSignupBtn" onclick="authSubmit('signup')">Crea nuovo account</button>
+      <button class="btn ghost btn-sm" style="width:100%;" onclick="authReset()">Password dimenticata?</button>
+    </div>
+    <p style="font-size:0.75rem; color:var(--ink-faint); margin:14px 0 0; line-height:1.4;">Consigliato usare un'email vera: con un semplice nome utente (senza @) la password non si può recuperare.</p>
+  </div>
 </div>
 
 <!-- ============== SHEETS ============== -->
@@ -820,9 +846,11 @@ function saveData() {
         let total = 0;
         for (let k in appData.wallets) total += appData.wallets[k];
         appData.wallet = total;
+        appData._updatedAt = Date.now();
         const payload = JSON.stringify(appData);
         localStorage.setItem('siaManager_v5', payload);
         localStorage.setItem('sia_manager_data', payload);
+        if (window.cloudPush) window.cloudPush();
         renderAll();
     } catch (err) {
         console.error("Errore critico durante saveData:", err);
@@ -2083,6 +2111,234 @@ window.addEventListener('DOMContentLoaded', () => {
     updateTimerDisplay();
     loadData();
 });
+</script>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager, getFirestore, doc, getDoc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+/* =========================================================================
+   CONFIGURAZIONE FIREBASE — sostituisci "INCOLLA_QUI" con i valori del tuo
+   progetto (Impostazioni progetto → Le tue app → Configurazione SDK).
+   Non sono segreti: la protezione dei dati è data dalle regole di Firestore.
+========================================================================= */
+const firebaseConfig = {
+  apiKey: "AIzaSyDsPlucYF3z8rsh_zGc7tkTw07earD1CY4",
+  authDomain: "gabriel-881c7.firebaseapp.com",
+  projectId: "gabriel-881c7",
+  appId: "1:75607774796:web:d06f543fa55107158246e9"
+};
+
+const $ = (id) => document.getElementById(id);
+const LS = 'siaManager_v5';
+const UIDK = 'sia_cloud_uid';
+const FAKE_DOMAIN = '@sia-utente.example.com';
+const configured = !String(firebaseConfig.apiKey).startsWith('INCOLLA');
+
+function ui(loggedIn, text) {
+  $('cloudStatus').textContent = text;
+  $('cloudLoginBtn').style.display = loggedIn ? 'none' : '';
+  $('cloudSyncBtn').style.display = loggedIn ? '' : 'none';
+  $('cloudLogoutBtn').style.display = loggedIn ? '' : 'none';
+  $('obLoginBtn').style.display = loggedIn ? 'none' : '';
+}
+
+function start() {
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  let db;
+  try {
+    db = initializeFirestore(app, { localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() }) });
+  } catch (e) {
+    db = getFirestore(app);
+  }
+
+  let user = null, unsub = null, pushTimer = null;
+
+  const say = (m) => { if (typeof toast === 'function') toast(m); };
+  const ts = (d) => (d && d._updatedAt) || 0;
+  const getLocal = () => { try { return JSON.parse(localStorage.getItem(LS)); } catch (e) { return null; } };
+  const hasData = (d) => !!(d && ((d.transactions || []).length || (d.goals || []).length || (d.profile && d.profile.onboarded)));
+  const toEmail = (s) => {
+    s = s.trim();
+    if (s.includes('@')) return s;
+    return s.toLowerCase().replace(/[^a-z0-9._-]/g, '') + FAKE_DOMAIN;
+  };
+  const who = () => {
+    const m = (user && user.email) || '';
+    return m.endsWith(FAKE_DOMAIN) ? m.slice(0, -FAKE_DOMAIN.length) : m;
+  };
+  const okText = () => `Connesso come ${who()} · sincronizzato`;
+
+  function errMsg(e) {
+    const c = (e && e.code) || '';
+    if (/invalid-credential|wrong-password|user-not-found/.test(c)) return 'Credenziali non corrette.';
+    if (/email-already-in-use/.test(c)) return 'Esiste già un account con questo nome o email.';
+    if (/weak-password/.test(c)) return 'Password troppo corta (minimo 6 caratteri).';
+    if (/invalid-email/.test(c)) return 'Email o nome utente non valido.';
+    if (/network/.test(c)) return 'Nessuna connessione a internet.';
+    if (/too-many-requests/.test(c)) return 'Troppi tentativi, riprova tra qualche minuto.';
+    return 'Errore: ' + (c || (e && e.message) || 'sconosciuto');
+  }
+
+  function authMsg(text, good) {
+    const el = $('authMsg');
+    el.style.color = good ? 'var(--green)' : 'var(--red)';
+    el.textContent = text;
+  }
+
+  // Applica al dispositivo i dati arrivati dal cloud (senza rimandarli indietro)
+  function applyRemote(raw) {
+    localStorage.setItem(LS, raw);
+    localStorage.setItem('sia_manager_data', raw);
+    loadData();
+    try {
+      const p = JSON.parse(raw);
+      if (p.profile && p.profile.onboarded) $('onboarding').classList.remove('open');
+    } catch (e) {}
+  }
+
+  async function pushNow() {
+    if (!user) return;
+    let raw = localStorage.getItem(LS);
+    if (!raw) return;
+    const obj = JSON.parse(raw);
+    if (!obj._updatedAt) {
+      obj._updatedAt = Date.now();
+      raw = JSON.stringify(obj);
+      localStorage.setItem(LS, raw);
+      localStorage.setItem('sia_manager_data', raw);
+    }
+    await setDoc(doc(db, 'users', user.uid), { data: raw, updatedAt: obj._updatedAt });
+  }
+
+  // Chiamata da saveData(): salva nel cloud dopo una breve pausa
+  window.cloudPush = () => {
+    if (!user) return;
+    clearTimeout(pushTimer);
+    if (!navigator.onLine) { ui(true, `Connesso come ${who()} · offline, modifiche salvate sul dispositivo`); return; }
+    ui(true, `Connesso come ${who()} · sincronizzazione…`);
+    pushTimer = setTimeout(async () => {
+      try { await pushNow(); ui(true, okText()); }
+      catch (e) { console.error(e); ui(true, `Connesso come ${who()} · errore di sincronizzazione, riprovo al prossimo salvataggio`); }
+    }, 700);
+  };
+
+  async function initialSync(u) {
+    const ref = doc(db, 'users', u.uid);
+    let snap;
+    try { snap = await getDoc(ref); }
+    catch (e) { ui(true, `Connesso come ${who()} · offline, modifiche salvate sul dispositivo`); return; }
+
+    const localRaw = localStorage.getItem(LS);
+    const local = getLocal();
+    const linked = localStorage.getItem(UIDK) === u.uid;
+
+    if (!snap.exists()) {
+      if (hasData(local)) await pushNow();           // primo accesso: carico i dati di questo dispositivo
+    } else {
+      const remoteRaw = snap.data().data;
+      let remote = null;
+      try { remote = JSON.parse(remoteRaw); } catch (e) {}
+      if (!remote) { ui(true, 'Dati nel cloud non leggibili.'); return; }
+
+      if (!hasData(local) || linked) {
+        if (ts(remote) > ts(local)) applyRemote(remoteRaw);
+        else if (ts(local) > ts(remote)) await pushNow();
+      } else {
+        // dati locali mai collegati a questo account + dati già nel cloud
+        const useCloud = confirm("Su questo dispositivo ci sono già dei dati e nel tuo account ce ne sono altri.\n\nOK = usa i dati del tuo account (quelli di questo dispositivo vengono messi da parte in un backup automatico).\nAnnulla = sostituisci i dati del tuo account con quelli di questo dispositivo.");
+        try { localStorage.setItem('sia_backup_prima_sync', useCloud ? (localRaw || '') : remoteRaw); } catch (e) {}
+        if (useCloud) applyRemote(remoteRaw); else await pushNow();
+      }
+    }
+    localStorage.setItem(UIDK, u.uid);
+    ui(true, okText());
+  }
+
+  function startListener(u) {
+    if (unsub) unsub();
+    unsub = onSnapshot(doc(db, 'users', u.uid), (snap) => {
+      if (!snap.exists() || snap.metadata.hasPendingWrites) return;
+      const raw = snap.data().data;
+      let r = null;
+      try { r = JSON.parse(raw); } catch (e) { return; }
+      if (ts(r) > ts(getLocal())) { applyRemote(raw); say('Dati aggiornati da un altro dispositivo.'); }
+      ui(true, okText());
+    }, (e) => console.error('Listener', e));
+  }
+
+  onAuthStateChanged(auth, async (u) => {
+    user = u;
+    if (!u) {
+      if (unsub) { unsub(); unsub = null; }
+      ui(false, 'Non connesso: i dati restano solo su questo dispositivo.');
+      return;
+    }
+    ui(true, `Connesso come ${who()} · sincronizzazione…`);
+    try { await initialSync(u); } catch (e) { console.error(e); ui(true, 'Errore di sincronizzazione.'); }
+    startListener(u);
+  });
+
+  window.addEventListener('online', () => { if (user) initialSync(user).catch(console.error); });
+
+  window.openAuth = () => { authMsg(''); openSheet('auth'); };
+
+  window.authSubmit = async (mode) => {
+    const id = $('authId').value.trim();
+    const pw = $('authPw').value;
+    if (!id || !pw) { authMsg('Inserisci email o nome utente e la password.'); return; }
+    const email = toEmail(id);
+    $('authLoginBtn').disabled = true; $('authSignupBtn').disabled = true;
+    authMsg('Attendi…', true);
+    try {
+      if (mode === 'signup') await createUserWithEmailAndPassword(auth, email, pw);
+      else await signInWithEmailAndPassword(auth, email, pw);
+      $('authPw').value = '';
+      authMsg('');
+      closeSheet('auth');
+    } catch (e) {
+      authMsg(errMsg(e));
+    } finally {
+      $('authLoginBtn').disabled = false; $('authSignupBtn').disabled = false;
+    }
+  };
+
+  window.authReset = async () => {
+    const id = $('authId').value.trim();
+    if (!id.includes('@')) { authMsg("Il recupero password funziona solo con un'email: scrivila nel primo campo."); return; }
+    try { await sendPasswordResetEmail(auth, id); authMsg('Email di recupero inviata (controlla anche lo spam).', true); }
+    catch (e) { authMsg(errMsg(e)); }
+  };
+
+  window.cloudSyncNow = async () => {
+    if (!user) return;
+    ui(true, `Connesso come ${who()} · sincronizzazione…`);
+    try { await initialSync(user); say('Sincronizzato.'); } catch (e) { console.error(e); ui(true, 'Errore di sincronizzazione.'); }
+  };
+
+  window.cloudLogout = async () => {
+    if (!navigator.onLine) { say('Connettiti a internet per uscire senza perdere dati.'); return; }
+    if (!confirm("Uscire dall'account? I dati restano al sicuro nel cloud e vengono rimossi da questo dispositivo.")) return;
+    try {
+      clearTimeout(pushTimer);
+      await Promise.race([pushNow(), new Promise((res) => setTimeout(res, 4000))]);
+    } catch (e) { console.error(e); }
+    try { localStorage.setItem('sia_backup_logout', localStorage.getItem(LS) || ''); } catch (e) {}
+    ['siaManager_v5', 'siaManager_v4', 'siaManager_v3', 'sia_manager_data', 'siaData', UIDK].forEach((k) => localStorage.removeItem(k));
+    if (unsub) { unsub(); unsub = null; }
+    await signOut(auth);
+    location.reload();
+  };
+}
+
+if (configured) {
+  start();
+} else {
+  ui(false, 'Sincronizzazione non ancora configurata.');
+  $('cloudLoginBtn').style.display = 'none';
+  $('obLoginBtn').style.display = 'none';
+}
 </script>
 </body>
 </html>
