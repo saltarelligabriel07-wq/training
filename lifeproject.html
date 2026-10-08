@@ -369,7 +369,17 @@ canvas{max-width:100%;}
     <div class="section-title">Ultimi movimenti <span class="link" onclick="switchView('movimenti')">Tutti</span></div>
     <div class="card" id="recentTx"><div class="empty">Nessun movimento registrato.</div></div>
 
+    <div id="debtsWrap" style="display:none;">
+      <div class="section-title">Anticipi per amici <span class="num" id="debtTotal" style="color:var(--gold); font-size:0.85rem;"></span></div>
+      <div class="card" id="debtsCard"></div>
+    </div>
+
     <div class="section-title">La tua situazione</div>
+    <div style="display:flex; gap:8px; align-items:center; margin-bottom:10px;">
+      <button class="btn secondary btn-sm" onclick="statsShiftMonth(-1)" aria-label="Mese precedente">‹</button>
+      <div class="field" style="flex:1; margin:0;"><input type="month" id="statsMonth" onchange="renderStats()"></div>
+      <button class="btn secondary btn-sm" onclick="statsShiftMonth(1)" aria-label="Mese successivo">›</button>
+    </div>
     <div class="card" id="statsSummary"></div>
     <div class="card" id="statsChartCard"><canvas id="statsDoughnut" height="200"></canvas></div>
   </div>
@@ -645,6 +655,22 @@ canvas{max-width:100%;}
       <div class="field"><label>Data</label><input type="date" id="txDate"></div>
     </div>
     <div class="field"><label>Portafoglio</label><select id="txWallet"></select></div>
+    <div class="field" id="splitRow" style="margin-bottom:12px;">
+      <label style="display:flex; align-items:center; gap:10px; cursor:pointer; color:var(--ink);">
+        <input type="checkbox" id="splitCheck" onchange="toggleSplitUI()" style="width:20px; height:20px; padding:0; margin:0; flex:none;">
+        👥 Ho anticipato per altri
+      </label>
+    </div>
+    <div id="splitBox" style="display:none;">
+      <div class="field"><label>Chi ti deve i soldi? (nomi separati da virgola)</label><input type="text" id="splitNames" placeholder="Es. Marco, Luca"></div>
+      <div class="field"><label>Come si divide</label>
+        <select id="splitMode">
+          <option value="equal">In parti uguali (io incluso)</option>
+          <option value="all">Ho pagato tutto io per loro</option>
+        </select>
+      </div>
+      <div id="splitPreview" style="font-size:0.8rem; color:var(--ink-dim); margin:-4px 0 12px; line-height:1.4;"></div>
+    </div>
     <button class="btn" onclick="executeAddTx()">Salva movimento</button>
   </div>
 </div>
@@ -865,6 +891,7 @@ function saveData() {
 function renderAll() {
     try { renderGreeting(); } catch (e) { console.error("renderGreeting", e); }
     try { renderHome(); } catch (e) { console.error("renderHome", e); }
+    try { renderDebts(); } catch (e) { console.error("renderDebts", e); }
     try { renderCategorySelects(); } catch (e) { console.error("renderCategorySelects", e); }
     try { renderTransactions(); } catch (e) { console.error("renderTransactions", e); }
     try { renderGoalsHome(); } catch (e) { console.error("renderGoalsHome", e); }
@@ -1900,7 +1927,11 @@ window.setUniModule = function (checked) {
    STATISTICHE
 ========================================================================= */
 function renderStats() {
-    const now = new Date();
+    const realNow = new Date();
+    const monthInput = document.getElementById('statsMonth');
+    if (monthInput && !monthInput.value) monthInput.value = `${realNow.getFullYear()}-${String(realNow.getMonth() + 1).padStart(2, '0')}`;
+    const now = (monthInput && monthInput.value) ? new Date(+monthInput.value.slice(0, 4), +monthInput.value.slice(5, 7) - 1, 1) : realNow;
+    const isCur = now.getFullYear() === realNow.getFullYear() && now.getMonth() === realNow.getMonth();
     const prefix = m => `${m.getFullYear()}-${String(m.getMonth() + 1).padStart(2, '0')}`;
     const thisMonthTx = appData.transactions.filter(t => (t.date || '').startsWith(prefix(now)));
     const lastMonthDate = new Date(now.getFullYear(), now.getMonth() - 1, 1);
@@ -1925,9 +1956,10 @@ function renderStats() {
         else { trendTxt = 'Le tue spese sono stabili rispetto al mese scorso.'; trendColor = 'var(--ink-dim)'; }
     }
 
+    if (!isCur) trendTxt = trendTxt.replace('Stai spendendo', 'Hai speso').replace('mese scorso', 'mese precedente').replace('Prime spese di questo mese registrate.', 'Spese del mese registrate.');
     const el = document.getElementById('statsSummary');
     if (thisMonthTx.length === 0) {
-        el.innerHTML = `<div class="empty">Registra qualche movimento per vedere le tue statistiche.</div>`;
+        el.innerHTML = `<div class="empty">${isCur ? 'Registra qualche movimento per vedere le tue statistiche.' : 'Nessun movimento registrato in questo mese.'}</div>`;
     } else {
         el.innerHTML = `
         <div class="grid2" style="margin-bottom:14px;">
@@ -2103,6 +2135,235 @@ window.exportCSV = function () {
         console.error(err);
         toast("Impossibile esportare il CSV.");
     }
+};
+
+
+/* =========================================================================
+   ANTICIPI PER AMICI
+   - nelle statistiche e nel budget conta solo la TUA quota
+   - il portafoglio scende dell'intero importo pagato e risale quando
+     un amico ti restituisce la sua parte
+========================================================================= */
+const escS = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const shortDate = (d) => (d && d.length >= 10) ? `${d.slice(8, 10)}/${d.slice(5, 7)}` : '';
+
+function splitShares(cents, n, mode) {
+    const parts = mode === 'equal' ? n + 1 : n;
+    const base = Math.floor(cents / parts);
+    const r = cents - base * parts;
+    const friends = [];
+    for (let i = 0; i < n; i++) friends.push(base + (mode === 'all' && i < r ? 1 : 0));
+    return { friends, mine: mode === 'equal' ? base + r : 0 };
+}
+
+function parseSplitNames(str) {
+    const seen = new Set(), out = [];
+    String(str || '').split(/[,;\n]+/).map((s) => s.trim()).filter(Boolean).forEach((n) => {
+        const k = n.toLowerCase();
+        if (!seen.has(k)) { seen.add(k); out.push(n); }
+    });
+    return out;
+}
+
+window.toggleSplitUI = function () {
+    const on = document.getElementById('splitCheck').checked;
+    document.getElementById('splitBox').style.display = on ? 'block' : 'none';
+    updateSplitPreview();
+};
+
+function updateSplitPreview() {
+    const el = document.getElementById('splitPreview');
+    if (!el) return;
+    const amount = parseFloat(document.getElementById('txAmount').value);
+    const names = parseSplitNames(document.getElementById('splitNames').value);
+    if (!document.getElementById('splitCheck').checked || isNaN(amount) || amount <= 0 || !names.length) { el.textContent = ''; return; }
+    const s = splitShares(Math.round(amount * 100), names.length, document.getElementById('splitMode').value);
+    const list = names.map((n, i) => `${n} €${fmt(s.friends[i] / 100)}`).join(', ');
+    el.textContent = `Ti devono: ${list}. La tua quota di spesa: €${fmt(s.mine / 100)}.`;
+}
+['txAmount', 'splitNames', 'splitMode'].forEach((id) => {
+    const el = document.getElementById(id);
+    if (el) { el.addEventListener('input', updateSplitPreview); el.addEventListener('change', updateSplitPreview); }
+});
+
+const _openTxSheet = window.openTxSheet;
+window.openTxSheet = function () {
+    _openTxSheet();
+    document.getElementById('splitCheck').checked = false;
+    document.getElementById('splitNames').value = '';
+    document.getElementById('splitMode').value = 'equal';
+    toggleSplitUI();
+};
+
+const _setTxType = window.setTxType;
+window.setTxType = function (t) {
+    _setTxType(t);
+    const row = document.getElementById('splitRow');
+    if (row) row.style.display = (t === 'expense') ? '' : 'none';
+    if (t !== 'expense') { document.getElementById('splitCheck').checked = false; toggleSplitUI(); }
+};
+
+const _executeAddTx = window.executeAddTx;
+window.executeAddTx = function () {
+    const box = document.getElementById('splitCheck');
+    if (!(box && box.checked && currentTxType === 'expense')) return _executeAddTx();
+
+    const amount = parseFloat(document.getElementById('txAmount').value);
+    const desc = document.getElementById('txDesc').value.trim();
+    const cat = document.getElementById('txCat').value;
+    const date = document.getElementById('txDate').value;
+    const wallet = document.getElementById('txWallet').value || 'Principale';
+    const names = parseSplitNames(document.getElementById('splitNames').value);
+    const mode = document.getElementById('splitMode').value;
+
+    if (isNaN(amount) || amount <= 0 || !date) { toast("Inserisci un importo valido e una data."); return; }
+    if (!names.length) { toast("Scrivi almeno il nome di una persona."); return; }
+
+    const cents = Math.round(amount * 100);
+    const s = splitShares(cents, names.length, mode);
+    const id = Date.now();
+    const split = {
+        id, date, desc: desc || cat, cat, wallet, total: cents / 100, myShare: s.mine / 100, txId: null,
+        people: names.map((name, i) => ({ name, share: s.friends[i] / 100, paid: false, paidDate: '' }))
+    };
+    if (s.mine > 0) {
+        appData.transactions.push({ id, date, cat, desc: `${desc || cat} 👥`, amount: s.mine / 100, type: 'expense', wallet, splitId: id });
+        split.txId = id;
+    }
+    if (appData.wallets[wallet] === undefined) appData.wallets[wallet] = 0;
+    appData.wallets[wallet] -= cents / 100;
+    appData.splits.push(split);
+
+    awardExp(2); vibrate(12);
+    saveData();
+    closeSheet('tx');
+    toast("Anticipo salvato.");
+};
+
+function removeSplit(sid) {
+    const s = appData.splits.find((x) => x.id === sid);
+    if (!s) return;
+    const paidSum = s.people.filter((p) => p.paid).reduce((a, p) => a + p.share, 0);
+    if (appData.wallets[s.wallet] !== undefined) appData.wallets[s.wallet] += s.total - paidSum;
+    appData.transactions = appData.transactions.filter((t) => t.splitId !== sid);
+    appData.splits = appData.splits.filter((x) => x.id !== sid);
+    saveData();
+}
+
+const _executeDeleteTx = window.executeDeleteTx;
+window.executeDeleteTx = function (id) {
+    const t = appData.transactions.find((x) => x.id === id);
+    if (t && t.splitId) {
+        if (confirm("Questo movimento fa parte di un anticipo per amici: verrà eliminato l'intero anticipo. Continuare?")) removeSplit(t.splitId);
+        return;
+    }
+    _executeDeleteTx(id);
+};
+
+window.splitMarkPaid = function (sid, idx, paid) {
+    const s = appData.splits.find((x) => x.id === sid);
+    const p = s && s.people[idx];
+    if (!p || p.paid === paid) return;
+    if (!paid && !confirm(`Segnare di nuovo da pagare la quota di ${p.name}?`)) return;
+    p.paid = paid;
+    p.paidDate = paid ? new Date().toISOString().split('T')[0] : '';
+    if (appData.wallets[s.wallet] === undefined) appData.wallets[s.wallet] = 0;
+    appData.wallets[s.wallet] += paid ? p.share : -p.share;
+    saveData();
+    if (paid) { vibrate(12); toast(`${p.name} ha pagato €${fmt(p.share)}.`); }
+};
+
+window.splitPersonAllPaid = function (enc) {
+    const key = decodeURIComponent(enc);
+    let sum = 0, name = '';
+    appData.splits.forEach((s) => s.people.forEach((p) => {
+        if (!p.paid && p.name.toLowerCase() === key) { sum += p.share; name = p.name; }
+    }));
+    if (!sum || !confirm(`${name} ha saldato tutto (€${fmt(sum)})?`)) return;
+    const today = new Date().toISOString().split('T')[0];
+    appData.splits.forEach((s) => s.people.forEach((p) => {
+        if (!p.paid && p.name.toLowerCase() === key) {
+            p.paid = true; p.paidDate = today;
+            if (appData.wallets[s.wallet] === undefined) appData.wallets[s.wallet] = 0;
+            appData.wallets[s.wallet] += p.share;
+        }
+    }));
+    saveData();
+    vibrate(12); toast(`${name} ha saldato €${fmt(sum)}.`);
+};
+
+window.splitDelete = function (sid) {
+    if (confirm("Eliminare questo anticipo? Il portafoglio verrà riallineato.")) removeSplit(sid);
+};
+
+function renderDebts() {
+    const wrap = document.getElementById('debtsWrap');
+    const card = document.getElementById('debtsCard');
+    const splits = appData.splits || [];
+    if (!wrap || !card) return;
+    if (!splits.length) { wrap.style.display = 'none'; return; }
+    wrap.style.display = '';
+
+    const people = {};
+    splits.forEach((s) => s.people.forEach((p, i) => {
+        const k = p.name.toLowerCase();
+        if (!people[k]) people[k] = { name: p.name, open: [] };
+        if (!p.paid) people[k].open.push({ s, p, i });
+    }));
+    const keys = Object.keys(people).filter((k) => people[k].open.length)
+        .sort((a, b) => people[a].name.localeCompare(people[b].name));
+
+    let total = 0;
+    let html = keys.map((k) => {
+        const P = people[k];
+        const owed = P.open.reduce((a, o) => a + o.p.share, 0);
+        total += owed;
+        const rows = P.open.map((o) => `
+            <div style="display:flex; align-items:center; justify-content:space-between; gap:8px; margin-top:8px; font-size:0.82rem;">
+                <span style="color:var(--ink-dim); min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${escS(o.s.desc)} · ${shortDate(o.s.date)}</span>
+                <span style="display:flex; align-items:center; gap:8px; flex:none;">
+                    <span class="num">€${fmt(o.p.share)}</span>
+                    <button class="btn ghost btn-sm" onclick="splitMarkPaid(${o.s.id},${o.i},true)">✓ Pagato</button>
+                </span>
+            </div>`).join('');
+        const all = P.open.length > 1
+            ? `<button class="btn secondary btn-sm" style="width:100%; margin-top:10px;" onclick="splitPersonAllPaid('${encodeURIComponent(k)}')">Ha saldato tutto (€${fmt(owed)})</button>` : '';
+        return `<div style="padding:12px 0; border-bottom:1px solid var(--line);">
+            <div style="display:flex; justify-content:space-between; align-items:baseline;">
+                <strong style="font-size:1rem;">${escS(P.name)}</strong>
+                <span class="num" style="color:var(--gold); font-weight:600;">€${fmt(owed)}</span>
+            </div>${rows}${all}</div>`;
+    }).join('');
+
+    if (!keys.length) html = `<div class="empty" style="padding:8px 0;">Tutto saldato ✓ Nessuno ti deve soldi.</div>`;
+    document.getElementById('debtTotal').textContent = total > 0 ? `Ti devono €${fmt(total)}` : '';
+
+    const hist = splits.slice().sort((a, b) => (b.date || '').localeCompare(a.date || '') || b.id - a.id).map((s) => {
+        const chips = s.people.map((p, i) => `<button class="btn btn-sm ${p.paid ? 'secondary' : 'ghost'}" style="margin:4px 6px 0 0; padding:5px 10px;" onclick="splitMarkPaid(${s.id},${i},${p.paid ? 'false' : 'true'})">${p.paid ? '✓' : '⏳'} ${escS(p.name)} €${fmt(p.share)}</button>`).join('');
+        return `<div style="padding:10px 0; border-top:1px solid var(--line);">
+            <div style="display:flex; justify-content:space-between; gap:8px; font-size:0.85rem;">
+                <span>${escS(s.desc)} · ${shortDate(s.date)}</span>
+                <span class="num">€${fmt(s.total)}</span>
+            </div>
+            <div style="font-size:0.75rem; color:var(--ink-faint); margin-top:2px;">La tua quota: €${fmt(s.myShare)}</div>
+            <div>${chips}</div>
+            <button class="btn danger-ghost btn-sm" style="margin-top:8px;" onclick="splitDelete(${s.id})">Elimina anticipo</button>
+        </div>`;
+    }).join('');
+    html += `<details style="margin-top:12px;"><summary style="cursor:pointer; color:var(--gold); font-size:0.85rem;">Storico anticipi (${splits.length})</summary>${hist}</details>`;
+    card.innerHTML = html;
+}
+
+/* =========================================================================
+   STATISTICHE: scelta del mese
+========================================================================= */
+window.statsShiftMonth = function (delta) {
+    const inp = document.getElementById('statsMonth');
+    const now = new Date();
+    const v = inp.value || `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+    const d = new Date(+v.slice(0, 4), +v.slice(5, 7) - 1 + delta, 1);
+    inp.value = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+    renderStats();
 };
 
 window.addEventListener('error', (e) => console.error("Errore non gestito:", e.error || e.message));
