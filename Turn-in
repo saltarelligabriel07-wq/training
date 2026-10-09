@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0C0E13">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='26' fill='%230C0E13'/%3E%3Ccircle cx='50' cy='50' r='30' fill='none' stroke='%232a3142' stroke-width='9'/%3E%3Cpath d='M50 20a30 30 0 0 1 28 40' fill='none' stroke='%238AB4FF' stroke-width='9' stroke-linecap='round'/%3E%3C/svg%3E">
+<title>Turno — quanto manca</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@200;300;400;600&family=Manrope:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0C0E13;--s1:#141821;--s2:#1B2130;--line:#252C3D;--tx:#E9ECF3;--dim:#8F99AD;--faint:#5C667A;--ac:#8AB4FF;--ac2:#5EE0B0;--warn:#F2B35E;--bad:#F27A7A;--on:#0C0E13}
+:root[data-t=light]{--bg:#F4F5F8;--s1:#fff;--s2:#EBEEF4;--line:#DDE1EA;--tx:#12151C;--dim:#5B6578;--faint:#8E97A8;--ac:#2F5BFF;--ac2:#0F8A5C;--warn:#B8741A;--bad:#D14B4B;--on:#fff}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;background:var(--bg);color:var(--tx);font-family:Manrope,sans-serif;min-height:100vh;padding-top:env(safe-area-inset-top,0)}
+.app{max-width:500px;margin:0 auto;padding:0 18px calc(100px + env(safe-area-inset-bottom,0))}
+h2,h3,.so{font-family:Sora,sans-serif}
+button{font-family:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--ac);outline-offset:2px}
+header{display:flex;justify-content:space-between;align-items:center;padding:18px 0 4px}
+.logo{font:600 1.15rem Sora;letter-spacing:.02em}
+.hr{display:flex;gap:8px}
+.ib{width:40px;height:40px;border-radius:12px;border:1px solid var(--line);background:var(--s1);font-size:1.05rem;cursor:pointer}
+.ring{position:relative;width:min(78vw,300px);margin:18px auto 6px}
+.ring svg{display:block;width:100%}
+.ring .in{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+.lab{font-size:.78rem;color:var(--dim);max-width:62%}
+.cnt{font:200 clamp(5.4rem,26vw,7.4rem)/1 Sora;letter-spacing:-.05em;margin:2px 0}
+.lab2{font:400 .95rem Sora;color:var(--ac)}
+.trio{display:grid;grid-template-columns:repeat(3,1fr);margin:16px 0 4px;text-align:center}
+.trio div+div{border-left:1px solid var(--line)}
+.trio b{display:block;font:300 1.9rem Sora;letter-spacing:-.03em}
+.trio span{font-size:.74rem;color:var(--dim)}
+.quote{display:block;width:100%;text-align:left;background:none;border:0;border-left:2px solid var(--ac);padding:4px 0 4px 14px;margin:20px 0 6px;font:500 1rem/1.45 Manrope;color:var(--tx);cursor:pointer}
+.quote small{display:block;font-size:.7rem;color:var(--faint);margin-top:4px}
+.date{font-size:.8rem;color:var(--dim);text-align:center;margin-top:10px}
+.card{background:var(--s1);border:1px solid var(--line);border-radius:20px;padding:18px;margin-top:12px}
+.card h2{margin:0 0 4px;font-size:1.05rem;font-weight:600}
+.card h3{margin:0 0 6px;font:600 .8rem Manrope;color:var(--dim)}
+.big{font:300 2.3rem/1.05 Sora;letter-spacing:-.03em;margin:4px 0 6px}
+.sub{font-size:.88rem;color:var(--dim);line-height:1.45}
+.sub b{color:var(--tx)}
+.bar{height:6px;background:var(--s2);border-radius:99px;overflow:hidden;margin:10px 0 4px}
+.bar i{display:block;height:100%;background:var(--ac);border-radius:99px}
+.bar.g i{background:var(--ac2)}
+.tap{display:flex;justify-content:space-between;gap:10px;padding:9px 0;border-bottom:1px solid var(--line);font-size:.9rem}
+.tap:last-child{border:0}.tap span{color:var(--dim)}.tap.ok b{color:var(--ac2)}
+.acts{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+.btn{width:100%;padding:13px;border-radius:14px;border:0;background:var(--ac);color:var(--on);font:700 .92rem Manrope;cursor:pointer}
+.btn.sec{background:var(--s2);color:var(--tx);border:1px solid var(--line)}
+.btn.sm{padding:8px 12px;font-size:.8rem;width:auto;border-radius:10px}
+nav{position:fixed;left:50%;bottom:calc(14px + env(safe-area-inset-bottom,0));transform:translateX(-50%);display:flex;gap:2px;background:var(--s1);border:1px solid var(--line);padding:4px;border-radius:99px;z-index:20;box-shadow:0 12px 32px rgba(0,0,0,.35)}
+nav button{border:0;background:none;padding:10px 18px;border-radius:99px;font:600 .86rem Manrope;color:var(--dim);cursor:pointer}
+nav button.on{background:var(--ac);color:var(--on)}
+.ch{display:flex;align-items:center;gap:8px;margin-bottom:12px}
+.ch h2{flex:1;font-size:1.3rem;text-transform:capitalize}
+.sq{background:var(--s2);border:1px solid var(--line);border-radius:10px;min-width:36px;height:36px;padding:0 11px;cursor:pointer;font-weight:700}
+.grid{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}
+.dow{font-size:.7rem;color:var(--faint);text-align:center;font-weight:700}
+.day{position:relative;aspect-ratio:1;border-radius:12px;border:1.5px solid transparent;background:var(--s2);font:400 .9rem Sora;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;padding:0}
+.day small{font:500 .52rem Manrope;line-height:1;color:var(--dim)}
+.day i{width:4px;height:4px;border-radius:50%;background:var(--ac)}
+.day.off{background:transparent;color:var(--faint)}
+.day.fest{background:transparent;color:var(--bad)}
+.day.ferie{background:rgba(94,224,176,.14);border-color:var(--ac2)}
+.day.perm{background:rgba(242,179,94,.14);border-color:var(--warn)}
+.day.libero{background:transparent;color:var(--faint);text-decoration:line-through}
+.day.extra{background:rgba(138,180,255,.16);border-color:var(--ac)}
+.day.today{outline:2px solid var(--tx);outline-offset:1px}
+.day.pd:after{content:"€";position:absolute;top:2px;right:4px;font:700 .6rem Manrope;color:var(--ac2)}
+.day.nt:before{content:"";position:absolute;top:5px;left:5px;width:5px;height:5px;border-radius:50%;background:var(--warn)}
+.day.blank{visibility:hidden}
+.leg{display:flex;flex-wrap:wrap;gap:6px 14px;margin-top:14px;font-size:.72rem;color:var(--dim)}
+.leg span:before{content:"";display:inline-block;width:9px;height:9px;border-radius:3px;margin-right:6px;background:var(--c);vertical-align:-1px}
+.rows div{display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid var(--line);font-size:.9rem}
+.rows div:last-child{border:0}.rows span{color:var(--dim)}
+.mr{padding:11px 0;border-bottom:1px solid var(--line)}.mr:last-child{border:0}
+.mh{display:flex;justify-content:space-between;font-size:.9rem;font-weight:700}
+.mh span+span{font-weight:500;color:var(--dim)}
+.mr.cur .mh span:first-child{color:var(--ac)}
+.ms{font-size:.76rem;color:var(--dim)}
+.br{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid var(--line);font-size:.88rem}
+.br:last-child{border:0}.br span{color:var(--dim);font-size:.78rem;display:block}
+.ov{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:flex-end;justify-content:center;z-index:50}
+.ov.open{display:flex}
+.sheet{background:var(--s1);border:1px solid var(--line);border-radius:24px 24px 0 0;width:100%;max-width:500px;max-height:92vh;overflow:auto;padding:20px 18px calc(22px + env(safe-area-inset-bottom,0))}
+.sh{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.sh h3{margin:0;font:600 1.2rem Sora;text-transform:capitalize;color:var(--tx)}
+.sec-t{font:600 .75rem Manrope;color:var(--ac);margin:18px 0 8px}
+.f{margin-bottom:11px}
+.f label{display:block;font-size:.76rem;color:var(--dim);margin-bottom:5px}
+.f input[type=text],.f input[type=number],.f input[type=date],.f input[type=time]{width:100%;background:var(--s2);border:1.5px solid var(--line);border-radius:12px;color:var(--tx);padding:11px;font:inherit;font-size:.93rem;color-scheme:dark light}
+.f input:focus{border-color:var(--ac);outline:0}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.chips,.seg{display:flex;gap:6px}
+.chip,.seg button{flex:1;padding:10px 0;border-radius:11px;border:1px solid var(--line);background:var(--s2);font-weight:700;font-size:.85rem;cursor:pointer;color:var(--dim)}
+.chip.on,.seg button.on{background:var(--ac);color:var(--on);border-color:var(--ac)}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:4px 0 10px}
+.chk{display:flex;align-items:center;gap:10px;font-size:.88rem;margin:4px 0 12px}
+.chk input{width:19px;height:19px;accent-color:var(--ac)}
+.hint{font-size:.74rem;color:var(--faint);margin:4px 0 0;line-height:1.4}
+.err{color:var(--bad);font-size:.82rem;min-height:1.1em;margin-bottom:8px;font-weight:700}
+#toast{position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom,0));transform:translateX(-50%);background:var(--tx);color:var(--bg);padding:10px 16px;border-radius:12px;font-size:.86rem;font-weight:600;opacity:0;pointer-events:none;transition:opacity .25s;z-index:99}
+#toast.on{opacity:1}
+[hidden]{display:none!important}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+nav button{padding:10px 13px}
+.rows b{text-align:right}
+#fk{position:fixed;inset:0;z-index:200;background:#000;display:flex;flex-direction:column;padding:env(safe-area-inset-top,0) 12px calc(14px + env(safe-area-inset-bottom,0));font-family:-apple-system,Helvetica,Arial,sans-serif}
+#fkD{flex:1;display:flex;align-items:flex-end;justify-content:flex-end;color:#fff;font-size:4.2rem;font-weight:300;padding:10px 8px;word-break:break-all;text-align:right;user-select:none}
+#fkK{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;max-width:420px;width:100%;margin:0 auto}
+#fkK button{aspect-ratio:1;border:0;border-radius:50%;background:#333;color:#fff;font-size:1.7rem}
+#fkK button:nth-child(4n){background:#ff9f0a}
+.lock{opacity:.4}
+</style>
+</head>
+<body>
+<div class="app">
+  <header><div class="logo">turno</div><div class="hr"><button class="ib" onclick="panic(1)" aria-label="Nascondi app">▦</button><button class="ib" id="thBtn" onclick="cycleTheme()" aria-label="Cambia tema">◐</button><button class="ib" onclick="openCfg()" aria-label="Impostazioni">⚙︎</button></div></header>
+  <main id="v-home"></main>
+  <main id="v-cal" hidden>
+    <section class="card" style="margin-top:14px">
+      <div class="ch"><h2 id="mTitle"></h2><button class="sq" onclick="goToday()">Oggi</button><button class="sq" onclick="shift(-1)" aria-label="Mese precedente">‹</button><button class="sq" onclick="shift(1)" aria-label="Mese successivo">›</button></div>
+      <div class="grid" id="dows"></div><div class="grid" id="cal" style="margin-top:5px"></div>
+      <div class="leg"><span style="--c:var(--ac)">Lavoro extra</span><span style="--c:var(--ac2)">Ferie</span><span style="--c:var(--warn)">Permesso / nota</span><span style="--c:var(--bad)">Festività</span></div>
+      <p class="hint">€ = giorno di paga. Tocca un giorno per ferie, permessi, note.</p>
+    </section>
+    <section class="card"><h2 id="msTitle" style="text-transform:capitalize"></h2><div class="rows" id="mStats"></div></section>
+  </main>
+  <main id="v-x" hidden></main>
+  <main id="v-stats" hidden><div id="sAll"></div></main>
+</div>
+<nav><button id="n-home" class="on" onclick="go('home')">Conto</button><button id="n-cal" onclick="go('cal')">Calendario</button><button id="n-stats" onclick="go('stats')">Statistiche</button><button id="n-x" onclick="go('x')">Extra</button></nav>
+
+<div class="ov" id="ov-day" onclick="if(event.target===this)closeS('day')"><div class="sheet">
+  <div class="sh"><h3 id="dTitle"></h3><button class="ib" onclick="closeS('day')" aria-label="Chiudi">✕</button></div>
+  <p id="dState" class="sub" style="margin:0 0 14px"></p>
+  <div class="row2">
+    <div class="f"><label>Ore (permesso: assenza · extra: lavorate)</label><input type="number" id="dH" step="0.5" min="0" inputmode="decimal"></div>
+    <div class="f"><label>Fino al giorno (facoltativo)</label><input type="date" id="dEnd"></div>
+  </div>
+  <div class="f"><label>Nota per questo giorno (facoltativa)</label><input type="text" id="dNote" maxlength="120" placeholder="Es. visita, colloquio, cena"></div>
+  <div class="err" id="dErr"></div>
+  <div class="opts">
+    <button class="btn sec" onclick="apply('ferie')">🌴 Ferie</button><button class="btn sec" onclick="apply('perm')">⏱ Permesso</button>
+    <button class="btn sec" onclick="apply('extra')">➕ Lavoro extra</button><button class="btn sec" onclick="apply('libero')">🛋 Giorno libero</button>
+  </div>
+  <div class="opts"><button class="btn sec" onclick="saveNote()">Salva solo la nota</button><button class="btn" onclick="apply('reset')">Giorno normale</button></div>
+</div></div>
+
+<div class="ov" id="ov-cfg" onclick="if(event.target===this)closeS('cfg')"><div class="sheet">
+  <div class="sh"><h3>Impostazioni</h3><button class="ib" onclick="closeS('cfg')" aria-label="Chiudi">✕</button></div>
+  <div class="sec-t" style="margin-top:0">Traguardo</div>
+  <div class="f"><label>Cosa stai aspettando?</label><input type="text" id="cLabel" maxlength="40" placeholder="Es. Fine contratto, Vacanze"></div>
+  <div class="row2"><div class="f"><label>Data di arrivo</label><input type="date" id="cEnd"></div><div class="f"><label>Data di partenza</label><input type="date" id="cStart"></div></div>
+  <div class="sec-t">Orario</div>
+  <div class="f"><div class="seg"><button type="button" id="md-week" onclick="setMode('week')">Settimana fissa</button><button type="button" id="md-cycle" onclick="setMode('cycle')">Turni a ciclo</button></div></div>
+  <div id="wkBox" class="f"><label>Giorni in cui lavori di solito</label><div class="chips" id="cDays"></div></div>
+  <div id="cyBox"><div class="row2"><div class="f"><label>Giorni di lavoro di fila</label><input type="number" id="cOn" min="1" step="1" inputmode="numeric"></div><div class="f"><label>Giorni di riposo di fila</label><input type="number" id="cOff" min="0" step="1" inputmode="numeric"></div></div>
+  <div class="f"><label>Primo giorno di lavoro di un ciclo</label><input type="date" id="cCy"></div><p class="hint" style="margin:-4px 0 10px">Es. 4 giorni di lavoro e 2 di riposo, a partire da una data qualsiasi in cui hai iniziato un ciclo.</p></div>
+  <div class="f"><label>Ore al giorno</label><input type="number" id="cHours" step="0.5" min="0" inputmode="decimal"></div>
+  <div class="sec-t">Paga</div>
+  <div class="f"><div class="seg"><button type="button" id="pm-hour" onclick="setPM('hour')">All'ora</button><button type="button" id="pm-month" onclick="setPM('month')">Al mese</button></div></div>
+  <div class="row2"><div class="f"><label id="cPayL">Paga all'ora (€)</label><input type="number" id="cPay" step="0.01" min="0" inputmode="decimal"></div><div class="f"><label>Giorno di paga (1-31)</label><input type="number" id="cPayday" step="1" min="0" max="31" inputmode="numeric"></div></div>
+  <p class="hint" style="margin:-4px 0 10px">31 = ultimo giorno del mese. Vuoto = nessun giorno di paga.</p>
+  <label class="chk"><input type="checkbox" id="cPayAdj"> Se cade nel weekend o in una festa, pagano il giorno lavorativo prima</label>
+  <div class="sec-t">Obiettivo</div>
+  <div class="row2"><div class="f"><label>Soldi che hai adesso (€)</label><input type="number" id="cSaved" step="1" min="0" inputmode="decimal"></div><div class="f"><label>Ferie all'anno (giorni)</label><input type="number" id="cFerie" step="1" min="0" inputmode="numeric"></div></div>
+  <div class="row2"><div class="f"><label>Cosa vuoi fare/comprare?</label><input type="text" id="cGoalN" maxlength="30" placeholder="Es. Viaggio, Auto"></div><div class="f"><label>Quanto serve (€)</label><input type="number" id="cGoalA" step="1" min="0" inputmode="decimal"></div></div>
+  <label class="chk"><input type="checkbox" id="cHol"> Escludi le festività italiane</label>
+  <div class="sec-t">Per le stime (TFR, NASpI, ferie)</div>
+  <div class="row2"><div class="f"><label>Data di assunzione</label><input type="date" id="cHire"></div><div class="f"><label>Inizio turno</label><input type="time" id="cStT"></div></div>
+  <div class="row2"><div class="f"><label>RAL lorda annua (€)</label><input type="number" id="cRal" step="100" min="0" inputmode="decimal"></div><div class="f"><label>Ferie/ROL residui (giorni)</label><input type="number" id="cResid" step="0.5" min="0" inputmode="decimal"></div></div>
+  <div class="f"><label>Settimane contributive altrove (ultimi 4 anni)</label><input type="number" id="cPrev" step="1" min="0" inputmode="numeric"></div>
+  <label class="chk"><input type="checkbox" id="cShake"> Scuoti il telefono per trasformare l'app in una calcolatrice</label>
+  <p class="hint">La RAL (dal contratto o dalla busta paga) serve per TFR e NASpI. Tutto resta su questo dispositivo.</p>
+  <div class="sec-t">Aspetto</div>
+  <div class="f"><div class="seg"><button type="button" id="th-auto" onclick="setTh('auto')">Automatico</button><button type="button" id="th-dark" onclick="setTh('dark')">Scuro</button><button type="button" id="th-light" onclick="setTh('light')">Chiaro</button></div></div>
+  <button class="btn" style="margin-top:6px" onclick="saveCfg()">Salva</button>
+  <div class="opts" style="margin-top:10px"><button class="btn sec" onclick="exp()">Scarica backup</button><button class="btn sec" onclick="document.getElementById('cFile').click()">Ripristina backup</button></div>
+  <input type="file" id="cFile" accept="application/json" hidden onchange="imp(this.files[0])">
+  <p class="hint">I dati restano su questo dispositivo. Scarica un backup ogni tanto per non perderli o per spostarli su un altro telefono.</p>
+</div></div>
+<div id="fk" hidden><div id="fkD" onpointerdown="fkT=setTimeout(()=>panic(0),800)" onpointerup="clearTimeout(fkT)" onpointerleave="clearTimeout(fkT)">0</div><div id="fkK"></div></div>
+<div id="toast"></div>
+
+<script>
+const KEY = 'turno_v1';
+const D0 = { cfg: { mode: 'week', days: [1,2,3,4,5], cycleOn: 5, cycleOff: 2, cycleStart: '', hours: 8, rate: 0, monthly: 0, payMode: 'hour', payday: 0, payAdj: true, saved: 0, goalName: '', goalAmt: 0, end: '', start: '', label: 'Fine contratto', hol: true, ferie: 0, theme: 'auto', hire: '', stT: '09:00', ral: 0, prev: 0, resid: 0, shake: false }, ex: {}, notes: {}, mood: {}, chk: {} };
+const MESI = ['gennaio','febbraio','marzo','aprile','maggio','giugno','luglio','agosto','settembre','ottobre','novembre','dicembre'];
+const $ = (id) => document.getElementById(id);
+const p2 = (n) => String(n).padStart(2, '0');
+const ymd = (d) => `${d.getFullYear()}-${p2(d.getMonth() + 1)}-${p2(d.getDate())}`;
+const parse = (s) => { const [y, m, d] = s.split('-').map(Number); return new Date(y, m - 1, d); };
+const ud = (d) => Date.UTC(d.getFullYear(), d.getMonth(), d.getDate());
+const dd = (a, b) => Math.round((ud(b) - ud(a)) / 864e5);
+const eur = (n) => n.toLocaleString('it-IT', { style: 'currency', currency: 'EUR', minimumFractionDigits: 0, maximumFractionDigits: 2 });
+const fh = (n) => String(Math.round(n * 10) / 10).replace('.', ',');
+const fdate = (d) => d.toLocaleDateString('it-IT', { day: 'numeric', month: 'long', year: 'numeric' });
+const fshort = (d) => d.toLocaleDateString('it-IT', { weekday: 'short', day: 'numeric', month: 'short' });
+const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const todayD = () => { const t = new Date(); return new Date(t.getFullYear(), t.getMonth(), t.getDate()); };
+const addD = (d, n) => { const x = new Date(d); x.setDate(x.getDate() + n); return x; };
+
+function load() {
+  try { const r = JSON.parse(localStorage.getItem(KEY)); if (r && r.cfg) return { cfg: { ...D0.cfg, ...r.cfg }, ex: r.ex || {}, notes: r.notes || {}, mood: r.mood || {}, chk: r.chk || {} }; } catch (e) {}
+  return JSON.parse(JSON.stringify(D0));
+}
+let S = load(), bump = 0, sel = null, first = true;
+let view = new Date(); view = new Date(view.getFullYear(), view.getMonth(), 1);
+function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) { toast('Impossibile salvare su questo browser.'); } applyTheme(); render(); }
+
+/* ---------- tema ---------- */
+const mq = matchMedia('(prefers-color-scheme: light)');
+function applyTheme() {
+  const t = S.cfg.theme === 'auto' ? (mq.matches ? 'light' : 'dark') : S.cfg.theme;
+  document.documentElement.dataset.t = t;
+  document.querySelector('meta[name=theme-color]').content = t === 'light' ? '#F4F5F8' : '#0C0E13';
+  $('thBtn').textContent = { auto: '◐', dark: '☾', light: '☀' }[S.cfg.theme];
+}
+mq.addEventListener && mq.addEventListener('change', applyTheme);
+function cycleTheme() { S.cfg.theme = { auto: 'dark', dark: 'light', light: 'auto' }[S.cfg.theme]; save(); toast({ auto: 'Tema automatico', dark: 'Tema scuro', light: 'Tema chiaro' }[S.cfg.theme]); }
+
+/* ---------- festività ---------- */
+function easter(y) {
+  const a = y % 19, b = Math.floor(y / 100), c = y % 100, d = Math.floor(b / 4), e = b % 4, f = Math.floor((b + 8) / 25), g = Math.floor((b - f + 1) / 3);
+  const h = (19 * a + b - d - g + 15) % 30, i = Math.floor(c / 4), k = c % 4, l = (32 + 2 * e + 2 * i - h - k) % 7, m = Math.floor((a + 11 * h + 22 * l) / 451);
+  const mo = Math.floor((h + l - 7 * m + 114) / 31), da = ((h + l - 7 * m + 114) % 31) + 1;
+  return new Date(y, mo - 1, da);
+}
+const FIX = { '01-01': 'Capodanno', '01-06': 'Epifania', '04-25': 'Festa della Liberazione', '05-01': 'Festa del lavoro', '06-02': 'Festa della Repubblica', '08-15': 'Ferragosto', '11-01': 'Ognissanti', '12-08': 'Immacolata', '12-25': 'Natale', '12-26': 'Santo Stefano' };
+const HC = {};
+function holName(d) {
+  const y = d.getFullYear();
+  if (!HC[y]) {
+    HC[y] = {}; Object.keys(FIX).forEach((k) => { HC[y][`${y}-${k}`] = FIX[k]; });
+    const e = easter(y); HC[y][ymd(addD(e, 1))] = 'Lunedì dell\'Angelo (Pasquetta)';
+  }
+  return HC[y][ymd(d)] || '';
+}
+const hol = (d) => !!holName(d);
+
+/* ---------- giorni ---------- */
+function base(d) {
+  const c = S.cfg;
+  if (c.mode === 'cycle') {
+    const L = c.cycleOn + c.cycleOff; if (!L || !c.cycleStart) return false;
+    return (((dd(parse(c.cycleStart), d) % L) + L) % L) < c.cycleOn;
+  }
+  return c.days.includes(d.getDay());
+}
+const norm = (d) => base(d) && !(S.cfg.hol && hol(d));
+function info(d) {
+  const c = S.cfg, e = S.ex[ymd(d)];
+  if (e) {
+    if (e.t === 'extra') return { w: 1, h: e.h || c.hours, t: 'extra' };
+    if (e.t === 'ferie') return { w: 0, h: 0, t: 'ferie' };
+    if (e.t === 'libero') return { w: 0, h: 0, t: 'libero' };
+    if (e.t === 'perm' && norm(d)) { const hh = Math.max(0, c.hours - (e.h || 0)); return { w: hh > 0 ? 1 : 0, h: hh, t: 'perm', ph: e.h || 0 }; }
+  }
+  if (c.hol && hol(d)) return { w: 0, h: 0, t: 'fest' };
+  return base(d) ? { w: 1, h: c.hours, t: 'work' } : { w: 0, h: 0, t: 'off' };
+}
+function span(a, b) {
+  let n = 0, h = 0, sat = 0; const d = new Date(a);
+  while (d <= b) { const i = info(d); n += i.w; h += i.h; if (d.getDay() === 6) sat++; d.setDate(d.getDate() + 1); }
+  return { n, h, sat };
+}
+const ferieUsate = (y) => Object.keys(S.ex).filter((k) => k.startsWith(y + '-') && S.ex[k].t === 'ferie' && norm(parse(k))).length;
+function nextWhere(from, wantFree) {
+  const d = addD(from, 1);
+  for (let i = 0; i < 400; i++, d.setDate(d.getDate() + 1)) if ((info(d).w === 0) === wantFree) return new Date(d);
+  return null;
+}
+
+/* ---------- paga ---------- */
+function payFor(y, m) {
+  const c = S.cfg; if (!c.payday) return null;
+  const last = new Date(y, m + 1, 0).getDate(), d = new Date(y, m, Math.min(c.payday, last));
+  if (c.payAdj) while (d.getDay() === 0 || d.getDay() === 6 || hol(d)) d.setDate(d.getDate() - 1);
+  return d;
+}
+function paydays(a, b) {
+  const out = [];
+  if (!S.cfg.payday) return out;
+  const n = Math.ceil(dd(a, b) / 28) + 2;
+  for (let k = -1; k <= n; k++) { const d = payFor(a.getFullYear(), a.getMonth() + k); if (d && d >= a && d <= b) out.push(d); }
+  return out;
+}
+function calc() {
+  const c = S.cfg, today = todayD(); if (!c.end) return null;
+  const end = parse(c.end); if (end < today) return { over: 1, end };
+  const r = span(today, end), cal = dd(today, end) + 1, start = c.start ? parse(c.start) : today;
+  const done = start <= addD(today, -1) ? span(start, addD(today, -1)).n : 0, tot = done + r.n;
+  return { today, end, r, cal, done, tot, pct: tot ? Math.round(done / tot * 100) : 0 };
+}
+function proj(k) {
+  const c = S.cfg, pays = paydays(k.today, k.end);
+  if (c.payMode === 'month' && c.monthly > 0) {
+    if (c.payday) return { total: pays.length * c.monthly, sub: `${pays.length} ${pays.length === 1 ? 'paga' : 'paghe'} da ${eur(c.monthly)}` };
+    return { total: c.monthly * k.cal / 30.44, approx: 1, sub: `Stima su circa ${fh(k.cal / 30.44)} mesi di stipendio` };
+  }
+  if (c.payMode !== 'month' && c.rate > 0) return { total: k.r.h * c.rate, sub: `${fh(k.r.h)} ore × ${eur(c.rate)}` };
+  return null;
+}
+
+/* ---------- frasi ---------- */
+const PH = [
+  [0, ['Zero giorni di lavoro: il divano ti aspetta a braccia aperte.', 'Il conto è a zero. Spegni la sveglia, anzi buttala.', 'Nessun giorno da lavorare. Qualcuno ha detto "fuga"?']],
+  [1, ['Ultimo giorno! Il boss finale è quasi sconfitto.', 'Un giorno solo: puoi farcela anche con un occhio chiuso (ma tieni l\'altro aperto).', "È l'ultimo. Fai finta di niente e sorridi."]],
+  [5, ["Ormai l'odore della libertà si sente già dalla scrivania.", 'Conti le ore invece dei giorni? Normale, capita ai migliori.', 'Pochi giorni e poi: niente sveglia, niente riunioni inutili.']],
+  [10, ['Cifra singola! Ora si fa sul serio.', 'Meno di due settimane: il caffè della macchinetta sembra quasi buono.', 'Siamo in discesa, e senza freni.']],
+  [30, ['Un mesetto e sei fuori: il traguardo è in vista.', 'Ogni giorno che passa è un giorno in meno. Matematica pura.', 'Respira: il peggio è alle spalle, il meglio sta arrivando.']],
+  [60, ['Si vede la luce in fondo al tunnel. Speriamo non sia un treno.', 'Tieni duro: la pazienza è la virtù dei prossimi liberi.', 'Un giorno alla volta, come i campioni (e i bradipi).']],
+  [120, ['La strada è lunga, ma tu hai un conto alla rovescia e loro no.', 'Oggi è già un giorno in meno. Festeggia con un caffè.', 'Ogni giorno è un mattoncino verso la libertà.']],
+  [1e9, ['Il traguardo è lontano, ma sta già venendo verso di te.', 'Tanti giorni, tanta pazienza, tanto caffè. Si parte!', 'Per ora zen: i grandi viaggi iniziano con un lunedì.']]
+];
+function phrase(n, today) {
+  if (bump === 0) {
+    const p = payFor(today.getFullYear(), today.getMonth());
+    if (p && ymd(p) === ymd(today)) return 'Oggi è giorno di paga. Controlla il conto, poi puoi sorridere. 💸';
+    if (today.getDay() === 5 && n > 1) return "Venerdì: l'aria del weekend si sente già.";
+    if (today.getDay() === 1 && n > 5) return 'Lunedì: il più duro della settimana. Da domani si scende.';
+  }
+  const list = PH.find((x) => n <= x[0])[1];
+  return list[(Math.floor(today / 864e5) + bump) % list.length];
+}
+function nextPhrase() { bump++; renderHome(); }
+
+/* ---------- HOME ---------- */
+function countUp(el, to) {
+  if (!first || matchMedia('(prefers-reduced-motion:reduce)').matches) { el.textContent = to; return; }
+  const t0 = performance.now();
+  (function f(t) { const p = Math.min(1, (t - t0) / 900); el.textContent = Math.round(to * (1 - Math.pow(1 - p, 3))); if (p < 1) requestAnimationFrame(f); })(t0);
+}
+function tappe(k) {
+  const th = [{ n: Math.floor(k.tot / 2), l: 'Metà del percorso' }, { n: 100, l: 'Ultimi 100 giorni di lavoro' }, { n: 50, l: 'Ultimi 50 giorni di lavoro' }, { n: 10, l: 'Ultimi 10 giorni di lavoro' }]
+    .filter((t, i, a) => t.n > 0 && t.n < k.tot && a.findIndex((u) => u.n === t.n) === i)
+    .map((t) => ({ ...t, date: null, past: k.r.n <= t.n }));
+  let rem = k.r.n; const d = new Date(k.today), ft = th.filter((t) => !t.past);
+  while (d <= k.end && ft.some((t) => !t.date)) { const w = info(d).w; ft.forEach((t) => { if (!t.date && w === 1 && rem <= t.n) t.date = new Date(d); }); rem -= w; d.setDate(d.getDate() + 1); }
+  return th.sort((a, b) => (a.past ? 0 : 1) - (b.past ? 0 : 1) || (a.date || 0) - (b.date || 0));
+}
+function renderHome() {
+  const c = S.cfg, el = $('v-home'), k = calc();
+  if (!k) {
+    el.innerHTML = `<div class="card" style="margin-top:28px"><h2 style="font-size:1.6rem;line-height:1.2">Quanto manca?</h2><p class="sub">Scegli una data (fine contratto, vacanze, qualunque traguardo) e conto solo i giorni in cui lavori davvero: niente weekend, festività e ferie.</p><button class="btn" onclick="openCfg()">Imposta la data</button></div>`;
+    return;
+  }
+  if (k.over) {
+    el.innerHTML = `<div class="card" style="margin-top:28px;text-align:center"><div class="cnt">0</div><div class="lab2">giorni di lavoro</div><p class="sub">${esc(c.label)} · ${fdate(k.end)}<br>Traguardo raggiunto. Sei libero! 🎉</p><button class="btn" onclick="openCfg()">Scegli un nuovo traguardo</button></div>`;
+    return;
+  }
+  const R = 108, C = 2 * Math.PI * R, off = C * (1 - k.pct / 100), today = k.today;
+  const ti = info(today), tmsg = { work: `Oggi lavori ${fh(ti.h)} ore.`, extra: `Oggi lavori ${fh(ti.h)} ore (extra).`, perm: `Oggi lavori ${fh(ti.h)} ore (permesso di ${fh(ti.ph)}).`, ferie: 'Oggi sei in ferie 🌴', libero: 'Oggi è un tuo giorno libero.', fest: `Oggi è festa: ${holName(today) || 'festività'}.`, off: 'Oggi non lavori.' }[ti.t];
+  const nf = nextWhere(today, ti.w === 1), nfTxt = nf ? `${ti.w === 1 ? 'Prossimo giorno libero' : 'Si torna al lavoro'}: <b>${fshort(nf)}</b> (${dd(today, nf) === 1 ? 'domani' : `tra ${dd(today, nf)} giorni`}).` : '';
+  const nt = S.notes[ymd(today)];
+
+  const pays = paydays(today, k.end), nx = paydays(today, new Date(today.getFullYear(), today.getMonth() + 3, 1))[0];
+  let payHtml;
+  if (nx) {
+    const g = dd(today, nx);
+    payHtml = `<div class="card"><h3>Prossima paga</h3><div class="big">${nx.toLocaleDateString('it-IT', { weekday: 'long', day: 'numeric', month: 'long' })}</div><div class="sub">${g === 0 ? 'È oggi! Controlla il conto 💸' : g === 1 ? 'Domani! Resisti ancora una notte.' : `Tra ${g} giorni.`}</div><button class="btn sec" style="margin-top:12px" onclick="exportIcs()">Aggiungi le paghe al calendario del telefono</button></div>`;
+  } else {
+    payHtml = `<div class="card"><h3>Giorno di paga</h3><div class="sub">Aggiungilo nelle impostazioni: ti dico quanto manca alla prossima paga e ti creo i promemoria per il calendario.</div><button class="btn sec" style="margin-top:12px" onclick="openCfg()">Imposta il giorno di paga</button></div>`;
+  }
+  const pj = proj(k); let proHtml;
+  if (!pj) proHtml = `<div class="card"><h3>Da qui al traguardo</h3><div class="sub">Imposta la tua paga (oraria o mensile) e ti mostro quanto incasserai.</div><button class="btn sec" style="margin-top:12px" onclick="openCfg()">Imposta la paga</button></div>`;
+  else {
+    const fin = c.saved + pj.total; let goal = '';
+    if (c.goalAmt > 0) {
+      const gp = Math.min(100, Math.round(fin / c.goalAmt * 100)), diff = fin - c.goalAmt, nm = c.goalName ? `«${esc(c.goalName)}»` : 'il tuo obiettivo';
+      goal = `<div class="bar g"><i style="width:${gp}%"></i></div><div class="sub">${diff >= 0 ? `Arrivi a ${nm} con <b>${eur(diff)}</b> di margine.` : `Per ${nm} ti mancano <b>${eur(-diff)}</b> (${gp}% raggiunto).`}</div>`;
+    }
+    proHtml = `<div class="card"><h3>Da qui al traguardo incasserai</h3><div class="big">${pj.approx ? '≈ ' : ''}${eur(pj.total)}</div><div class="sub">${pj.sub}${c.saved > 0 ? `<br>Con quello che hai adesso arrivi a <b>${eur(fin)}</b>.` : ''}</div>${goal}</div>`;
+  }
+  const tp = tappe(k);
+  const tapHtml = tp.length ? `<div class="card"><h2>Tappe</h2>${tp.map((t) => `<div class="tap ${t.past ? 'ok' : ''}"><b>${t.l}</b><span>${t.past ? '✓ superata' : t.date ? fshort(t.date) : ''}</span></div>`).join('')}</div>` : '';
+
+  el.innerHTML = `
+    <div class="ring"><svg viewBox="0 0 260 260"><circle cx="130" cy="130" r="${R}" fill="none" stroke="var(--s2)" stroke-width="9"/><circle id="rg" cx="130" cy="130" r="${R}" fill="none" stroke="var(--ac)" stroke-width="9" stroke-linecap="round" stroke-dasharray="${C}" stroke-dashoffset="${first ? C : off}" transform="rotate(-90 130 130)" style="transition:stroke-dashoffset 1.2s cubic-bezier(.2,.7,.2,1)"/></svg>
+      <div class="in"><div class="lab">${esc(c.label)}</div><div class="cnt" id="cnt">${k.r.n}</div><div class="lab2">giorni di lavoro</div></div></div>
+    <div class="trio"><div><b>${k.cal}</b><span>giorni in tutto</span></div><div><b>${Math.round(k.cal / 7)}</b><span>settimane</span></div><div><b>${k.r.sat}</b><span>weekend</span></div></div>
+    <button class="quote" onclick="nextPhrase()">${esc(phrase(k.r.n, today))}<small>tocca per un'altra frase</small></button>
+    <div class="date">${fdate(k.end)} · ${k.pct}% del percorso · oggi incluso nel conto</div>
+    <div class="card"><h3>Oggi</h3><div class="sub"><b>${tmsg}</b><br>${nfTxt}${nt ? `<br>📝 ${esc(nt)}` : ''}</div></div>
+    ${payHtml}${liveHtml()}${proHtml}${tapHtml}
+    <div class="acts"><button class="btn sec" onclick="shareImg()">Condividi come immagine</button><button class="btn sec" onclick="exportIcs()">Esporta nel calendario</button></div>`;
+  countUp($('cnt'), k.r.n);
+  if (first) requestAnimationFrame(() => requestAnimationFrame(() => { const rg = $('rg'); if (rg) rg.style.strokeDashoffset = off; }));
+  first = false;
+}
+
+/* ---------- CALENDARIO ---------- */
+function renderCal() {
+  const c = S.cfg, today = todayD();
+  const y = view.getFullYear(), m = view.getMonth(), dim = new Date(y, m + 1, 0).getDate(), pad = (view.getDay() + 6) % 7;
+  $('mTitle').textContent = `${MESI[m]} ${y}`;
+  $('dows').innerHTML = ['L','M','M','G','V','S','D'].map((x) => `<div class="dow">${x}</div>`).join('');
+  const pd = payFor(y, m), pk = pd ? ymd(pd) : '';
+  let html = '<div class="day blank"></div>'.repeat(pad);
+  for (let n = 1; n <= dim; n++) {
+    const d = new Date(y, m, n), i = info(d), k = ymd(d);
+    const cls = { work: '', off: 'off', fest: 'fest', ferie: 'ferie', perm: 'perm', libero: 'libero', extra: 'extra' }[i.t];
+    const tag = { work: '<i></i>', ferie: '<small>ferie</small>', perm: `<small>${fh(i.ph || 0)}h</small>`, extra: '<small>extra</small>', fest: '<small>festa</small>' }[i.t] || '';
+    html += `<button class="day ${cls} ${k === ymd(today) ? 'today' : ''} ${k === pk ? 'pd' : ''} ${S.notes[k] ? 'nt' : ''}" onclick="pick('${k}')" aria-label="${n} ${MESI[m]}">${n}${tag}</button>`;
+  }
+  $('cal').innerHTML = html;
+  const f = new Date(y, m, 1), l = new Date(y, m, dim), all = span(f, l), cur = today >= f && today <= l, rest = cur ? span(today, l) : null;
+  const ms = monthStat(y, m), month = c.payMode === 'month';
+  $('msTitle').textContent = `Riepilogo di ${MESI[m]}`;
+  $('mStats').innerHTML = `<div><span>Giorni di lavoro</span><b>${all.n}</b></div>${rest ? `<div><span>Ancora da fare (oggi incluso)</span><b>${rest.n}</b></div>` : ''}<div><span>Ore</span><b>${fh(all.h)}</b></div><div><span>${month ? 'Stipendio mensile' : 'Guadagno previsto'}</span><b>${ms.money === null ? '—' : eur(ms.money)}</b></div>${pd ? `<div><span>Giorno di paga</span><b>${fshort(pd)}</b></div>` : ''}<div><span>Ferie nel mese</span><b>${ms.ferie}</b></div><div><span>Permessi nel mese</span><b>${fh(ms.perm)} h</b></div><div><span>Ferie ${y}</span><b>${c.ferie > 0 ? `${ferieUsate(y)} / ${c.ferie} (restano ${Math.max(0, c.ferie - ferieUsate(y))})` : ferieUsate(y)}</b></div>`;
+}
+function monthStat(y, m) {
+  const c = S.cfg, dim = new Date(y, m + 1, 0).getDate(), all = span(new Date(y, m, 1), new Date(y, m, dim));
+  let ferie = 0, perm = 0;
+  Object.keys(S.ex).forEach((k) => { if (k.startsWith(`${y}-${p2(m + 1)}-`)) { const e = S.ex[k], d = parse(k); if (e.t === 'ferie' && norm(d)) ferie++; if (e.t === 'perm' && norm(d)) perm += e.h || 0; } });
+  const money = c.payMode === 'month' ? (c.monthly > 0 ? c.monthly : null) : (c.rate > 0 ? all.h * c.rate : null);
+  return { n: all.n, h: all.h, ferie, perm, money };
+}
+function shift(n) { view = new Date(view.getFullYear(), view.getMonth() + n, 1); renderCal(); }
+function goToday() { const t = new Date(); view = new Date(t.getFullYear(), t.getMonth(), 1); renderCal(); }
+
+/* ---------- STATISTICHE ---------- */
+function renderStats() {
+  const c = S.cfg, today = todayD(), k = calc(), el = $('sAll'), y0 = today.getFullYear();
+  if (!k || k.over) { el.innerHTML = '<div class="card" style="margin-top:14px"><h2>Statistiche</h2><p class="sub">Imposta una data di arrivo nelle impostazioni e qui trovi a che punto sei, i soldi, le ferie e i ponti.</p><button class="btn sec" onclick="openCfg()">Imposta la data</button></div>'; return; }
+  const start = c.start ? parse(c.start) : today, past = start < today ? span(start, addD(today, -1)) : { n: 0, h: 0 };
+  let earned = null;
+  if (c.payMode !== 'month' && c.rate > 0) earned = past.h * c.rate; else if (c.payMode === 'month' && c.monthly > 0) earned = c.monthly * Math.max(0, dd(start, today)) / 30.44;
+  const pj = proj(k), row = (l, v) => `<div><span>${l}</span><b>${v}</b></div>`;
+  let h = `<div class="card" style="margin-top:14px"><h2>A che punto sei</h2><div class="big">${k.pct}%</div><div class="bar"><i style="width:${k.pct}%"></i></div><div class="rows" style="margin-top:8px">${row('Giorni di lavoro fatti', k.done)}${row('Giorni di lavoro rimasti', k.r.n)}${row('Ore fatte / rimaste', `${fh(past.h)} / ${fh(k.r.h)}`)}${earned !== null ? row('Guadagnato finora', '≈ ' + eur(earned)) : ''}${pj ? row('Ancora da incassare', (pj.approx ? '≈ ' : '') + eur(pj.total)) : ''}</div></div>`;
+  const us = ferieUsate(y0), rs = c.resid > 0 ? c.resid : null;
+  h += `<div class="card"><h2>Ferie ${y0}</h2>${c.ferie > 0 ? `<div class="big">${Math.max(0, c.ferie - us)}</div><div class="sub">giorni ancora da usare (ne hai segnati ${us} su ${c.ferie}).</div><div class="bar g"><i style="width:${Math.min(100, Math.round(us / c.ferie * 100))}%"></i></div>` : `<div class="sub">Ne hai segnati <b>${us}</b>. Scrivi quante ne hai all'anno nelle impostazioni per vedere quante restano.</div>`}${rs ? `<p class="hint">Ferie/ROL residui da smaltire prima della fine: ${fh(rs)} giorni.</p>` : ''}</div>`;
+  const mi = (d) => d.getFullYear() * 12 + d.getMonth(), cur = mi(today);
+  let a = Math.max(mi(start), cur - 1), b = mi(k.end); if (b - a > 17) b = a + 17;
+  const rows = []; let mx = 1;
+  for (let i = a; i <= b; i++) { const y = Math.floor(i / 12), m = i % 12, st = monthStat(y, m); mx = Math.max(mx, st.n); rows.push({ y, m, st, cur: i === cur, old: i < cur }); }
+  h += `<div class="card"><h2>Mese per mese</h2><p class="hint" style="margin:0 0 4px">Giorni di lavoro in ogni mese${c.rate > 0 || c.monthly > 0 ? ' e quanto guadagni' : ''}.</p>${rows.map((r) => `<div class="mr ${r.cur ? 'cur' : ''}" style="${r.old ? 'opacity:.55' : ''}"><div class="mh"><span>${MESI[r.m]} ${r.y}${r.cur ? ' · adesso' : ''}</span><span>${r.st.n} giorni</span></div><div class="bar"><i style="width:${Math.round(r.st.n / mx * 100)}%"></i></div>${r.st.money !== null || r.st.ferie || r.st.perm ? `<div class="ms">${[r.st.money !== null ? eur(r.st.money) : '', r.st.ferie ? `${r.st.ferie} ferie` : '', r.st.perm ? `${fh(r.st.perm)} h permesso` : ''].filter(Boolean).join(' · ')}</div>` : ''}</div>`).join('')}</div>`;
+  const lim = k.end, out = [];
+  if (c.hol) for (let d = new Date(today); d <= lim && out.length < 6; d = addD(d, 1)) {
+    if (!hol(d) || ![2, 4].includes(d.getDay()) || !base(d) || S.ex[ymd(d)]) continue;
+    const br = addD(d, d.getDay() === 2 ? -1 : 1), bk = ymd(br);
+    if (br < today || br > lim || !norm(br) || S.ex[bk]) continue;
+    const free = (x) => ymd(x) === bk || info(x).w === 0;
+    let n = 1, x = addD(br, -1); while (free(x)) { n++; x = addD(x, -1); }
+    x = addD(br, 1); while (free(x)) { n++; x = addD(x, 1); }
+    if (n >= 4) out.push({ d, br, bk, n });
+  }
+  h += `<div class="card"><h2>Ponti</h2><p class="hint" style="margin:0 0 6px">Con un solo giorno di ferie ottieni un lungo stop.</p>${out.length ? out.map((o) => `<div class="br"><div><b>${holName(o.d)}</b><span>Prendi ${fshort(o.br)} e stai a casa ${o.n} giorni di fila</span></div><button class="btn sm" onclick="takeBridge('${o.bk}')">Segna ferie</button></div>`).join('') : '<p class="sub" style="margin:8px 0 0">Nessun ponte conveniente prima della fine.</p>'}</div>`;
+  el.innerHTML = h;
+}
+function takeBridge(k) { S.ex[k] = { t: 'ferie' }; save(); toast('Ferie segnate.'); }
+
+/* ---------- navigazione ---------- */
+function go(t) {
+  ['home', 'cal', 'stats', 'x'].forEach((v) => { $('v-' + v).hidden = v !== t; $('n-' + v).classList.toggle('on', v === t); });
+  window.scrollTo(0, 0);
+}
+function render() { renderHome(); renderCal(); renderStats(); renderX(); }
+
+/* ---------- sheets ---------- */
+const openS = (n) => $('ov-' + n).classList.add('open');
+const closeS = (n) => $('ov-' + n).classList.remove('open');
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') { closeS('day'); closeS('cfg'); } });
+let tt; function toast(m) { const t = $('toast'); t.textContent = m; t.classList.add('on'); clearTimeout(tt); tt = setTimeout(() => t.classList.remove('on'), 2200); }
+
+function pick(k) {
+  sel = k;
+  const d = parse(k), i = info(d), e = S.ex[k];
+  $('dTitle').textContent = d.toLocaleDateString('it-IT', { weekday: 'long', day: 'numeric', month: 'long' });
+  $('dState').textContent = { work: `Giorno di lavoro · ${fh(i.h)} ore`, off: 'Giorno libero (di solito non lavori)', fest: holName(d) || 'Festività', ferie: 'Ferie', perm: `Permesso di ${fh(i.ph || 0)} ore · lavori ${fh(i.h)} ore`, libero: 'Giorno libero segnato da te', extra: `Lavoro extra · ${fh(i.h)} ore` }[i.t];
+  $('dH').value = e && e.h ? e.h : ''; $('dEnd').value = ''; $('dNote').value = S.notes[k] || ''; $('dErr').textContent = '';
+  openS('day');
+}
+function setNote(k, v) { v = v.trim(); if (v) S.notes[k] = v; else delete S.notes[k]; }
+function saveNote() { setNote(sel, $('dNote').value); save(); closeS('day'); toast('Nota salvata.'); }
+function apply(t) {
+  const a = parse(sel), b = $('dEnd').value ? parse($('dEnd').value) : a, single = dd(a, b) === 0;
+  const h = parseFloat(String($('dH').value).replace(',', '.'));
+  if (b < a) { $('dErr').textContent = 'La data finale è prima di quella iniziale.'; return; }
+  if (t === 'perm' && !(h > 0)) { $('dErr').textContent = 'Scrivi quante ore di permesso.'; return; }
+  if (dd(a, b) > 366) { $('dErr').textContent = 'Intervallo troppo lungo (massimo un anno).'; return; }
+  const d = new Date(a); let n = 0;
+  while (d <= b) {
+    const k = ymd(d);
+    if (t === 'reset') { if (S.ex[k]) { delete S.ex[k]; n++; } }
+    else if (single || (t === 'extra' ? !norm(d) : norm(d))) { S.ex[k] = t === 'perm' ? { t, h } : (t === 'extra' && h > 0 ? { t, h } : { t }); n++; }
+    d.setDate(d.getDate() + 1);
+  }
+  setNote(sel, $('dNote').value);
+  save(); closeS('day');
+  toast(t === 'reset' ? 'Giorno ripristinato.' : `Segnati ${n} ${n === 1 ? 'giorno' : 'giorni'}.`);
+}
+
+/* ---------- impostazioni ---------- */
+const ORDER = [1, 2, 3, 4, 5, 6, 0], LET = ['L','M','M','G','V','S','D'];
+let tmpDays = [], tmpPM = 'hour', tmpMode = 'week', tmpTh = 'auto';
+const seg = (p, v, l) => l.forEach((x) => $(p + x).classList.toggle('on', x === v));
+function drawChips() { $('cDays').innerHTML = ORDER.map((n, i) => `<button type="button" class="chip ${tmpDays.includes(n) ? 'on' : ''}" onclick="togDay(${n})">${LET[i]}</button>`).join(''); }
+function togDay(n) { tmpDays = tmpDays.includes(n) ? tmpDays.filter((x) => x !== n) : [...tmpDays, n]; drawChips(); }
+function setMode(m) { tmpMode = m; seg('md-', m, ['week', 'cycle']); $('wkBox').hidden = m !== 'week'; $('cyBox').hidden = m !== 'cycle'; }
+function setTh(t) { tmpTh = t; seg('th-', t, ['auto', 'dark', 'light']); }
+function setPM(m) {
+  const c = S.cfg, prev = tmpPM; tmpPM = m; seg('pm-', m, ['hour', 'month']);
+  $('cPayL').textContent = m === 'month' ? 'Stipendio mensile (€)' : "Paga all'ora (€)";
+  if (prev !== m) $('cPay').value = (m === 'month' ? c.monthly : c.rate) || '';
+}
+function openCfg() {
+  const c = S.cfg;
+  $('cLabel').value = c.label; $('cEnd').value = c.end; $('cStart').value = c.start; $('cHours').value = c.hours;
+  $('cOn').value = c.cycleOn; $('cOff').value = c.cycleOff; $('cCy').value = c.cycleStart;
+  $('cPayday').value = c.payday || ''; $('cSaved').value = c.saved || ''; $('cFerie').value = c.ferie || '';
+  $('cGoalN').value = c.goalName; $('cGoalA').value = c.goalAmt || '';
+  $('cPayAdj').checked = c.payAdj; $('cHol').checked = c.hol;
+  $('cHire').value = c.hire; $('cStT').value = c.stT; $('cRal').value = c.ral || ''; $('cResid').value = c.resid || ''; $('cPrev').value = c.prev || ''; $('cShake').checked = c.shake;
+  tmpPM = c.payMode === 'month' ? 'hour' : 'month'; setPM(c.payMode);
+  $('cPay').value = (c.payMode === 'month' ? c.monthly : c.rate) || '';
+  tmpDays = [...c.days]; drawChips(); setMode(c.mode); setTh(c.theme); openS('cfg');
+}
+function saveCfg() {
+  const hours = parseFloat($('cHours').value), pd = parseInt($('cPayday').value, 10) || 0;
+  const on = parseInt($('cOn').value, 10) || 0, offd = parseInt($('cOff').value, 10) || 0;
+  if (tmpMode === 'week' && !tmpDays.length) { toast('Scegli almeno un giorno di lavoro.'); return; }
+  if (tmpMode === 'cycle' && (on < 1 || !$('cCy').value)) { toast('Indica giorni di lavoro e data di inizio del ciclo.'); return; }
+  if (!(hours > 0)) { toast('Scrivi quante ore lavori al giorno.'); return; }
+  if (pd < 0 || pd > 31) { toast('Il giorno di paga va da 1 a 31.'); return; }
+  const c = S.cfg, pay = parseFloat($('cPay').value) || 0;
+  c.label = $('cLabel').value.trim() || 'Traguardo'; c.end = $('cEnd').value; c.start = $('cStart').value;
+  if (c.end && !c.start) c.start = ymd(todayD());
+  c.mode = tmpMode; c.days = tmpDays.length ? tmpDays : c.days; c.cycleOn = on || c.cycleOn; c.cycleOff = offd; c.cycleStart = $('cCy').value;
+  c.hours = hours; c.payMode = tmpPM; if (tmpPM === 'month') c.monthly = pay; else c.rate = pay;
+  c.payday = pd; c.payAdj = $('cPayAdj').checked; c.saved = parseFloat($('cSaved').value) || 0;
+  c.goalName = $('cGoalN').value.trim(); c.goalAmt = parseFloat($('cGoalA').value) || 0;
+  c.ferie = parseInt($('cFerie').value, 10) || 0; c.hol = $('cHol').checked; c.theme = tmpTh;
+  c.hire = $('cHire').value; c.stT = $('cStT').value || '09:00'; c.ral = parseFloat($('cRal').value) || 0; c.resid = parseFloat($('cResid').value) || 0; c.prev = parseInt($('cPrev').value, 10) || 0; c.shake = $('cShake').checked; setupShake(c.shake);
+  first = true; save(); closeS('cfg'); toast('Impostazioni salvate.');
+}
+
+/* ---------- condividi / esporta ---------- */
+function download(blob, name) { const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 4000); }
+function exp() { download(new Blob([JSON.stringify(S)], { type: 'application/json' }), `turno-backup-${ymd(new Date())}.json`); }
+function imp(f) {
+  if (!f) return;
+  const r = new FileReader();
+  r.onload = () => { try { const o = JSON.parse(r.result); if (!o.cfg) throw 0; S = { cfg: { ...D0.cfg, ...o.cfg }, ex: o.ex || {}, notes: o.notes || {}, mood: o.mood || {}, chk: o.chk || {} }; first = true; save(); closeS('cfg'); toast('Backup ripristinato.'); } catch (e) { toast('File non valido.'); } };
+  r.readAsText(f);
+}
+function exportIcs() {
+  const k = calc(), c = S.cfg, today = todayD();
+  const end = k && !k.over ? k.end : addD(today, 365), pays = paydays(today, end).slice(0, 36), ev = [];
+  const stamp = new Date().toISOString().replace(/[-:]/g, '').slice(0, 15) + 'Z', fd = (d) => ymd(d).replace(/-/g, '');
+  const mk = (id, d, title, alarms) => ev.push('BEGIN:VEVENT', `UID:turno-${id}-${fd(d)}@turno`, `DTSTAMP:${stamp}`, `DTSTART;VALUE=DATE:${fd(d)}`, `DTEND;VALUE=DATE:${fd(addD(d, 1))}`, `SUMMARY:${title}`, ...alarms.flatMap((t) => ['BEGIN:VALARM', 'ACTION:DISPLAY', `DESCRIPTION:${title}`, `TRIGGER:${t}`, 'END:VALARM']), 'END:VEVENT');
+  pays.forEach((d) => mk('paga', d, '💸 Giorno di paga', ['-PT15H', 'PT9H']));
+  if (k && !k.over) mk('fine', k.end, `🎉 ${c.label}`, ['-P1DT0H', '-P7DT0H']);
+  if (!ev.length) { toast('Imposta prima il giorno di paga o la data di arrivo.'); return; }
+  download(new Blob([['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Turno//IT', 'CALSCALE:GREGORIAN', ...ev, 'END:VCALENDAR'].join('\r\n')], { type: 'text/calendar' }), 'turno.ics');
+  toast('Aprilo per aggiungere gli eventi al calendario.');
+}
+async function shareImg() {
+  const k = calc(); if (!k || k.over) { toast('Imposta prima una data di arrivo.'); return; }
+  try { await Promise.all(['200 100px Sora', '400 30px Sora', '500 30px Manrope'].map((f) => document.fonts.load(f))); } catch (e) {}
+  const W = 1080, H = 1350, cv = document.createElement('canvas'); cv.width = W; cv.height = H;
+  const x = cv.getContext('2d'), cs = getComputedStyle(document.documentElement), g = (v) => cs.getPropertyValue(v).trim();
+  x.fillStyle = g('--bg'); x.fillRect(0, 0, W, H);
+  x.textAlign = 'center'; x.fillStyle = g('--dim'); x.font = '500 34px Manrope'; x.fillText(S.cfg.label, W / 2, 150);
+  const cx = W / 2, cy = 560, r = 330; x.lineWidth = 26; x.lineCap = 'round';
+  x.strokeStyle = g('--s2'); x.beginPath(); x.arc(cx, cy, r, 0, 7); x.stroke();
+  x.strokeStyle = g('--ac'); x.beginPath(); x.arc(cx, cy, r, -Math.PI / 2, -Math.PI / 2 + 2 * Math.PI * Math.max(.01, k.pct / 100)); x.stroke();
+  x.fillStyle = g('--tx'); x.font = '200 330px Sora'; x.fillText(String(k.r.n), cx, cy + 90);
+  x.fillStyle = g('--ac'); x.font = '400 40px Sora'; x.fillText('giorni di lavoro', cx, cy + 170);
+  x.fillStyle = g('--tx'); x.font = '300 64px Sora'; x.fillText(`${k.cal} giorni in tutto`, cx, 1040);
+  x.fillStyle = g('--dim'); x.font = '500 34px Manrope';
+  const words = phrase(k.r.n, k.today).split(' '); let line = '', y = 1130;
+  words.forEach((w) => { const t = line + w + ' '; if (x.measureText(t).width > 860 && line) { x.fillText(line.trim(), cx, y); line = w + ' '; y += 48; } else line = t; });
+  x.fillText(line.trim(), cx, y);
+  x.fillStyle = g('--faint'); x.font = '600 30px Sora'; x.fillText('turno', cx, H - 60);
+  cv.toBlob(async (b) => {
+    const f = new File([b], 'countdown.png', { type: 'image/png' });
+    if (navigator.canShare && navigator.canShare({ files: [f] })) { try { await navigator.share({ files: [f], title: 'Il mio countdown' }); return; } catch (e) { if (e && e.name === 'AbortError') return; } }
+    download(b, 'countdown.png'); toast('Immagine scaricata.');
+  }, 'image/png');
+}
+
+/* ---------- extra ---------- */
+const eur2 = (n) => n.toLocaleString('it-IT', { style: 'currency', currency: 'EUR', minimumFractionDigits: 2, maximumFractionDigits: 2 });
+function hourly() { const c = S.cfg; if (c.payMode !== 'month') return c.rate || 0; const t = new Date(), s = span(new Date(t.getFullYear(), t.getMonth(), 1), new Date(t.getFullYear(), t.getMonth() + 1, 0)); return c.monthly > 0 && s.h > 0 ? c.monthly / s.h : 0; }
+function liveVals() {
+  const c = S.cfg, now = new Date(), ti = info(todayD()), hr = hourly();
+  if (!hr || ti.w !== 1) return null;
+  const [H, M] = (c.stT || '09:00').split(':').map(Number), st = new Date(now.getFullYear(), now.getMonth(), now.getDate(), H || 0, M || 0);
+  const el = Math.min(ti.h, Math.max(0, (now - st) / 36e5));
+  return { earned: el * hr, ps: hr / 3600, state: el <= 0 ? 'before' : el >= ti.h ? 'done' : 'on' };
+}
+function liveHtml() {
+  const v = liveVals(); if (!v) return '';
+  const m = { before: 'Il turno non è ancora iniziato.', on: `Ogni secondo che passa vale ${eur2(v.ps)}.`, done: 'Turno finito: questo è il bottino di oggi.' }[v.state];
+  return `<div class="card"><h3>Guadagnato oggi (dall'inizio del turno)</h3><div class="big" id="liveV">${eur2(v.earned)}</div><div class="sub">${m}</div></div>`;
+}
+setInterval(() => { const e = $('liveV'), v = liveVals(); if (e && v) e.textContent = eur2(v.earned); }, 1000);
+
+function tenure() {
+  const c = S.cfg; if (!c.hire) return null; const a = parse(c.hire), t = todayD(); if (a > t) return null;
+  let y = t.getFullYear() - a.getFullYear(), m = t.getMonth() - a.getMonth(), d = t.getDate() - a.getDate();
+  if (d < 0) { m--; d += new Date(t.getFullYear(), t.getMonth(), 0).getDate(); } if (m < 0) { y--; m += 12; }
+  return { y, m, d, days: dd(a, t), worked: span(a, addD(t, -1)).n };
+}
+function remDays(k) { const o = { mon: 0, fri: 0 }, d = new Date(k.today); while (d <= k.end) { if (info(d).w) { if (d.getDay() === 1) o.mon++; if (d.getDay() === 5) o.fri++; } d.setDate(d.getDate() + 1); } return o; }
+function fuga(k) {
+  const N = S.cfg.resid; if (!(N > 0)) return null;
+  const d = new Date(k.end), used = []; let g = 0;
+  while (used.length < N && d >= k.today && g++ < 900) { if (info(d).w === 1) used.push(ymd(d)); d.setDate(d.getDate() - 1); }
+  while (d >= k.today && info(d).w !== 1 && g++ < 900) d.setDate(d.getDate() - 1);
+  return { used, last: d >= k.today ? new Date(d) : null, short: used.length < Math.ceil(N) };
+}
+function applyFuga() { const k = calc(), f = k && !k.over && fuga(k); if (!f) return; f.used.forEach((x) => { S.ex[x] = { t: 'ferie' }; }); save(); toast(`Segnati ${f.used.length} giorni di ferie.`); }
+function nas(k) {
+  const c = S.cfg; if (!(c.ral > 0)) return { err: 'Inserisci la RAL lorda nelle impostazioni («Per le stime»).' };
+  const hire = c.hire ? parse(c.hire) : null, mine = hire && hire < k.end ? (dd(hire, k.end) + 1) / 7 : 0, w = Math.min(208, mine + (c.prev || 0));
+  if (w < 13) return { err: `Con circa ${Math.floor(w)} settimane contributive non arrivi alle 13 richieste.` };
+  const avg = c.ral / 12, T = 1456.72, base = Math.min(1584.70, avg <= T ? avg * .75 : T * .75 + (avg - T) * .25), mesi = Math.min(24, w / 2 / 4.345);
+  let tot = 0, last = base;
+  for (let i = 1; i <= Math.ceil(mesi); i++) { last = base * (i >= 6 ? Math.pow(.97, i - 5) : 1); tot += last * Math.min(1, mesi - i + 1); }
+  return { w, base, mesi, tot, last };
+}
+function tfr(k) { const c = S.cfg; if (!(c.ral > 0) || !c.hire) return null; const a = parse(c.hire), q = c.ral / 13.5, yr = (d) => Math.max(0, dd(a, d) + 1) / 365.25; return { now: q * yr(todayD()), end: q * yr(k.end) }; }
+
+const CK = [['li', 'Aggiorna LinkedIn e CV', 60], ['ct', 'Salva i contatti dei colleghi utili', 45], ['bk', 'Backup dei file personali dal PC/account di lavoro', 30], ['bp', 'Scarica buste paga e CU', 21], ['sf', 'Chiedi saldo ferie, TFR e certificato di lavoro', 14], ['rs', 'Cancella i tuoi dati dai dispositivi aziendali e restituisci il materiale', 3], ['na', "Domanda NASpI entro 68 giorni dall'ultimo giorno", 0]];
+function tick(id, v) { if (v) S.chk[id] = 1; else delete S.chk[id]; save(); }
+function setMood(v) { const k = ymd(todayD()); if (S.mood[k] === v) delete S.mood[k]; else S.mood[k] = v; save(); }
+
+function renderX() {
+  const c = S.cfg, k = calc(), el = $('v-x'), t = tenure(), today = todayD();
+  let h = `<div class="card" style="margin-top:14px"><h2>Da quanto lavori</h2>${t ? `<div class="big">${t.y ? t.y + ' a ' : ''}${t.m} m ${t.d} g</div><div class="sub">${t.days} giorni dall'assunzione, circa <b>${t.worked}</b> giorni di lavoro effettivo.</div>` : `<div class="sub">Imposta la data di assunzione per vedere da quanto sei lì dentro.</div><button class="btn sec" style="margin-top:12px" onclick="openCfg()">Imposta</button>`}</div>`;
+  if (!k || k.over) { el.innerHTML = h + '<div class="card"><div class="sub">Imposta una data di arrivo nelle impostazioni per vedere il resto.</div></div>'; return; }
+  const r = remDays(k);
+  h += `<div class="card"><h2>Metriche del dolore</h2><div class="rows"><div><span>Lunedì da sopportare</span><b>${r.mon}</b></div><div><span>Venerdì (quasi liberi)</span><b>${r.fri}</b></div><div><span>Ore di lavoro effettivo</span><b>${fh(k.r.h)}</b></div></div></div>`;
+  const f = fuga(k);
+  h += `<div class="card"><h2>Ultimo giorno in ufficio</h2>${f ? `<div class="big">${f.last ? fshort(f.last) : 'Già da oggi'}</div><div class="sub">Se smalti i ${fh(c.resid)} giorni di ferie/ROL alla fine, il tuo vero ultimo giorno è questo (contratto fino al ${fshort(k.end)}).${f.short ? ' Hai più giorni di quanti ne restino da lavorare.' : ''} A fine contratto le ferie non godute di solito vengono pagate: confrontale con il consulente.</div><button class="btn sec" style="margin-top:12px" onclick="applyFuga()">Segna queste ferie nel calendario</button>` : `<div class="sub">Indica i giorni di ferie/ROL residui nelle impostazioni (ROL: ore ÷ ore al giorno).</div>`}</div>`;
+  const n = nas(k), tf = tfr(k);
+  h += `<div class="card"><h2>NASpI e TFR (teorici)</h2>${n.err ? `<div class="sub">${n.err}</div>` : `<div class="rows"><div><span>Settimane contributive a fine contratto</span><b>${Math.floor(n.w)}</b></div><div><span>NASpI mensile lorda (all'inizio)</span><b>${eur2(n.base)}</b></div><div><span>Durata</span><b>${fh(n.mesi)} mesi</b></div><div><span>Dopo il calo del 3%/mese</span><b>${eur2(n.last)}</b></div><div><span>Totale stimato</span><b>${eur(n.tot)}</b></div></div>`}${tf ? `<div class="rows" style="margin-top:8px"><div><span>TFR maturato oggi</span><b>${eur(tf.now)}</b></div><div><span>TFR a fine contratto</span><b>${eur(tf.end)}</b></div></div>` : ''}<p class="hint">Stima lorda con valori INPS 2026 (soglia 1.456,72 €, massimo 1.584,70 €), calo del 3% dal 6° mese (vale per under 55). La NASpI spetta in caso di perdita involontaria del lavoro, come la scadenza del contratto, ma non con dimissioni volontarie. Il TFR è RAL ÷ 13,5 per anno, senza rivalutazione. Per cifre ufficiali usa il simulatore INPS o un patronato.</p></div>`;
+  const gd = dd(today, k.end);
+  h += `<div class="card"><h2>Checklist di uscita</h2>${CK.map(([id, tx, d]) => `<label class="chk"><input type="checkbox" ${S.chk[id] ? 'checked' : ''} onchange="tick('${id}',this.checked)"> <span>${tx}${gd <= d && !S.chk[id] ? ' ⏰' : ''}</span></label>`).join('')}<p class="hint">⏰ = è ora di farlo.</p></div>`;
+  const ms = Object.keys(S.mood), bad = ms.filter((x) => S.mood[x] === 3).length, tm = S.mood[ymd(today)], wd = {};
+  ms.forEach((x) => { const w = parse(x).getDay(); (wd[w] = wd[w] || []).push(S.mood[x]); });
+  let worst = null, wa = 0; Object.keys(wd).forEach((w) => { const a = wd[w].reduce((q, v) => q + v, 0) / wd[w].length; if (wd[w].length >= 2 && a > wa) { wa = a; worst = +w; } });
+  const BD = [['🥉', 'Primo giorno no', bad >= 1], ['🔥', '10 giorni no e sei ancora qui', bad >= 10], ['⛰️', 'Metà percorso', k.pct >= 50], ['💯', 'Ultimi 100 giorni di lavoro', k.r.n <= 100], ['🧘', 'Ultimi 30 giorni di lavoro', k.r.n <= 30], ['🏁', 'Ultima settimana', k.r.n <= 5]];
+  h += `<div class="card"><h2>Com'è andata oggi?</h2><div class="seg" style="margin-top:8px">${[[1, '😌 Ok'], [2, '😐 Così così'], [3, '😤 Giorno no']].map(([v, l]) => `<button type="button" class="${tm === v ? 'on' : ''}" onclick="setMood(${v})">${l}</button>`).join('')}</div><p class="sub" style="margin-top:10px">${ms.length ? `Giorni segnati: ${ms.length}, di cui <b>${bad}</b> «giorno no».` : 'Segna i giorni no: dopo un po\' ti dico quale è il peggiore.'}${worst !== null ? ` Il giorno peggiore finora: <b>${WD[worst]}</b>.` : ''}</p><div style="margin-top:6px">${BD.map(([i, n, u]) => `<div class="tap ${u ? 'ok' : 'lock'}"><b>${i} ${n}</b><span>${u ? '✓ sbloccato' : 'bloccato'}</span></div>`).join('')}</div></div>`;
+  el.innerHTML = h;
+}
+const WD = ['domenica', 'lunedì', 'martedì', 'mercoledì', 'giovedì', 'venerdì', 'sabato'];
+
+/* ---------- panic: finta calcolatrice ---------- */
+let fkE = '', fkT, lastShake = 0;
+function fkDraw() { $('fkD').textContent = fkE || '0'; }
+function fkKey(k) {
+  if (fkE === 'Errore') fkE = '';
+  if (k === 'C') fkE = ''; else if (k === '⌫') fkE = fkE.slice(0, -1);
+  else if (k === '=') { try { if (fkE && /^[0-9+\-*/.() ]+$/.test(fkE)) fkE = String(Math.round(Function('return (' + fkE + ')')() * 1e9) / 1e9); } catch (e) { fkE = 'Errore'; } }
+  else fkE += k;
+  fkDraw();
+}
+$('fkK').innerHTML = ['C', '(', ')', '/', '7', '8', '9', '*', '4', '5', '6', '-', '1', '2', '3', '+', '0', '.', '⌫', '='].map((k) => `<button onclick="fkKey('${k}')">${{ '/': '÷', '*': '×', '-': '−' }[k] || k}</button>`).join('');
+function panic(on) { if (on) { fkE = ''; fkDraw(); } $('fk').hidden = !on; document.body.style.overflow = on ? 'hidden' : ''; if (on) document.title = 'Calcolatrice'; else document.title = 'Turno — quanto manca'; }
+function onMotion(e) { const a = e.accelerationIncludingGravity; if (!a) return; if (Math.hypot(a.x || 0, a.y || 0, a.z || 0) > 30 && Date.now() - lastShake > 1500) { lastShake = Date.now(); panic(1); } }
+async function setupShake(on) {
+  window.removeEventListener('devicemotion', onMotion); if (!on || !window.DeviceMotionEvent) return;
+  try { if (typeof DeviceMotionEvent.requestPermission === 'function' && (await DeviceMotionEvent.requestPermission()) !== 'granted') { toast('Permesso movimento negato.'); return; } } catch (e) { return; }
+  window.addEventListener('devicemotion', onMotion);
+}
+setupShake(S.cfg.shake);
+
+applyTheme(); render();
+</script>
+</body>
+</html>
