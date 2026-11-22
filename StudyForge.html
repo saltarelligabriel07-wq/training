@@ -4,7 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#eef0f8">
+<meta name="apple-mobile-web-app-capable" content="yes">
 <title>StudyForge</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='28' fill='%236c5ce7'/%3E%3Cpath d='M50 18c4 14 22 22 22 42a22 22 0 0 1-44 0c0-8 4-13 8-17 0 8 4 12 8 12 0-16-4-24 6-37z' fill='white'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Fraunces:opsz,wght@9..144,600;9..144,800&family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
@@ -24,23 +26,27 @@ html{scroll-behavior:smooth}
 body{margin:0;background:var(--bg);background-image:var(--bgi);background-attachment:fixed;color:var(--ink);font:500 15px/1.5 var(--fb);min-height:100vh;-webkit-font-smoothing:antialiased;overflow-x:hidden}
 body.lock{overflow:hidden}
 button,input,select,textarea{font:inherit;color:inherit}button{cursor:pointer}
+button:focus-visible,[tabindex]:focus-visible,summary:focus-visible,.ch:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
 h1,h2,h3,h4,.fd{font-family:var(--fd);margin:0;letter-spacing:-.025em}
 h1{font-size:clamp(2rem,5vw,2.7rem);line-height:1.08;font-weight:800}
 h3{font-size:1.1rem;font-weight:700}h4{font-size:1rem;font-weight:700}
 .dim{color:var(--mut);font-size:.85rem}.mono{font-family:var(--fm)}
+a{color:var(--at)}
 .shell{display:grid;grid-template-columns:256px 1fr;min-height:100vh}
-aside{position:sticky;top:16px;height:calc(100vh - 32px);margin:16px 0 16px 16px;padding:20px 14px;display:flex;flex-direction:column;gap:4px;background:var(--card);border:var(--bw) solid var(--bd);border-radius:calc(var(--r) + 10px);box-shadow:var(--sh)}
+aside{position:sticky;top:16px;height:calc(100vh - 32px);margin:16px 0 16px 16px;padding:20px 14px;display:flex;flex-direction:column;gap:4px;background:var(--card);border:var(--bw) solid var(--bd);border-radius:calc(var(--r) + 10px);box-shadow:var(--sh);overflow:auto}
 .logo{display:flex;align-items:center;gap:11px;font:800 1.25rem var(--fd);letter-spacing:-.03em;padding:2px 8px 18px}
-.logo i{width:36px;height:36px;border-radius:12px;background:linear-gradient(135deg,var(--acc),var(--g2));color:var(--on);display:grid;place-items:center;box-shadow:0 8px 18px -8px var(--acc)}
+.logo i{width:36px;height:36px;border-radius:12px;background:linear-gradient(135deg,var(--acc),var(--g2));color:var(--on);display:grid;place-items:center;box-shadow:0 8px 18px -8px var(--acc);flex:none}
 aside button.ni{display:flex;align-items:center;gap:12px;background:none;border:0;border-radius:calc(var(--r)*.65);padding:11px 13px;font-weight:600;color:var(--mut);text-align:left;transition:.15s}
 aside button.ni:hover{background:var(--card2);color:var(--ink)}
 aside button.ni.on,.bn button.on{background:color-mix(in srgb,var(--acc) 15%,transparent);color:var(--at)}
 .ico{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
 .foot{margin-top:auto;font-size:.74rem;color:var(--mut);padding:0 10px}
+.qk{display:flex;gap:6px;margin-top:auto;padding-top:10px}.qk .b{flex:1;padding:9px 4px;font-size:.78rem;box-shadow:none;background:var(--card2);border-color:transparent}
 main{padding:30px clamp(16px,4vw,44px) 80px;max-width:1020px;width:100%;animation:fade .4s both}
 [data-motion="0"] *{animation:none!important;transition:none!important}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 @keyframes fade{from{opacity:0;transform:translateY(10px)}}
-.bn{display:none}
+.bn,.tbar{display:none}
 .head{display:flex;gap:12px;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;margin-bottom:22px}
 .head p{margin:8px 0 0;color:var(--mut);max-width:520px}
 .eyebrow{font:600 .72rem var(--fb);text-transform:uppercase;letter-spacing:.1em;color:var(--at);margin-bottom:8px}
@@ -49,6 +55,7 @@ main{padding:30px clamp(16px,4vw,44px) 80px;max-width:1020px;width:100%;animatio
 .card.hot{position:relative;overflow:hidden;background:linear-gradient(135deg,var(--acc),var(--g2));color:var(--on);border:0;box-shadow:0 22px 44px -22px var(--acc)}
 .card.hot:after{content:"";position:absolute;right:-60px;top:-60px;width:220px;height:220px;border-radius:50%;background:rgba(255,255,255,.14)}
 .card.hot:before{content:"";position:absolute;right:30px;bottom:-90px;width:180px;height:180px;border-radius:50%;background:rgba(255,255,255,.09)}
+.card.hot>*{position:relative;z-index:1}
 .grid2{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px}.grid2>.card{margin:0}
 .two{display:grid;grid-template-columns:1.15fr 1fr;gap:14px;margin-top:14px}.two>.card{margin:0}
 .row{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end}.row>*{flex:1;min-width:90px}
@@ -78,7 +85,8 @@ label>input,label>select,label>textarea{margin-top:6px;font-weight:500;color:var
 .sw input{display:none}.sw span{width:42px;height:25px;border-radius:99px;background:color-mix(in srgb,var(--mut) 35%,transparent);position:relative;flex:none;transition:.2s}
 .sw span:after{content:"";position:absolute;top:3px;left:3px;width:19px;height:19px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.3);transition:.2s}
 .sw input:checked+span{background:var(--acc)}.sw input:checked+span:after{left:20px}
-.pb{height:7px;border-radius:9px;overflow:hidden;background:var(--card2);margin-top:10px}.pb i{display:block;height:100%;border-radius:9px;background:var(--c,var(--acc))}
+.sw input:focus-visible+span{outline:2px solid var(--acc);outline-offset:2px}
+.pb{height:7px;border-radius:9px;overflow:hidden;background:var(--card2);margin-top:10px}.pb i{display:block;height:100%;border-radius:9px;background:var(--c,var(--acc));transition:width .5s}
 .hero{padding:26px}.hero .num{position:relative;z-index:1;font:800 clamp(4.6rem,18vw,7.6rem)/.9 var(--fd);letter-spacing:-.06em}.hero>*{position:relative;z-index:1}
 .hero .pb{background:rgba(255,255,255,.25)}.hero .pb i{background:#fff}
 .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:16px;text-align:center}.stats b{display:block;font:800 1.45rem var(--fd);letter-spacing:-.03em}.stats span{font-size:.72rem;color:var(--mut)}
@@ -87,7 +95,7 @@ label>input,label>select,label>textarea{margin-top:6px;font-weight:500;color:var
 .qa{margin-top:12px}
 .tk{position:relative;display:flex;gap:13px;align-items:flex-start;background:var(--card);border:var(--bw) solid var(--bd);border-radius:calc(var(--r) + 2px);padding:14px 12px 14px 22px;margin-top:10px;box-shadow:var(--sh);transition:transform .15s}
 .tk:before{content:"";position:absolute;left:9px;top:14px;bottom:14px;width:4px;border-radius:4px;background:var(--c,var(--acc))}
-.tk:hover{transform:translateY(-1px)}
+.tk:hover{transform:translateY(-1px)}.tk[draggable=true]{cursor:grab}
 .tk.dn .tt{text-decoration:line-through;opacity:.45}.tk.dn{opacity:.75}
 .ck{width:26px;height:26px;border-radius:50%;border:2px solid color-mix(in srgb,var(--mut) 55%,transparent);background:transparent;flex:none;display:grid;place-items:center;margin-top:1px;padding:0;transition:.15s}
 .ck:hover{border-color:var(--acc)}.ck.on{background:var(--ok);border-color:var(--ok);color:#fff}.ck.on:after{content:"✓";font-weight:800;font-size:.8rem}
@@ -102,7 +110,7 @@ label>input,label>select,label>textarea{margin-top:6px;font-weight:500;color:var
 .cal{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}.cal .wd{font:600 .68rem var(--fb);text-align:center;color:var(--mut);text-transform:uppercase;letter-spacing:.06em;padding-bottom:2px}
 .dy{aspect-ratio:1/.95;border:0;border-radius:calc(var(--r)*.7);background:var(--card2);padding:6px 7px;display:flex;flex-direction:column;justify-content:space-between;align-items:flex-start;font-weight:700;font-size:.88rem;position:relative;transition:.15s}
 .dy:hover{filter:brightness(.95)}.dy.mu{opacity:.35}.dy.td{box-shadow:inset 0 0 0 2px var(--acc)}
-.dy.on{background:var(--acc);color:var(--on)}.dy.on .dots i{box-shadow:0 0 0 1.5px #fff}
+.dy.on{background:var(--acc);color:var(--on)}.dy.on .dots i{box-shadow:0 0 0 1.5px #fff}.dy.dr{box-shadow:inset 0 0 0 2px var(--acc);filter:brightness(.9)}
 .dy .dots{display:flex;gap:3px;flex-wrap:wrap}.dy .dots i{width:7px;height:7px;border-radius:50%;background:var(--c)}
 .dy .fl{position:absolute;right:6px;top:4px;font-size:.7rem;color:var(--at)}.dy.on .fl{color:#fff}
 .dy.full{background:color-mix(in srgb,var(--ok) 22%,var(--card2))}.dy.on.full{background:var(--acc)}
@@ -117,7 +125,7 @@ label>input,label>select,label>textarea{margin-top:6px;font-weight:500;color:var
 .heat{display:grid;grid-auto-flow:column;grid-template-rows:repeat(7,1fr);gap:4px}.heat i{aspect-ratio:1;border-radius:5px;background:var(--card2)}
 .heat .l1{background:color-mix(in srgb,var(--acc) 25%,var(--card2))}.heat .l2{background:color-mix(in srgb,var(--acc) 50%,var(--card2))}.heat .l3{background:color-mix(in srgb,var(--acc) 78%,var(--card2))}.heat .l4{background:var(--acc)}.heat .fu{opacity:.25}
 .hb{display:flex;align-items:center;gap:10px;margin-top:10px;font-size:.86rem}.hb span:first-child{width:38%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.hb .pb{flex:1;margin:0}.hb em{font:500 .75rem var(--fm);font-style:normal;width:44px;text-align:right}
-.bdg{display:grid;grid-template-columns:repeat(auto-fill,minmax(88px,1fr));gap:10px;text-align:center}.bdg div{font-size:.72rem;color:var(--mut)}.bdg b{display:block;font-size:2rem;filter:grayscale(1);opacity:.28}.bdg .u b{filter:none;opacity:1}.bdg .u{color:var(--ink);font-weight:700}
+.bdg{display:grid;grid-template-columns:repeat(auto-fill,minmax(98px,1fr));gap:10px;text-align:center}.bdg div{font-size:.72rem;color:var(--mut);cursor:default}.bdg b{display:block;font-size:2rem;filter:grayscale(1);opacity:.28}.bdg .u b{filter:none;opacity:1}.bdg .u{color:var(--ink);font-weight:700}.bdg small{display:block;font-weight:500;font-size:.64rem;color:var(--mut);line-height:1.25;margin-top:2px}
 .tc{cursor:pointer;transition:transform .15s}.tc:hover{transform:translateY(-3px)}.tc.act{box-shadow:inset 0 0 0 2px var(--acc),var(--sh)}.tcc{font:800 1.9rem var(--fd);letter-spacing:-.04em;background:linear-gradient(135deg,var(--acc),var(--g2));-webkit-background-clip:text;background-clip:text;color:transparent}.tcf{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap}
 .sr{display:grid;grid-template-columns:1fr 64px 64px 34px;gap:6px;margin-top:8px;align-items:center}.sr textarea{grid-column:1/-1;min-height:46px;font-size:.82rem}
 .srow{display:grid;grid-template-columns:1fr auto;gap:4px 12px;padding:11px 0;border-top:var(--bw) solid var(--bd)}.srow .pb{grid-column:1/-1;margin:0;height:6px}
@@ -131,14 +139,20 @@ svg text{font:500 9px var(--fm);fill:var(--mut)}
 .sheet{width:min(580px,100%);max-height:92vh;overflow:auto;background:var(--sheet);border:var(--bw) solid var(--bd);border-radius:calc(var(--r) + 10px);box-shadow:0 30px 70px -20px rgba(0,0,0,.45);padding:24px;animation:fade .25s both}
 .acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}.acts .b{flex:1}
 .mlist{display:grid;gap:8px;margin-top:12px}.mlist .b{text-align:left;box-shadow:none;background:var(--card2);border-color:transparent}
+.res{display:flex;gap:10px;align-items:center;padding:10px 12px;border-radius:calc(var(--r)*.6);cursor:pointer;background:var(--card2)}.res:hover{filter:brightness(.96)}.res small{margin-left:auto;color:var(--mut);font-size:.72rem;white-space:nowrap}
 .run{position:fixed;inset:0;z-index:70;background:var(--bg);background-image:var(--bgi);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:24px;text-align:center}
 .run .big{font:800 clamp(4rem,20vw,8rem)/1 var(--fd);letter-spacing:-.05em}
 .tw{position:fixed;left:50%;bottom:96px;transform:translate(-50%,20px);background:#14162b;color:#fff;padding:11px 18px;border-radius:99px;font-weight:600;z-index:90;opacity:0;pointer-events:none;transition:.25s;display:flex;gap:12px;align-items:center;max-width:92vw;box-shadow:0 14px 34px -10px rgba(0,0,0,.5)}
 .tw.on{opacity:1;pointer-events:auto;transform:translate(-50%,0)}.tw button{background:none;border:0;color:#c4b8ff;font-weight:800}
 .fab{position:fixed;right:26px;bottom:28px;z-index:30;width:58px;height:58px;border-radius:50%;background:linear-gradient(135deg,var(--acc),var(--g2));color:var(--on);border:0;box-shadow:0 16px 30px -10px var(--acc);font-size:1.9rem;font-weight:500;line-height:1}
 .swatch{width:34px;height:34px;border-radius:50%;border:0;padding:0;box-shadow:inset 0 0 0 2px rgba(255,255,255,.35)}.swatch.on{outline:3px solid var(--ink);outline-offset:3px}
+.sg{display:flex;gap:12px;align-items:center;justify-content:space-between;margin-top:10px;padding:13px 16px;border-radius:calc(var(--r) + 2px);background:color-mix(in srgb,var(--acc) 9%,var(--card));border:var(--bw) solid var(--bd);font-size:.9rem}
+.cf{position:fixed;top:-14px;width:9px;height:14px;z-index:120;pointer-events:none;border-radius:2px;animation:cf 1.6s ease-in forwards}@keyframes cf{to{transform:translate(var(--dx),108vh) rotate(var(--rt));opacity:.85}}
+kbd{font:600 .7rem var(--fm);padding:1px 6px;border-radius:6px;background:var(--card2);border:var(--bw) solid var(--bd)}
 @media(max-width:860px){
- .shell{display:block}aside{display:none}main{padding:20px 14px 130px}
+ .shell{display:block}aside{display:none}main{padding:14px 14px 130px}
+ .tbar{display:flex;position:sticky;top:0;z-index:35;align-items:center;gap:8px;padding:10px 14px;background:color-mix(in srgb,var(--bg) 80%,transparent);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+ .tbar .logo{padding:0;flex:1;font-size:1.05rem}.tbar .logo i{width:30px;height:30px;border-radius:10px}
  .bn{display:flex;position:fixed;left:10px;right:10px;bottom:calc(10px + env(safe-area-inset-bottom,0));z-index:40;background:var(--card);border:var(--bw) solid var(--bd);border-radius:26px;box-shadow:0 18px 40px -14px rgba(0,0,0,.35);padding:6px;gap:2px;backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px)}
  .bn button{flex:1;border:0;background:none;border-radius:20px;padding:8px 0 6px;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:.64rem;font-weight:700;color:var(--mut)}
  .two{grid-template-columns:1fr}.fab{bottom:96px;right:16px;width:52px;height:52px}.tw{bottom:150px}
@@ -147,23 +161,26 @@ svg text{font:500 9px var(--fm);fill:var(--mut)}
 </style>
 </head>
 <body>
+<div class="tbar" id="tb"></div>
 <div class="shell">
 <aside id="sd"></aside>
 <main id="v"></main>
 </div>
 <nav class="bn" id="bn"></nav>
-<div class="mo" id="mo" hidden onmousedown="if(event.target===this)closeM()"><div class="sheet" id="ms"></div></div>
+<div class="mo" id="mo" hidden onmousedown="if(event.target===this)closeM()"><div class="sheet" id="ms" role="dialog" aria-modal="true"></div></div>
 <div class="run" id="run" hidden></div>
-<div class="tw" id="tw"></div>
+<div class="tw" id="tw" role="status" aria-live="polite"></div>
 <datalist id="types"><option>Teoria</option><option>Esercizi</option><option>Ripasso</option><option>Simulazione</option><option>Lettura</option><option>Appunti</option><option>Flashcard</option><option>Correzione errori</option></datalist>
 
 <script>
 /* =====================================================================
-   StudyForge — file unico (index.html). I dati vivono nel browser
-   (localStorage, chiave 'studyforge_app_data_v1'): puoi aggiornare questo
-   file su GitHub quante volte vuoi, i tuoi dati restano. I vecchi dati
-   della versione 1 vengono migrati automaticamente.
+   StudyForge — file unico. I dati vivono nel browser (localStorage,
+   chiave 'studyforge_app_data_v1'): puoi aggiornare questo file su GitHub
+   quante volte vuoi, i tuoi dati restano. Moduli: StorageManager,
+   SyllabusParser, ScheduleEngine, Pom (PomodoroTimer), SR (SpacedRepetition),
+   R (UIRenderer), Data (backup/import/export).
    ===================================================================== */
+const APP_VER='3.1.0';
 const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const uid=()=>Math.random().toString(36).slice(2,8)+Date.now().toString(36).slice(-4);
@@ -176,28 +193,31 @@ const fmt=(s,o)=>D(s).toLocaleDateString('it-IT',o);
 const DOW=['Dom','Lun','Mar','Mer','Gio','Ven','Sab'];
 const r2=v=>Math.round(v*100)/100;
 const fh=m=>m>=60?Math.floor(m/60)+'h'+(m%60?' '+m%60+'m':''):m+'m';
+const deb=(f,ms)=>{let t;return(...a)=>{clearTimeout(t);t=setTimeout(()=>f(...a),ms)}};
 const PAL=['#ff5b3a','#3b5bff','#1f9d6b','#9b4dff','#e8a200','#ff4d8d','#14a3b8','#7a8b1f'];
 const ACC=['#6c5ce7','#2f6bff','#0fb98a','#ff5d6c','#ff9f1c','#ec4899','#06b6d4','#111827'];
 let tt;
-function toast(m,undo){const e=$('#tw');e.innerHTML=esc(m)+(undo?' <button id="tu">Annulla</button>':'');e.classList.add('on');if(undo)$('#tu').onclick=()=>{undo();e.classList.remove('on')};clearTimeout(tt);tt=setTimeout(()=>e.classList.remove('on'),undo?5000:2400)}
+function toast(m,undo){const e=$('#tw');e.innerHTML=esc(m)+(undo?' <button id="tu">Annulla</button>':'');e.classList.add('on');if(undo)$('#tu').onclick=()=>{undo();e.classList.remove('on')};clearTimeout(tt);tt=setTimeout(()=>e.classList.remove('on'),undo?5000:2600)}
 function openM(h){$('#ms').innerHTML=h;$('#mo').hidden=false;document.body.classList.add('lock')}
 function closeM(){$('#mo').hidden=true;document.body.classList.remove('lock')}
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('#mo').hidden)closeM()});
+function confetti(){if(!S.cfg.motion)return;const c=['#6c5ce7','#12b886','#f59f00','#f0506e','#3b5bff'];for(let i=0;i<46;i++){const s=document.createElement('i');s.className='cf';s.style.cssText=`left:${Math.random()*100}vw;background:${c[i%5]};--dx:${(Math.random()-.5)*160}px;--rt:${Math.random()*720}deg;animation-delay:${Math.random()*.4}s`;document.body.appendChild(s);setTimeout(()=>s.remove(),2300)}}
 
 /* ===== Icone ===== */
-const IC={oggi:'<circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M5 19l2-2M17 7l2-2"/>',plan:'<rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/>',mat:'<path d="M4 4h12a3 3 0 0 1 3 3v13H7a3 3 0 0 1-3-3z"/><path d="M4 17a3 3 0 0 1 3-3h12"/>',focus:'<circle cx="12" cy="13" r="8"/><path d="M12 9v4l3 2M9 2h6"/>',tolc:'<path d="M9 11l3 3 8-8"/><path d="M20 12v7a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h9"/>',prog:'<path d="M4 20V10M10 20V4M16 20v-7M2 20h20"/>',set:'<path d="M4 6h8M18 6h2M4 12h2M12 12h8M4 18h10M20 18h0"/><circle cx="15" cy="6" r="2"/><circle cx="9" cy="12" r="2"/><circle cx="17" cy="18" r="2"/>',more:'<circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/>'};
+const IC={oggi:'<circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M5 19l2-2M17 7l2-2"/>',plan:'<rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/>',mat:'<path d="M4 4h12a3 3 0 0 1 3 3v13H7a3 3 0 0 1-3-3z"/><path d="M4 17a3 3 0 0 1 3-3h12"/>',focus:'<circle cx="12" cy="13" r="8"/><path d="M12 9v4l3 2M9 2h6"/>',tolc:'<path d="M9 11l3 3 8-8"/><path d="M20 12v7a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h9"/>',prog:'<path d="M4 20V10M10 20V4M16 20v-7M2 20h20"/>',set:'<path d="M4 6h8M18 6h2M4 12h2M12 12h8M4 18h10M20 18h0"/><circle cx="15" cy="6" r="2"/><circle cx="9" cy="12" r="2"/><circle cx="17" cy="18" r="2"/>',more:'<circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/>',search:'<circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/>',save:'<path d="M12 4v11m0 0l-4-4m4 4l4-4M4 18v2h16v-2"/>',plus:'<path d="M12 5v14M5 12h14"/>'};
 const ico=k=>`<svg class="ico" viewBox="0 0 24 24">${IC[k]}</svg>`;
 
-/* ===== Dati TOLC (CISIA). Struttura sezioni da regolamento 2026; quesiti/minuti ="est" sono indicativi: modificabili ===== */
-const ENGSYL='Tempi verbali; Condizionali e periodo ipotetico; Preposizioni e phrasal verbs; Vocabolario; Reading comprehension';
-const MB='Numeri e operazioni; Potenze, radici e logaritmi; Equazioni e disequazioni; Polinomi e scomposizioni; Funzioni e grafici; Geometria analitica; Trigonometria; Geometria piana e solida; Probabilità e combinatoria';
+/* ===== Dati TOLC. Struttura sezioni da regolamento CISIA; dove "est" è attivo quesiti/minuti sono indicativi e modificabili ===== */
+const ENGSYL='Present simple e continuous; Past simple, past continuous e present perfect; Forme del futuro; Modal verbs; Periodo ipotetico (conditionals); Passive voice; Reported speech; Articoli, quantifiers e preposizioni; Comparativi e superlativi; Relative clauses; Phrasal verbs e vocabulary; Reading comprehension e cloze test';
+const MB='Insiemi numerici (N, Z, Q, R) e operazioni; Potenze e radicali; Percentuali, proporzioni e rapporti; Polinomi, prodotti notevoli e scomposizione; Equazioni e disequazioni di primo e secondo grado; Sistemi di equazioni e disequazioni; Equazioni e disequazioni fratte e irrazionali; Valore assoluto; Esponenziali e logaritmi; Geometria euclidea piana; Teoremi di Pitagora, Euclide e Talete; Circonferenza, cerchio e poligoni; Aree, perimetri e solidi; Geometria analitica: punti, rette e distanze; Parabola, circonferenza, ellisse e iperbole; Trigonometria: funzioni e identità; Equazioni e disequazioni trigonometriche; Funzioni: dominio, segno e grafici; Funzioni composte, inverse e trasformazioni; Successioni e progressioni; Calcolo combinatorio; Probabilità elementare; Statistica descrittiva';
 const BIO='Cellula e biomolecole; Genetica; Metabolismo; Fisiologia di base; Evoluzione ed ecologia';
 const CHI='Struttura atomica e tavola periodica; Legami chimici; Stechiometria e mole; Soluzioni e pH; Reazioni ed equilibrio; Chimica organica di base';
 const FIS='Grandezze e unità di misura; Cinematica; Dinamica; Energia e lavoro; Fluidi; Termologia; Elettricità';
-const LOG='Ragionamento deduttivo; Sillogismi; Successioni e sequenze; Problemi di logica; Insiemi e diagrammi di Venn';
-const CV='Comprensione del testo; Inferenze e connettivi; Lessico e significati';
+const LOG='Sillogismi e deduzioni; Proposizioni, negazione e implicazione; Quantificatori (tutti, alcuni, nessuno); Insiemi e diagrammi di Venn; Successioni numeriche, alfabetiche e di figure; Ordinamenti e relazioni (parentele, posizioni); Lettura di tabelle e grafici; Problemi di ragionamento aritmetico; Combinatoria e probabilità nei problemi logici; Ragionamento critico';
+const CV='Comprensione del testo: tema e idea principale; Inferenze e informazioni implicite; Coerenza, coesione e connettivi; Lessico: sinonimi, contrari e contesto; Completamento di frasi e grammatica; Riassunto, parafrasi e struttura; Tipologie di testo e registro; Lettura veloce e gestione del tempo';
+const SCI="Grandezze fisiche e unità di misura; Cinematica: moto rettilineo e accelerato; Moto circolare e caduta libera; Dinamica: leggi di Newton, forze e attrito; Lavoro, energia e potenza; Statica e fluidi; Termologia e gas perfetti; Elettrostatica, corrente e legge di Ohm; Onde, ottica e magnetismo; Struttura dell'atomo e tavola periodica; Legami chimici e nomenclatura; Reazioni, mole e stechiometria; Soluzioni, concentrazioni e pH; Acidi, basi e ossidoriduzioni; Equilibrio chimico; Elementi di chimica organica";
 const TOLC=[
-{id:'I',code:'TOLC-I',name:'Ingegneria',area:'Ingegneria e corsi tecnico-scientifici',eng:1,secs:[{n:'Matematica',q:20,m:50,syl:MB},{n:'Logica',q:10,m:20,syl:LOG},{n:'Scienze',q:10,m:20,syl:'Cinematica e moto; Dinamica e leggi di Newton; Energia e lavoro; Termologia; Elettrostatica e circuiti; Struttura atomica; Reazioni e stechiometria; Soluzioni e pH'},{n:'Comprensione verbale',q:10,m:20,syl:CV}]},
+{id:'I',code:'TOLC-I',name:'Ingegneria',area:'Ingegneria e corsi tecnico-scientifici',eng:1,secs:[{n:'Matematica',q:20,m:50,syl:MB},{n:'Logica',q:10,m:20,syl:LOG},{n:'Scienze',q:10,m:20,syl:SCI},{n:'Comprensione verbale',q:10,m:20,syl:CV}]},
 {id:'E',code:'TOLC-E',name:'Economia',area:'Economia, statistica, scienze sociali',eng:1,est:1,secs:[{n:'Logica',q:13,m:40,syl:LOG},{n:'Comprensione verbale',q:10,m:20,syl:CV},{n:'Matematica',q:13,m:30,syl:'Numeri e operazioni; Proporzioni e percentuali; Potenze e radici; Equazioni e disequazioni; Funzioni e grafici; Probabilità e statistica; Geometria di base'}]},
 {id:'F',code:'TOLC-F',name:'Farmacia',area:'Farmacia, CTF, scienze motorie e corsi affini',eng:1,est:1,secs:[{n:'Biologia',q:10,m:25,syl:BIO},{n:'Chimica',q:10,m:25,syl:CHI},{n:'Matematica',q:10,m:20,syl:MB},{n:'Fisica',q:10,m:20,syl:FIS},{n:'Logica',q:10,m:20,syl:LOG}]},
 {id:'B',code:'TOLC-B',name:'Biologia',area:'Scienze biologiche e corsi affini',eng:1,est:1,secs:[{n:'Matematica di base',q:20,m:50,syl:MB},{n:'Biologia',q:10,m:20,syl:BIO},{n:'Fisica',q:10,m:20,syl:FIS},{n:'Chimica',q:10,m:20,syl:CHI}]},
@@ -212,11 +232,11 @@ const secsOf=t=>t.secs.concat(t.eng?[{n:'Inglese',q:30,m:15,en:1,syl:ENGSYL}]:[]
 const allTolc=()=>TOLC.map(t=>S.tmods[t.id]?{...t,secs:S.tmods[t.id],est:0}:t).concat(S.tcustom);
 const tolcById=id=>allTolc().find(t=>t.id===id);
 
-/* ===== Stato & StorageManager (versionato, migrazione, snapshot) ===== */
+/* ===== Stato & StorageManager (versionato, migrazione sicura, copie automatiche) ===== */
 const KEY='studyforge_app_data_v1';
-const DEF={v:2,exam:{name:'',start:'',date:'',target:0,tolc:''},
- cfg:{ui:0,theme:'auto',accent:'#6c5ce7',font:'moderno',radius:20,dense:false,motion:true,weekStart:1,xp:true,rev:'3,7,21',hours:2,days:[1,2,3,4,5],widgets:{count:true,streak:true,over:true,rev:true,events:true,badges:true}},
- subs:[],topics:{},tasks:[],sims:[],events:[],log:[],act:{},xp:0,lb:'',tmods:{},tcustom:[],tm:{},pom:{work:25,brk:5,long:15,every:4,auto:false}};
+const DEF={v:3,appv:'',demo:false,bi:0,exam:{name:'',start:'',date:'',target:0,tolc:''},
+ cfg:{ui:0,theme:'auto',accent:'#6c5ce7',font:'moderno',radius:20,dense:false,motion:true,weekStart:1,xp:true,rev:'3,7,21',hours:2,days:[1,2,3,4,5],goal:120,notif:false,wel:true,score:{c:1,w:.25},widgets:{count:true,streak:true,over:true,rev:true,events:true,badges:true}},
+ subs:[],topics:{},tasks:[],sims:[],events:[],log:[],act:{},rest:{},bd:{},xp:0,lb:'',lbs:'',tmods:{},tcustom:[],tm:{},pom:{work:25,brk:5,long:15,every:4,auto:false}};
 function migrate(o){
  if(!o||typeof o!=='object')return o;
  if((o.v||1)<2){
@@ -228,40 +248,71 @@ function migrate(o){
    delete o.sessions}
   if(Array.isArray(o.sims))o.sims=o.sims.map(x=>x.secs?x:({id:x.id||uid(),d:x.d,tot:x.tot,tolc:'',note:x.note||'',secs:Object.entries(x.sec||{}).filter(([,v])=>v!==''&&v!=null).map(([k,v])=>({n:(subs.find(s=>s.id===k)||{}).name||k,v:+v}))}));
   o.v=2}
+ if((o.v||2)<3)o.v=3; /* v3: solo nuovi campi con valori predefiniti, nessuna trasformazione dei dati */
  return o}
 const StorageManager={
  merge(d,s){if(Array.isArray(d))return Array.isArray(s)?s:d;
   if(d&&typeof d==='object'){const o={},ok=s&&typeof s==='object'&&!Array.isArray(s);for(const k in d)o[k]=this.merge(d[k],ok?s[k]:undefined);if(ok)for(const k in s)if(!(k in d))o[k]=s[k];return o}
   return s===undefined||s===null?d:s},
- parse(raw){const st=this.merge(structuredClone(DEF),migrate(JSON.parse(raw)));if(st.cfg.ui!==3)Object.assign(st.cfg,{ui:3,theme:'auto',font:'moderno',accent:'#6c5ce7',radius:20});return st},
+ parse(raw){const st=this.merge(structuredClone(DEF),migrate(JSON.parse(raw)));if(st.cfg.ui!==3)Object.assign(st.cfg,{ui:3,theme:'auto',font:'moderno',accent:'#6c5ce7',radius:20});
+  st.tasks=st.tasks.filter(t=>t&&t.id).map(t=>({id:'',title:'',date:'',time:'',dur:60,sub:'',topics:[],type:'',prio:1,note:'',check:[],done:false,auto:false,mast:false,spent:0,series:'',...t}));
+  Object.values(st.topics).forEach(t=>{t.rev=Array.isArray(t.rev)?t.rev:[];t.note=t.note||'';t.st=+t.st||0});return st},
  load(){let raw=null;try{raw=localStorage.getItem(KEY)}catch(e){}
   if(raw){try{const st=this.parse(raw);try{if((JSON.parse(raw).v||1)<2&&!localStorage.getItem(KEY+'_pre_v2'))localStorage.setItem(KEY+'_pre_v2',raw);localStorage.setItem(KEY+'_bak',raw)}catch(e){}return st}
    catch(e){console.warn('Dati illeggibili: copia in _corrupt',e);try{localStorage.setItem(KEY+'_corrupt',raw)}catch(_){}}}
   return structuredClone(DEF)},
- save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){toast('Spazio pieno: esporta un backup')}}
+ save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){toast('Spazio pieno o salvataggio bloccato: scarica un backup')}}
 };
-let S=StorageManager.load();
+let NOSTORE=false;try{localStorage.setItem('__sf','1');localStorage.removeItem('__sf')}catch(e){NOSTORE=true}
+let S=StorageManager.load(),_chk=0;
 try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}catch(e){}
-const save=()=>StorageManager.save();
+function save(){if(!_chk){_chk=1;try{checkBadges()}catch(e){}_chk=0}StorageManager.save()}
+const saveSoft=deb(()=>save(),500);
 const Snap={list(){try{return JSON.parse(localStorage.getItem(KEY+'_snaps')||'[]')}catch(e){return[]}},
- take(l){const a=this.list();a.unshift({t:Date.now(),l,d:JSON.stringify(S)});while(a.length>6)a.pop();try{localStorage.setItem(KEY+'_snaps',JSON.stringify(a))}catch(e){try{localStorage.setItem(KEY+'_snaps',JSON.stringify(a.slice(0,2)))}catch(_){}}},
+ take(l){const a=this.list();a.unshift({t:Date.now(),l,d:JSON.stringify(S)});const lim=Math.max(2,Math.min(6,Math.floor(1.6e6/(a[0].d.length||1))));while(a.length>lim)a.pop();try{localStorage.setItem(KEY+'_snaps',JSON.stringify(a))}catch(e){try{localStorage.setItem(KEY+'_snaps',JSON.stringify(a.slice(0,1)))}catch(_){}}},
  restore(i){const x=this.list()[i];if(!x)return;this.take('Prima del ripristino');S=StorageManager.parse(x.d);save();applyTheme();closeM();render();toast('Ripristinato')}};
-(function(){const a=Snap.list();if((S.subs.length||S.tasks.length)&&(!a.length||Date.now()-a[0].t>12*36e5))Snap.take('Automatico')})();
 
 /* ===== Helpers dominio ===== */
 const sub=id=>S.subs.find(x=>x.id===id);
 const topicsOf=sid=>Object.values(S.topics).filter(t=>t.sub===sid);
 const colOf=t=>sub(t.sub)?.color||'var(--acc)';
-function gain(n){if(S.cfg.xp)S.xp+=n;S.act[today()]=1}
+const mins=()=>S.log.reduce((a,l)=>a+l.min,0);
+const mast=()=>Object.values(S.topics).filter(t=>t.st===2).length;
 const lvl=()=>Math.floor(Math.sqrt(S.xp/40))+1;
-function streak(){let d=today(),n=0;if(!S.act[d])d=add(d,-1);while(S.act[d]){n++;d=add(d,-1)}return n}
-const SyllabusParser={parse(txt){const seen=new Set();return String(txt||'').split(/[\n;•]+/).map(x=>x.replace(/^\s*(?:[-–—*]|\d+[.)])\s*/,'').trim()).filter(x=>x.length>1&&!seen.has(x.toLowerCase())&&seen.add(x.toLowerCase()))}};
-function addTopics(sid,txt){const have=new Set(topicsOf(sid).map(t=>t.t.toLowerCase()));let n=0;SyllabusParser.parse(txt).forEach(x=>{if(have.has(x.toLowerCase()))return;const id='t'+uid();S.topics[id]={id,sub:sid,t:x,st:0,note:'',rev:[]};have.add(x.toLowerCase());n++});save();return n}
+function gain(n){if(S.cfg.xp){const b=lvl();S.xp+=n;if(lvl()>b){toast('Livello '+lvl()+'! 🎉');confetti()}}S.act[today()]=1}
+/* serie: i giorni senza studio contano solo se sono giorni di studio previsti; i giorni di riposo dichiarati non interrompono la serie */
+function streak(){const ks=Object.keys(S.act).sort();if(!ks.length)return 0;let d=today(),n=0,i=0;while(d>=ks[0]&&i<1500){if(S.act[d])n++;else if(!(i===0||S.rest[d]||!S.cfg.days.includes(D(d).getDay())))break;d=add(d,-1);i++}return n}
+const SyllabusParser={parse(txt){const seen=new Set(),out=[];String(txt||'').split(/[\n;•▪●·]+/).forEach(x=>{x=x.replace(/^\s*(?:[-–—*]|\d+[.)])\s*/,'').trim();(x.length>120&&x.includes(',')?x.split(','):[x]).forEach(y=>{y=y.trim();if(y.length>1&&!seen.has(y.toLowerCase())){seen.add(y.toLowerCase());out.push(y)}})});return out}};
+function addTopics(sid,txt){const have=new Set(topicsOf(sid).map(t=>t.t.toLowerCase()));let n=0;SyllabusParser.parse(txt).forEach(x=>{if(have.has(x.toLowerCase()))return;const id='t'+uid();S.topics[id]={id,sub:sid,t:x,st:0,note:'',rev:[],ma:''};have.add(x.toLowerCase());n++});save();return n}
+/* SpacedRepetition: +3/+7/+21 giorni (personalizzabili) dopo aver padroneggiato un argomento */
 const SR={ints(){const a=String(S.cfg.rev).split(/[,\s;]+/).map(Number).filter(n=>n>0);return a.length?a:[3,7,21]},
- set(id,st){const t=S.topics[id];if(!t)return;const was=t.st;t.st=st;if(st===2&&was!==2){t.rev=this.ints().map(n=>({d:add(today(),n),done:false}));gain(10)}else if(st!==2)t.rev=t.rev.filter(r=>r.done);save()},
- due(){const t=today(),o=[];Object.values(S.topics).forEach(x=>x.rev.forEach((r,i)=>{if(!r.done&&r.d<=t)o.push({t:x,i})}));return o}};
+ set(id,st){const t=S.topics[id];if(!t)return;const was=t.st;t.st=st;if(st===2&&was!==2){t.ma=today();t.rev=this.ints().map(n=>({d:add(today(),n),done:false}));gain(10)}else if(st!==2){t.rev=t.rev.filter(r=>r.done);t.ma=''}save()},
+ due(){const t=today(),o=[];Object.values(S.topics).forEach(x=>x.rev.forEach((r,i)=>{if(!r.done&&r.d<=t)o.push({t:x,i})}));return o.sort((a,b)=>a.t.rev[a.i].d.localeCompare(b.t.rev[b.i].d))},
+ done(id,i,mode){const t=S.topics[id],r=t&&t.rev[i];if(!r)return;if(mode==='later'){r.d=add(today(),1)}else{r.done=true;if(mode==='hard')t.rev.push({d:add(today(),2),done:false});gain(5)}save()}};
 function mkTask(o){return{id:'k'+uid(),title:'',date:'',time:'',dur:60,sub:'',topics:[],type:'',prio:1,note:'',check:[],done:false,auto:false,mast:false,spent:0,series:'',...o}}
 const cmpT=(a,b)=>(a.done-b.done)||(a.time||'99').localeCompare(b.time||'99')||(b.prio-a.prio);
+
+/* ===== Traguardi (sbloccati e memorizzati, con notifica) ===== */
+const revCount=()=>Object.values(S.topics).reduce((a,t)=>a+t.rev.filter(r=>r.done).length,0);
+const perfectDay=()=>{const m={};S.tasks.forEach(t=>{if(t.date)(m[t.date]=m[t.date]||[]).push(t.done)});return Object.values(m).some(a=>a.length>=3&&a.every(Boolean))};
+const BADGES=[
+['spark','🔥','Prima scintilla','Completa la tua prima attività',()=>S.tasks.some(t=>t.done)],
+['s3','⚡','Serie di 3','3 giorni di studio di fila',()=>streak()>=3],
+['s7','🌋','Serie di 7','7 giorni di fila',()=>streak()>=7],
+['s30','☄️','Serie di 30','30 giorni di fila',()=>streak()>=30],
+['m100','⏱️','100 minuti','100 minuti di focus',()=>mins()>=100],
+['h10','⌛','10 ore','10 ore di focus',()=>mins()>=600],
+['h50','🏔️','50 ore','50 ore di focus',()=>mins()>=3000],
+['t10','🧠','10 argomenti','Padroneggia 10 argomenti',()=>mast()>=10],
+['half','🧭','Metà strada','Padroneggia metà del sillabo',()=>{const n=Object.keys(S.topics).length;return n>=4&&mast()>=n/2}],
+['day','✅','Giornata perfetta','Chiudi tutte le attività di un giorno (almeno 3)',perfectDay],
+['sim1','📝','Collaudo','Registra la prima simulazione',()=>S.sims.length>=1],
+['sim3','🎯','3 simulazioni','Registra 3 simulazioni',()=>S.sims.length>=3],
+['up','📈','In salita','3 simulazioni di fila in crescita',()=>{const a=S.sims.slice(-3);return a.length===3&&a[0].tot<a[1].tot&&a[1].tot<a[2].tot}],
+['hit','🚀','Target battuto','Una simulazione sopra il target',()=>S.exam.target>0&&S.sims.some(x=>x.tot>=S.exam.target)],
+['rev10','🔁','Memoria d\'acciaio','Completa 10 ripassi',()=>revCount()>=10],
+['l5','👑','Livello 5','Raggiungi il livello 5',()=>lvl()>=5]];
+function checkBadges(silent){let n=0;BADGES.forEach(([id,ic,nm,,f])=>{if(S.bd[id])return;let ok=false;try{ok=!!f()}catch(e){}if(ok){S.bd[id]=today();n++;if(!silent){if(S.cfg.xp)S.xp+=20;toast(ic+' Traguardo sbloccato: '+nm);confetti()}}});return n}
 
 /* ===== Aspetto ===== */
 const ink=h=>{const n=parseInt((h||'#000').slice(1),16),r=n>>16,g=n>>8&255,b=n&255;return(r*299+g*587+b*114)/1000>170?'#14162b':'#ffffff'};
@@ -270,101 +321,119 @@ function applyTheme(){const c=S.cfg,r=document.documentElement;let th=c.theme;if
  const n=parseInt(c.accent.slice(1),16),lum=((n>>16)*299+(n>>8&255)*587+(n&255)*114)/1000,dk=th==='notte';
  r.dataset.theme=th;r.dataset.font=c.font;r.dataset.dense=c.dense?1:0;r.dataset.motion=c.motion?1:0;
  r.style.setProperty('--acc',c.accent);r.style.setProperty('--on',ink(c.accent));r.style.setProperty('--r',c.radius+'px');r.style.setProperty('--at',dk&&lum<110?'#ffffff':(!dk&&lum>190?'#14162b':c.accent));
- $('meta[name=theme-color]').content=THEMES[th].m}
+ const m=$('meta[name=theme-color]');if(m)m.content=THEMES[th].m}
 function cfg(k,v){S.cfg[k]=v;save();applyTheme();render()}
 function cfgq(k,v){S.cfg[k]=v;save();applyTheme()}
 
-/* ===== Vista ===== */
-const V={tab:'oggi',sel:today(),cur:today().slice(0,8)+'01',pm:'month',tolc:'',open:{},simF:''};
+/* ===== Vista (UIRenderer) ===== */
+const V={tab:'oggi',sel:today(),cur:today().slice(0,8)+'01',pm:'month',tolc:'',open:{},fs:''};
 const NAV=[['oggi','Oggi'],['plan','Piano'],['mat','Materie'],['focus','Focus'],['tolc','TOLC'],['prog','Progressi'],['set','Impostazioni']];
 const head=(t,p,a)=>`<div class="head"><div><div class="eyebrow">${esc(fmt(today(),{weekday:'long',day:'numeric',month:'long'}))}</div><h1>${t}</h1>${p?`<p>${p}</p>`:''}</div><div class="acts" style="margin:0">${a||''}</div></div>`;
-const ring=(p,id,sz=88)=>`<svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="42" fill="none" stroke="var(--card2)" stroke-width="10"/><circle id="${id}" cx="50" cy="50" r="42" fill="none" stroke="var(--acc)" stroke-width="10" stroke-linecap="round" stroke-dasharray="263.9" stroke-dashoffset="${263.9*(1-Math.min(1,Math.max(0,p)))}" transform="rotate(-90 50 50)" style="transition:stroke-dashoffset .6s"/></svg>`;
+const ring=(p,id)=>`<svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="42" fill="none" stroke="var(--card2)" stroke-width="10"/><circle id="${id}" cx="50" cy="50" r="42" fill="none" stroke="var(--acc)" stroke-width="10" stroke-linecap="round" stroke-dasharray="263.9" stroke-dashoffset="${263.9*(1-Math.min(1,Math.max(0,p)))}" transform="rotate(-90 50 50)" style="transition:stroke-dashoffset .6s"/></svg>`;
 const empty=(m,b)=>`<div class="empty">${m}${b?`<div style="margin-top:12px">${b}</div>`:''}</div>`;
+const fresh=()=>!S.subs.length&&!S.tasks.length&&!Object.keys(S.topics).length;
 
-function taskCard(t,showDate){const s=sub(t.sub),c=s?s.color:'var(--acc)',tp=t.topics.map(i=>S.topics[i]).filter(Boolean);
- const cd=t.check.filter(x=>x.d).length;
- return `<div class="tk ${t.done?'dn':''}" style="--c:${c}"><button class="ck ${t.done?'on':''}" onclick="tgTask('${t.id}')" aria-label="Completa"></button><div class="tb" onclick="taskForm('${t.id}')"><div class="tt">${esc(t.title)}</div>
- <div class="mt">${showDate&&t.date?`<span class="pill">${esc(fmt(t.date,{day:'numeric',month:'short'}))}</span>`:''}${t.time?`<span class="pill">${esc(t.time)}</span>`:''}${t.dur?`<span class="pill">${fh(t.dur)}</span>`:''}${s?`<span class="sub">${esc(s.emo||'')} ${esc(s.name)}</span>`:''}${t.type?`<span class="pill">${esc(t.type)}</span>`:''}${t.prio===2?'<span class="pill" style="border-color:var(--bad);color:var(--bad)">alta</span>':''}${t.spent?`<span class="pill">⏱ ${fh(t.spent)}</span>`:''}${t.check.length?`<span class="pill">${cd}/${t.check.length}</span>`:''}</div>
- ${tp.length?`<div class="dim" style="margin-top:4px">${tp.map(x=>esc(x.t)).join(' · ')}</div>`:''}${t.note?`<div class="dim" style="margin-top:4px">${esc(t.note.slice(0,120))}</div>`:''}${t.check.length?`<div class="cl" onclick="event.stopPropagation()">${t.check.map((x,i)=>`<label class="${x.d?'x':''}"><input type="checkbox" ${x.d?'checked':''} onchange="tgCk('${t.id}',${i})">${esc(x.t)}</label>`).join('')}</div>`:''}</div><button class="ib" onclick="taskMenu('${t.id}')" aria-label="Azioni">${ico('more')}</button></div>
-`}
+function taskCard(t,showDate){const s=sub(t.sub),c=s?s.color:'var(--acc)',tp=t.topics.map(i=>S.topics[i]).filter(Boolean),cd=t.check.filter(x=>x.d).length;
+ return `<div class="tk ${t.done?'dn':''}" style="--c:${c}" draggable="true" ondragstart="dragT(event,'${t.id}')"><button class="ck ${t.done?'on':''}" onclick="tgTask('${t.id}')" aria-label="${t.done?'Segna da fare':'Segna completata'}"></button><div class="tb" onclick="taskForm('${t.id}')"><div class="tt">${esc(t.title)}</div>
+ <div class="mt">${showDate&&t.date?`<span class="pill">${esc(fmt(t.date,{day:'numeric',month:'short'}))}</span>`:''}${t.time?`<span class="pill">${esc(t.time)}</span>`:''}${t.dur?`<span class="pill">${fh(t.dur)}</span>`:''}${s?`<span class="sub">${esc(s.emo||'')} ${esc(s.name)}</span>`:''}${t.type?`<span class="pill">${esc(t.type)}</span>`:''}${t.prio===2?'<span class="pill" style="color:var(--bad)">alta</span>':''}${t.spent?`<span class="pill">⏱ ${fh(t.spent)}</span>`:''}${t.check.length?`<span class="pill">${cd}/${t.check.length}</span>`:''}</div>
+ ${tp.length?`<div class="dim" style="margin-top:4px">${tp.map(x=>esc(x.t)).join(' · ')}</div>`:''}${t.note?`<div class="dim" style="margin-top:4px">${esc(t.note.slice(0,120))}</div>`:''}${t.check.length?`<div class="cl" onclick="event.stopPropagation()">${t.check.map((x,i)=>`<label class="${x.d?'x':''}"><input type="checkbox" ${x.d?'checked':''} onchange="tgCk('${t.id}',${i})">${esc(x.t)}</label>`).join('')}</div>`:''}</div><button class="ib" onclick="taskMenu('${t.id}')" aria-label="Azioni">${ico('more')}</button></div>`}
+
+function suggest(){const t=today(),o=[],tp=S.subs.map(s=>({s,l:topicsOf(s.id)})).filter(x=>x.l.length);
+ if(tp.length&&!S.tasks.some(x=>x.date===t)){const w=tp.map(x=>({s:x.s,r:x.l.filter(y=>y.st===2).length/x.l.length})).sort((a,b)=>a.r-b.r||b.s.w-a.s.w)[0];o.push({m:`Oggi non hai nulla in programma. Vuoi 30 minuti su <b>${esc(w.s.name)}</b>?`,b:'Aggiungi',f:`quick30('${w.s.id}')`})}
+ if(S.exam.tolc&&S.exam.date&&dd(t,S.exam.date)<=60&&dd(t,S.exam.date)>=0){const last=S.sims.filter(x=>x.tolc===S.exam.tolc).pop();if(!last||dd(last.d,t)>14)o.push({m:"È passato un po' dall'ultima simulazione: provane una per misurarti.",b:'Simula',f:`openTolc('${S.exam.tolc}')`})}
+ const hard=Object.values(S.topics).filter(x=>x.st===1).length;if(hard>=3)o.push({m:`Hai <b>${hard} argomenti in ripasso</b>: rivederli ora fissa meglio la memoria.`,b:'Vedi',f:"go('mat')"});
+ return o.slice(0,2)}
 
 const R={
  oggi(){const t=today(),ts=S.tasks.filter(x=>x.date===t).sort(cmpT),ov=S.tasks.filter(x=>!x.done&&x.date&&x.date<t).sort((a,b)=>a.date.localeCompare(b.date)),due=SR.due(),W=S.cfg.widgets,all=Object.values(S.topics),m=all.filter(x=>x.st===2).length;
   const dn=ts.filter(x=>x.done).length,p=ts.length?dn/ts.length:0,ex=S.exam,dl=ex.date?dd(t,ex.date):null,span=ex.start&&ex.date?Math.max(1,dd(ex.start,ex.date)):0,el=span?Math.min(1,Math.max(0,dd(ex.start,t)/span)):0;
   const h=new Date().getHours(),gr=h<6?'Notte fonda.':h<13?'Buongiorno.':h<18?'Buon pomeriggio.':'Buonasera.';
   const evs=S.events.filter(e=>e.date>=t).sort((a,b)=>a.date.localeCompare(b.date)).slice(0,3);
-  const lbOld=(S.subs.length+S.tasks.length>3)&&(!S.lb||dd(S.lb,t)>14);
+  const lbOld=(S.subs.length+S.tasks.length>3)&&(!S.lb||dd(S.lb,t)>14)&&(!S.lbs||S.lbs<=t);
+  const L=lvl(),x0=40*(L-1)**2,x1=40*L*L,xpp=(S.xp-x0)/(x1-x0),fm=S.log.filter(l=>l.d===t).reduce((a,l)=>a+l.min,0),pl=ts.filter(x=>!x.done).reduce((a,x)=>a+(x.dur||0),0),rest=S.rest[t],sg=suggest();
   const hero=W.count?`<div class="card hot hero">${ex.date?`<div class="eyebrow" style="color:inherit;opacity:.8">${esc(ex.name||'Esame')} · ${esc(fmt(ex.date,{day:'numeric',month:'long'}))}</div><div class="num">${Math.max(0,dl)}</div><div style="font-weight:700;margin-top:4px">giorni · ${Math.ceil(Math.max(0,dl)/7)} settimane</div>${span?`<div class="pb"><i style="width:${el*100}%"></i></div>`:''}`:`<div class="fd" style="font-size:1.6rem;font-weight:800">Quando è il grande giorno?</div><p style="margin:6px 0 0">Imposta la data per attivare il conto alla rovescia.</p><button class="b w" style="color:var(--ink)" onclick="go('set')">Imposta obiettivo</button>`}</div>`:'';
-  const side=`<div class="card"><div class="ringbox">${ring(p,'rh')}<div class="in">${dn}/${ts.length}<small class="dim" style="font:500 .68rem var(--fm)">oggi</small></div></div>${W.streak?`<div class="stats"><div><b>${streak()}🔥</b><span>serie</span></div><div><b>${m}/${all.length}</b><span>argomenti</span></div>${S.cfg.xp?`<div><b>Lv ${lvl()}</b><span>${S.xp} XP</span></div>`:`<div><b>${fh(S.log.filter(l=>l.d===t).reduce((a,l)=>a+l.min,0))}</b><span>focus oggi</span></div>`}</div>`:''}</div>`;
-  return head(gr,'Ecco la tua giornata: modifica, sposta o aggiungi tutto quello che vuoi.',`<button class="b p" onclick="taskForm('')">＋ Attività</button>`)+
-  (lbOld?`<div class="card warn flat sp"><span>💾 Non fai un backup da un po'. I dati sono nel browser: scarica una copia.</span><button class="b sm" onclick="Data.json();render()">Backup</button></div>`:'')+
+  const side=`<div class="card"><div class="ringbox">${ring(p,'rh')}<div class="in">${dn}/${ts.length}<small class="dim" style="font:500 .68rem var(--fm)">oggi</small></div></div>${W.streak?`<div class="stats"><div><b>${streak()}🔥</b><span>serie</span></div><div><b>${m}/${all.length}</b><span>argomenti</span></div>${S.cfg.xp?`<div><b>Lv ${L}</b><span>${S.xp} XP</span></div>`:`<div><b>${fh(fm)}</b><span>focus oggi</span></div>`}</div>`:''}${S.cfg.xp&&W.streak?`<div class="pb" title="Verso il livello ${L+1}"><i style="width:${Math.min(100,xpp*100)}%"></i></div>`:''}<p class="dim" style="text-align:center;margin:10px 0 0">${pl?`Ancora ${fh(pl)} in programma`:ts.length?'Giornata completata 🎉':'Tutto libero'}${fm?` · ${fh(fm)} di focus`:''}</p></div>`;
+  return head(gr,'Ecco la tua giornata: modifica, sposta o aggiungi tutto quello che vuoi.',`<button class="b" onclick="restDay()">${rest?'🌙 Riposo (annulla)':'🌙 Riposo'}</button><button class="b p" onclick="taskForm('')">＋ Attività</button>`)+
+  (fresh()&&S.cfg.wel?`<div class="card hot"><h3 class="fd" style="font-size:1.5rem">Benvenuto in StudyForge 👋</h3><p style="margin:8px 0 0;max-width:520px">Costruisci il tuo piano di studio come vuoi: ogni cosa è modificabile e i tuoi dati restano sul tuo dispositivo. Da dove parti?</p><div class="acts"><button class="b" style="color:var(--ink)" onclick="loadDemo()">✨ Prova la demo TOLC-I</button><button class="b" style="color:var(--ink)" onclick="go('tolc')">🎓 Scegli il tuo TOLC</button><button class="b" style="color:var(--ink)" onclick="subForm('')">＋ Parti da zero</button></div><p style="margin:12px 0 0"><a href="#" style="color:inherit" onclick="cfg('wel',false);return false">Nascondi questo messaggio</a></p></div>`:'')+
+  (NOSTORE?`<div class="card warn flat">⚠️ Il browser non permette di salvare i dati (navigazione privata?). Esporta un backup prima di chiudere.</div>`:'')+
+  (lbOld?`<div class="card warn flat sp"><span>💾 Non fai un backup da un po'. I dati sono nel browser: scarica una copia.</span><span style="display:flex;gap:6px"><button class="b sm" onclick="Data.json();render()">Backup</button><button class="b sm g" onclick="S.lbs=add(today(),7);save();render()">Più tardi</button></span></div>`:'')+
   `<div class="two">${hero}${side}</div>`+
+  sg.map(x=>`<div class="sg"><span>${x.m}</span><button class="b sm" onclick="${x.f}">${x.b}</button></div>`).join('')+
   (W.over&&ov.length?`<div class="card warn"><div class="sp"><b>⏳ ${ov.length} attività arretrate</b><span style="display:flex;gap:6px"><button class="b sm" onclick="moveOver('${t}')">A oggi</button><button class="b sm" onclick="spreadOver()">Distribuisci</button></span></div>${ov.slice(0,5).map(x=>taskCard(x,true)).join('')}${ov.length>5?`<p class="dim">…e altre ${ov.length-5} nel Piano.</p>`:''}</div>`:'')+
   `<div class="sec"><h3>Oggi</h3><span class="dim">${ts.length?dn+' completate':''}</span></div><input class="qa" id="qa" placeholder="＋ Aggiungi qualcosa da fare oggi… (Invio)" onkeydown="if(event.key==='Enter')qadd(this,'${t}')">
-  ${ts.length?ts.map(x=>taskCard(x)).join(''):empty('Nessuna attività oggi. Aggiungine una sopra oppure pianifica dal <a href="#" onclick="go(\'plan\');return false" style="color:var(--at)">Piano</a>.')}`+
-  (W.rev&&due.length?`<div class="sec"><h3>Ripassi del giorno</h3></div><div class="card">${due.map(x=>`<div class="tp" style="border:0;padding:5px 0"><button class="ck" onclick="revDone('${x.t.id}',${x.i})"></button><span class="tn">${esc(x.t.t)} <span class="dim">· ${esc(sub(x.t.sub)?.name||'')}</span></span></div>`).join('')}</div>`:'')+
+  ${ts.length?ts.map(x=>taskCard(x)).join(''):empty('Nessuna attività oggi. Aggiungine una sopra oppure pianifica dal <a href="#" onclick="go(\'plan\');return false">Piano</a>.')}`+
+  (W.rev&&due.length?`<div class="sec"><h3>Ripassi del giorno</h3><span class="dim">${due.length} da fare</span></div><div class="card">${due.map(x=>revRow(x.t,x.i)).join('')}</div>`:'')+
   (W.events&&evs.length?`<div class="sec"><h3>Prossime date</h3></div><div class="card">${evs.map(e=>`<div class="sp tp" style="border:0"><span><b>${esc(e.name)}</b> <span class="dim">${esc(fmt(e.date,{weekday:'short',day:'numeric',month:'short'}))}</span></span><span class="pill on">${dd(t,e.date)===0?'oggi':'tra '+dd(t,e.date)+' g'}</span></div>`).join('')}</div>`:'')+
-  (W.badges?`<div class="sec"><h3>Traguardi</h3></div><div class="card"><div class="bdg">${BADGES.map(([i,n,f])=>`<div class="${f()?'u':''}"><b>${i}</b>${n}</div>`).join('')}</div></div>`:'')},
+  (W.badges?`<div class="sec"><h3>Traguardi</h3><span class="dim">${Object.keys(S.bd).length}/${BADGES.length}</span></div><div class="card"><div class="bdg">${badgeHtml()}</div></div>`:'')+
+  `<button class="fab" onclick="taskForm('')" aria-label="Nuova attività">+</button>`},
 
- plan(){const t=today(),sel=V.sel,ws=S.cfg.weekStart,by={};S.tasks.forEach(x=>{if(x.date)(by[x.date]=by[x.date]||[]).push(x)});
+ plan(){const t=today(),sel=V.sel,ws=S.cfg.weekStart,by={};S.tasks.forEach(x=>{if(V.fs&&x.sub!==V.fs)return;if(x.date)(by[x.date]=by[x.date]||[]).push(x)});
   const ev={};S.events.forEach(e=>ev[e.date]=1);if(S.exam.date)ev[S.exam.date]=1;
   let days=[],title='';
   if(V.pm==='month'){const f=D(V.cur),lead=(f.getDay()-ws+7)%7,st=add(V.cur,-lead);days=Array.from({length:42},(_,i)=>add(st,i));if(days.slice(35).every(d=>d.slice(0,7)!==V.cur.slice(0,7)))days=days.slice(0,35);title=fmt(V.cur,{month:'long',year:'numeric'})}
   else{const lead=(D(sel).getDay()-ws+7)%7,st=add(sel,-lead);days=Array.from({length:7},(_,i)=>add(st,i));title=fmt(days[0],{day:'numeric',month:'short'})+' – '+fmt(days[6],{day:'numeric',month:'short'})}
   const wdl=Array.from({length:7},(_,i)=>DOW[(i+ws)%7]);
   const cell=d=>{const l=by[d]||[],full=l.length&&l.every(x=>x.done),mu=V.pm==='month'&&d.slice(0,7)!==V.cur.slice(0,7);
-   return `<button class="dy ${d===t?'td':''} ${d===sel?'on':''} ${full?'full':''} ${mu?'mu':''}" onclick="V.sel='${d}';render()"><span>${D(d).getDate()}</span>${ev[d]?'<span class="fl">⚑</span>':''}<span class="dots">${l.slice(0,5).map(x=>`<i style="--c:${colOf(x)}"></i>`).join('')}</span></button>`};
-  const ss=(by[sel]||[]).slice().sort(cmpT),bl=S.tasks.filter(x=>!x.date&&!x.done),ov=S.tasks.filter(x=>!x.done&&x.date&&x.date<t),sevs=S.events.filter(e=>e.date===sel);
-  return head('Piano','Il tuo calendario, a modo tuo. Aggiungi, sposta e organizza liberamente — oppure fatti generare un piano.',`<button class="b" onclick="planTools()">Strumenti</button><button class="b p" onclick="taskForm('')">＋ Attività</button>`)+
+   return `<button class="dy ${d===t?'td':''} ${d===sel?'on':''} ${full?'full':''} ${mu?'mu':''}" onclick="V.sel='${d}';render()" ondragover="event.preventDefault();this.classList.add('dr')" ondragleave="this.classList.remove('dr')" ondrop="this.classList.remove('dr');dropT(event,'${d}')" aria-label="${esc(fmt(d,{weekday:'long',day:'numeric',month:'long'}))}${l.length?', '+l.length+' attività':''}"><span>${D(d).getDate()}</span>${ev[d]?'<span class="fl">⚑</span>':''}<span class="dots">${l.slice(0,5).map(x=>`<i style="--c:${colOf(x)}"></i>`).join('')}</span></button>`};
+  const ss=(by[sel]||[]).slice().sort(cmpT),bl=S.tasks.filter(x=>!x.date&&!x.done&&(!V.fs||x.sub===V.fs)),ov=S.tasks.filter(x=>!x.done&&x.date&&x.date<t),sevs=S.events.filter(e=>e.date===sel);
+  const rv=[];Object.values(S.topics).forEach(x=>x.rev.forEach((r,i)=>{if(!r.done&&(r.d===sel||(sel===t&&r.d<t))&&(!V.fs||x.sub===V.fs))rv.push({x,i})}));
+  return head('Piano','Il tuo calendario, a modo tuo. Aggiungi, trascina, sposta e organizza liberamente — oppure fatti generare un piano.',`<button class="b" onclick="planTools()">Strumenti</button><button class="b p" onclick="taskForm('')">＋ Attività</button>`)+
   `<div class="card"><div class="sp" style="margin-bottom:12px"><div style="display:flex;gap:6px"><button class="ib" onclick="navCal(-1)" aria-label="Precedente">‹</button><button class="ib" onclick="navCal(1)" aria-label="Successivo">›</button><button class="b sm" onclick="V.sel='${t}';V.cur='${t.slice(0,8)}01';render()">Oggi</button></div><b class="fd" style="font-size:1.15rem;text-transform:capitalize">${esc(title)}</b><div class="chips" style="margin:0"><span class="ch ${V.pm==='month'?'on':''}" onclick="V.pm='month';V.cur='${sel.slice(0,8)}01';render()">Mese</span><span class="ch ${V.pm==='week'?'on':''}" onclick="V.pm='week';render()">Sett.</span></div></div>
+  ${S.subs.length>1?`<div class="chips" style="margin:0 0 12px"><span class="ch ${!V.fs?'on':''}" onclick="V.fs='';render()">Tutte</span>${S.subs.map(s=>`<span class="ch ${V.fs===s.id?'on':''}" onclick="V.fs='${s.id}';render()">${esc(s.name)}</span>`).join('')}</div>`:''}
   <div class="cal">${wdl.map(x=>`<div class="wd">${x}</div>`).join('')}${days.map(cell).join('')}</div></div>`+
   (ov.length?`<div class="card warn sp"><span><b>${ov.length}</b> attività arretrate</span><span style="display:flex;gap:6px"><button class="b sm" onclick="moveOver('${t}')">A oggi</button><button class="b sm" onclick="spreadOver()">Distribuisci</button></span></div>`:'')+
   `<div class="sec"><h3 style="text-transform:capitalize">${esc(fmt(sel,{weekday:'long',day:'numeric',month:'long'}))}</h3><button class="b sm" onclick="taskForm('',{date:'${sel}'})">＋ Qui</button></div>
   ${sevs.map(e=>`<div class="card flat sp" style="margin-top:10px"><span>⚑ <b>${esc(e.name)}</b></span><span class="pill on">data importante</span></div>`).join('')}
   <input class="qa" placeholder="＋ Aggiungi veloce a questo giorno… (Invio)" onkeydown="if(event.key==='Enter')qadd(this,'${sel}')">
   ${ss.length?ss.map(x=>taskCard(x)).join(''):empty('Giorno libero ☕ — oppure pianificalo tu.')}`+
+  (rv.length?`<div class="card" style="margin-top:12px"><h4>Ripassi</h4>${rv.map(o=>sel<=t?revRow(o.x,o.i):`<div class="tp"><span class="tn">${esc(o.x.t)} <span class="dim">· ${esc(sub(o.x.sub)?.name||'')}</span></span><span class="pill">ripasso</span></div>`).join('')}</div>`:'')+
   (bl.length?`<div class="sec"><h3>Da programmare</h3><span class="dim">${bl.length} senza data</span></div>${bl.map(x=>taskCard(x)).join('')}`:'')+
   `<button class="fab" onclick="taskForm('',{date:'${sel}'})" aria-label="Nuova attività">+</button>`},
 
- mat(){return head('Materie','Materie e argomenti completamente tuoi: crea, rinomina, ordina per colore e segna cosa hai già padroneggiato.',`<button class="b" onclick="go('tolc')">Da un TOLC</button><button class="b p" onclick="subForm('')">＋ Materia</button>`)+
-  (S.subs.length?S.subs.map(subCard).join(''):empty('Nessuna materia. Creane una o importa quelle di un TOLC.',`<button class="b p" onclick="subForm('')">＋ Crea materia</button> <button class="b" onclick="go('tolc')">Scegli un TOLC</button>`))},
+ mat(){const all=Object.values(S.topics),m=all.filter(x=>x.st===2).length;
+  return head('Materie',`Materie e argomenti completamente tuoi: crea, rinomina, collega attività e segna cosa hai già padroneggiato.${all.length?` <b>${m}/${all.length}</b> argomenti padroneggiati.`:''}`,`<button class="b" onclick="go('tolc')">Da un TOLC</button><button class="b p" onclick="subForm('')">＋ Materia</button>`)+
+  (S.subs.length?S.subs.map(subCard).join(''):empty('Nessuna materia. Creane una o importa quelle di un TOLC.',`<button class="b p" onclick="subForm('')">＋ Crea materia</button> <button class="b" onclick="go('tolc')">Scegli un TOLC</button> <button class="b" onclick="loadDemo()">✨ Demo</button>`))},
 
- focus(){const m=S.log.reduce((a,l)=>a+l.min,0),t=today(),td=S.log.filter(l=>l.d===t).reduce((a,l)=>a+l.min,0),wk=Array.from({length:7},(_,i)=>{const d=add(t,i-6);return{d,v:S.log.filter(l=>l.d===d).reduce((a,l)=>a+l.min,0)}}),mx=Math.max(30,...wk.map(x=>x.v)),P_=S.pom;
-  const tasks=S.tasks.filter(x=>!x.done&&(!x.date||x.date<=add(t,7))).sort((a,b)=>(a.date||'z').localeCompare(b.date||'z')).slice(0,40);
+ focus(){const m=mins(),t=today(),td=S.log.filter(l=>l.d===t).reduce((a,l)=>a+l.min,0),wk=Array.from({length:7},(_,i)=>{const d=add(t,i-6);return{d,v:S.log.filter(l=>l.d===d).reduce((a,l)=>a+l.min,0)}}),mx=Math.max(30,...wk.map(x=>x.v)),P_=S.pom,gl=S.cfg.goal||0;
+  const tasks=S.tasks.filter(x=>!x.done&&(!x.date||x.date<=add(t,7))).sort((a,b)=>(a.date||'z').localeCompare(b.date||'z')).slice(0,40),tps=T.sub?topicsOf(T.sub):[];
   const lab={work:'Focus',brk:'Pausa',long:'Pausa lunga',free:'Libero'}[T.mode];
-  return head('Focus','Pomodoro personalizzabile o cronometro libero. Il tempo si lega a materie e attività.')+
+  return head('Focus','Pomodoro personalizzabile o cronometro libero. Il tempo si lega a materie, argomenti e attività.')+
   `<div class="card tbox"><div class="chips" style="justify-content:center;margin:0 0 14px">${[['work','Focus'],['brk','Pausa'],['long','Pausa lunga'],['free','Libero']].map(([k,n])=>`<span class="ch ${T.mode===k?'on':''}" onclick="Pom.mode('${k}')">${n}</span>`).join('')}</div>
   <div class="ringbox">${ring(0,'rg')}<div class="in"><span id="tm">00:00</span><small>${lab}${T.mode==='work'?' · ciclo '+((T.cyc%P_.every)+1)+'/'+P_.every:''}</small></div></div>
   <div class="acts" style="justify-content:center"><button class="b p" style="flex:0 0 150px" onclick="Pom.go()">${T.run?'Pausa':'Avvia'}</button><button class="b" style="flex:0 0 auto" onclick="Pom.stop()">Registra e termina</button><button class="b g" style="flex:0 0 auto" onclick="Pom.reset()">Azzera</button></div>
-  <div class="row" style="text-align:left"><label>Materia<select onchange="T.sub=this.value;saveT()"><option value="">Libero</option>${S.subs.map(s=>`<option value="${s.id}" ${T.sub===s.id?'selected':''}>${esc(s.name)}</option>`).join('')}</select></label><label>Attività<select onchange="T.task=this.value;const k=S.tasks.find(x=>x.id===this.value);if(k&&k.sub)T.sub=k.sub;saveT();render()"><option value="">Nessuna</option>${tasks.map(x=>`<option value="${x.id}" ${T.task===x.id?'selected':''}>${esc(x.title)}</option>`).join('')}</select></label></div></div>
+  <div class="row" style="text-align:left"><label>Materia<select onchange="T.sub=this.value;T.topic='';saveT();render()"><option value="">Libero</option>${S.subs.map(s=>`<option value="${s.id}" ${T.sub===s.id?'selected':''}>${esc(s.name)}</option>`).join('')}</select></label><label>Argomento<select onchange="T.topic=this.value;saveT()"><option value="">Nessuno</option>${tps.map(x=>`<option value="${x.id}" ${T.topic===x.id?'selected':''}>${esc(x.t)}</option>`).join('')}</select></label><label>Attività<select onchange="T.task=this.value;const k=S.tasks.find(x=>x.id===this.value);if(k&&k.sub)T.sub=k.sub;saveT();render()"><option value="">Nessuna</option>${tasks.map(x=>`<option value="${x.id}" ${T.task===x.id?'selected':''}>${esc(x.title)}</option>`).join('')}</select></label></div></div>
   <div class="card"><h3>Impostazioni timer</h3><div class="chips">${[[25,5,15],[50,10,20],[90,15,30],[15,3,10]].map(([w,b,l])=>`<span class="ch ${P_.work===w&&P_.brk===b?'on':''}" onclick="presetP(${w},${b},${l})">${w}/${b}</span>`).join('')}</div>
   <div class="row"><label>Focus min<input type="number" min="1" value="${P_.work}" onchange="setP('work',this.value)"></label><label>Pausa min<input type="number" min="1" value="${P_.brk}" onchange="setP('brk',this.value)"></label><label>Lunga min<input type="number" min="1" value="${P_.long}" onchange="setP('long',this.value)"></label><label>Cicli<input type="number" min="1" value="${P_.every}" onchange="setP('every',this.value)"></label></div>
   <label class="sw"><input type="checkbox" ${P_.auto?'checked':''} onchange="S.pom.auto=this.checked;save()"><span></span>Avvia automaticamente il prossimo turno</label></div>
-  <div class="two" style="margin-top:14px"><div class="card"><h3>Questa settimana</h3><div class="stats"><div><b>${fh(td)}</b><span>oggi</span></div><div><b>${fh(wk.reduce((a,x)=>a+x.v,0))}</b><span>7 giorni</span></div><div><b>${(m/60).toFixed(1)}</b><span>ore totali</span></div></div><div class="bars">${wk.map(x=>`<div><i style="height:${x.v/mx*80}px" title="${x.v} min"></i>${DOW[D(x.d).getDay()][0]}</div>`).join('')}</div></div>
+  <div class="two" style="margin-top:14px"><div class="card"><h3>Questa settimana</h3><div class="stats"><div><b>${fh(td)}</b><span>oggi${gl?' / '+fh(gl):''}</span></div><div><b>${fh(wk.reduce((a,x)=>a+x.v,0))}</b><span>7 giorni</span></div><div><b>${(m/60).toFixed(1)}</b><span>ore totali</span></div></div>${gl?`<div class="pb"><i style="width:${Math.min(100,td/gl*100)}%"></i></div>`:''}<div class="bars">${wk.map(x=>`<div><i style="height:${x.v/mx*80}px" title="${x.v} min"></i>${DOW[D(x.d).getDay()][0]}</div>`).join('')}</div></div>
   <div class="card"><h3>Aggiungi tempo a mano</h3><div class="row"><label>Minuti<input type="number" id="ml_m" min="1" placeholder="45"></label><label>Data<input type="date" id="ml_d" value="${t}"></label></div><label>Materia<select id="ml_s"><option value="">Libero</option>${S.subs.map(s=>`<option value="${s.id}">${esc(s.name)}</option>`).join('')}</select></label><button class="b w" onclick="manLog()">Registra</button></div></div>
-  ${S.log.length?`<div class="card"><h3>Ultime sessioni</h3>${S.log.slice(-8).reverse().map((l,i)=>`<div class="sp tp"><span>${esc(fmt(l.d,{day:'numeric',month:'short'}))} · <b>${fh(l.min)}</b> <span class="dim">${esc(sub(l.sub)?.name||'')}</span></span><button class="ib sm" onclick="delLog(${S.log.length-1-i})">✕</button></div>`).join('')}</div>`:''}`},
+  ${S.log.length?`<div class="card"><h3>Ultime sessioni</h3>${S.log.slice(-8).reverse().map((l,i)=>`<div class="sp tp"><span>${esc(fmt(l.d,{day:'numeric',month:'short'}))} · <b>${fh(l.min)}</b> <span class="dim">${esc(sub(l.sub)?.name||'')}${l.topic&&S.topics[l.topic]?' · '+esc(S.topics[l.topic].t):''}</span></span><button class="ib sm" onclick="delLog(${S.log.length-1-i})" aria-label="Elimina">✕</button></div>`).join('')}</div>`:''}`},
 
  tolc(){if(V.tolc)return tolcDetail(V.tolc);
   const L=allTolc(),t=today(),evs=S.events.slice().sort((a,b)=>a.date.localeCompare(b.date));
-  return head('TOLC','Tutte le prove CISIA: struttura, programma, simulazioni a tempo e risultati.',`<button class="b p" onclick="tolcForm('')">＋ TOLC personalizzato</button>`)+
+  return head('TOLC','Tutte le prove CISIA: struttura, programma, simulazioni a tempo e risultati.',`<button class="b" onclick="simForm('')">＋ Simulazione libera</button><button class="b p" onclick="tolcForm('')">＋ TOLC personalizzato</button>`)+
   `<div class="grid2">${L.map(x=>{const s=secsOf(x),q=s.filter(y=>!y.en).reduce((a,y)=>a+y.q,0),m=s.filter(y=>!y.en).reduce((a,y)=>a+y.m,0),n=S.sims.filter(y=>y.tolc===x.id).length;
-   return `<div class="card tc ${S.exam.tolc===x.id?'act':''}" onclick="openTolc('${x.id}')"><div class="tcc">${esc(x.code)}</div><b>${esc(x.name)}</b><div class="dim">${s.filter(y=>!y.en).length} sezioni · ${q} quesiti · ${m} min${x.eng?' + inglese':''}</div><div class="tcf">${n?`<span class="pill">${n} sim.</span>`:''}${S.exam.tolc===x.id?'<span class="pill on">obiettivo</span>':''}${x.est?'<span class="pill" title="Quesiti/tempi indicativi: verifica sul sito CISIA">~ indicativo</span>':''}</div></div>`}).join('')}</div>
+   return `<div class="card tc ${S.exam.tolc===x.id?'act':''}" onclick="openTolc('${x.id}')" tabindex="0" onkeydown="if(event.key==='Enter')openTolc('${x.id}')"><div class="tcc">${esc(x.code)}</div><b>${esc(x.name)}</b><div class="dim">${s.filter(y=>!y.en).length} sezioni · ${q} quesiti · ${m} min${x.eng?' + inglese':''}</div><div class="tcf">${n?`<span class="pill">${n} sim.</span>`:''}${S.exam.tolc===x.id?'<span class="pill on">obiettivo</span>':''}${x.est?'<span class="pill" title="Quesiti/tempi indicativi: verifica sul sito CISIA">~ indicativo</span>':''}</div></div>`}).join('')}</div>
   <div class="sec"><h3>Date importanti</h3><button class="b sm" onclick="eventForm('')">＋ Data</button></div>
-  ${evs.length?`<div class="card">${evs.map(e=>`<div class="sp tp" style="border:0"><span><b>${esc(e.name)}</b> <span class="dim">${esc(fmt(e.date,{weekday:'short',day:'numeric',month:'long',year:'numeric'}))}${e.tolc&&tolcById(e.tolc)?' · '+esc(tolcById(e.tolc).code):''}</span></span><span style="display:flex;gap:6px;align-items:center"><span class="pill ${e.date>=t?'on':''}">${e.date>=t?(dd(t,e.date)===0?'oggi':'tra '+dd(t,e.date)+' g'):'passata'}</span><button class="ib sm" onclick="eventForm('${e.id}')">✎</button></span></div>`).join('')}</div>`:empty('Aggiungi le date dei tuoi TOLC prenotati: compaiono in Oggi e nel calendario.')}
+  ${evs.length?`<div class="card">${evs.map(e=>`<div class="sp tp" style="border:0"><span><b>${esc(e.name)}</b> <span class="dim">${esc(fmt(e.date,{weekday:'short',day:'numeric',month:'long',year:'numeric'}))}${e.tolc&&tolcById(e.tolc)?' · '+esc(tolcById(e.tolc).code):''}</span></span><span style="display:flex;gap:6px;align-items:center"><span class="pill ${e.date>=t?'on':''}">${e.date>=t?(dd(t,e.date)===0?'oggi':'tra '+dd(t,e.date)+' g'):'passata'}</span><button class="ib sm" onclick="eventForm('${e.id}')" aria-label="Modifica">✎</button></span></div>`).join('')}</div>`:empty('Aggiungi le date dei tuoi TOLC prenotati: compaiono in Oggi e nel calendario.')}
   ${S.sims.length?`<div class="sec"><h3>Ultime simulazioni</h3></div>${S.sims.slice(-4).reverse().map(simCard).join('')}`:''}`},
 
  prog(){const t=today(),m={};S.log.forEach(l=>m[l.d]=(m[l.d]||0)+l.min);const weeks=20,dow=(D(t).getDay()+6)%7,st=add(t,-dow-(weeks-1)*7);
   const cells=Array.from({length:weeks*7},(_,i)=>{const d=add(st,i),v=m[d]||0,l=d>t?'fu':v===0?(S.act[d]?'l1':''):v<30?'l1':v<60?'l2':v<120?'l3':'l4';return `<i class="${l}" title="${esc(fmt(d,{day:'numeric',month:'short'}))}: ${v} min"></i>`}).join('');
   const per={};S.log.filter(l=>l.d>add(t,-30)).forEach(l=>per[l.sub||'']=(per[l.sub||'']||0)+l.min);const pm=Math.max(1,...Object.values(per));
-  const all=Object.values(S.topics),done=S.tasks.filter(x=>x.done).length,hrs=S.log.reduce((a,l)=>a+l.min,0)/60;
-  const sm=S.sims;
-  return head('Progressi','Il quadro completo di quanto hai studiato e di come stai andando.')+
-  `<div class="card"><div class="stats" style="grid-template-columns:repeat(auto-fit,minmax(90px,1fr))"><div><b>${hrs.toFixed(1)}</b><span>ore di focus</span></div><div><b>${streak()}🔥</b><span>serie</span></div><div><b>${done}</b><span>attività fatte</span></div><div><b>${all.filter(x=>x.st===2).length}/${all.length}</b><span>argomenti</span></div>${S.cfg.xp?`<div><b>Lv ${lvl()}</b><span>${S.xp} XP</span></div>`:''}${sm.length?`<div><b>${r2(sm.reduce((a,x)=>a+x.tot,0)/sm.length)}</b><span>media sim.</span></div>`:''}</div></div>
+  const all=Object.values(S.topics),done=S.tasks.filter(x=>x.done).length,hrs=mins()/60,sm=S.sims;
+  const ws=add(t,-((D(t).getDay()-S.cfg.weekStart+7)%7)),we=add(ws,6),pw=add(ws,-7),wt=S.tasks.filter(x=>x.date>=ws&&x.date<=we),mn=(a,b)=>S.log.filter(l=>l.d>=a&&l.d<=b).reduce((x,l)=>x+l.min,0),m1=mn(ws,we),m0=mn(pw,add(ws,-1));
+  const L=lvl(),x0=40*(L-1)**2,x1=40*L*L;
+  return head('Progressi','Il quadro completo di quanto hai studiato e di come stai andando.',`<button class="b" onclick="simForm('')">＋ Simulazione</button>`)+
+  `<div class="card"><div class="stats" style="grid-template-columns:repeat(auto-fit,minmax(90px,1fr))"><div><b>${hrs.toFixed(1)}</b><span>ore di focus</span></div><div><b>${streak()}🔥</b><span>serie</span></div><div><b>${done}</b><span>attività fatte</span></div><div><b>${mast()}/${all.length}</b><span>argomenti</span></div>${S.cfg.xp?`<div><b>Lv ${L}</b><span>${S.xp} XP</span></div>`:''}${sm.length?`<div><b>${r2(sm.reduce((a,x)=>a+x.tot,0)/sm.length)}</b><span>media sim.</span></div>`:''}</div>${S.cfg.xp?`<div class="pb"><i style="width:${(S.xp-x0)/(x1-x0)*100}%"></i></div><p class="dim" style="margin:6px 0 0;text-align:center">${x1-S.xp} XP al livello ${L+1}</p>`:''}</div>
+  <div class="two" style="margin-top:14px"><div class="card"><h3>Questa settimana</h3><div class="stats"><div><b>${wt.filter(x=>x.done).length}/${wt.length}</b><span>attività</span></div><div><b>${fh(m1)}</b><span>focus</span></div><div><b>${m1>=m0?'+':'−'}${fh(Math.abs(m1-m0))}</b><span>vs sett. scorsa</span></div></div></div>
+  <div class="card"><h3>Previsione</h3>${projection()}</div></div>
   <div class="card"><h3>Costanza</h3><p class="dim">Ultime ${weeks} settimane (più scuro = più minuti)</p><div class="heat">${cells}</div></div>
   <div class="two" style="margin-top:14px"><div class="card"><h3>Tempo per materia</h3><p class="dim">Ultimi 30 giorni</p>${Object.keys(per).length?Object.entries(per).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`<div class="hb"><span>${esc(sub(k)?.name||'Libero')}</span><div class="pb"><i style="width:${v/pm*100}%;--c:${sub(k)?.color||'var(--acc)'}"></i></div><em>${fh(v)}</em></div>`).join(''):'<p class="dim">Usa il timer Focus per vedere qui i tuoi dati.</p>'}</div>
   <div class="card"><h3>Padronanza</h3><p class="dim">Argomenti padroneggiati</p>${S.subs.length?S.subs.map(s=>{const tp=topicsOf(s.id),d=tp.filter(x=>x.st===2).length;return `<div class="hb"><span>${esc(s.name)}</span><div class="pb"><i style="width:${tp.length?d/tp.length*100:0}%;--c:${s.color}"></i></div><em>${d}/${tp.length}</em></div>`}).join(''):'<p class="dim">Nessuna materia.</p>'}</div></div>
-  <div class="card"><h3>Simulazioni</h3>${chart(sm,S.exam.target)}</div>
-  <div class="card"><h3>Traguardi</h3><div class="bdg" style="margin-top:12px">${BADGES.map(([i,n,f])=>`<div class="${f()?'u':''}"><b>${i}</b>${n}</div>`).join('')}</div></div>`},
+  <div class="card"><div class="sp"><h3>Simulazioni</h3><button class="b sm" onclick="simForm('')">＋ Libera</button></div>${chart(sm,S.exam.target)}</div>
+  ${sm.length?`<div class="sec"><h3>Storico simulazioni</h3></div>${sm.slice().reverse().map(simCard).join('')}`:''}
+  <div class="card"><h3>Traguardi</h3><div class="bdg" style="margin-top:12px">${badgeHtml()}</div></div>`},
 
  set(){const c=S.cfg,e=S.exam,sn=Snap.list();let kb=0;try{kb=Math.round((localStorage.getItem(KEY)||'').length/1024)}catch(_){}
   const sw=(k,l)=>`<label class="sw"><input type="checkbox" ${c[k]?'checked':''} onchange="cfg('${k}',this.checked)"><span></span>${l}</label>`;
@@ -377,51 +446,70 @@ const R={
   <label>La settimana inizia di</label><div class="chips">${[[1,'Lunedì'],[0,'Domenica']].map(([k,n])=>`<span class="ch ${c.weekStart===k?'on':''}" onclick="cfg('weekStart',${k})">${n}</span>`).join('')}</div>
   ${sw('dense','Interfaccia compatta')}${sw('motion','Animazioni')}${sw('xp','Punti XP e livelli')}</div>
   <div class="card"><h3>Schermata Oggi</h3><p class="dim">Mostra solo ciò che ti serve.</p>${wd('count','Conto alla rovescia')}${wd('streak','Serie e statistiche')}${wd('over','Attività arretrate')}${wd('rev','Ripassi del giorno')}${wd('events','Prossime date')}${wd('badges','Traguardi')}</div>
-  <div class="card"><h3>Obiettivo ed esame</h3><label>Nome<input value="${esc(e.name)}" oninput="S.exam.name=this.value;save()" placeholder="es. TOLC-I"></label><div class="row"><label>Inizio studio<input type="date" value="${e.start}" onchange="S.exam.start=this.value;save()"></label><label>Data esame<input type="date" value="${e.date}" onchange="S.exam.date=this.value;save()"></label></div><label>Punteggio target<input type="number" step="0.25" value="${e.target||''}" oninput="S.exam.target=+this.value;save()"></label></div>
-  <div class="card"><h3>Studio</h3><p class="dim">Valori predefiniti per il generatore automatico (opzionale: puoi sempre pianificare a mano).</p><label>Giorni di studio</label><div class="chips">${[1,2,3,4,5,6,0].map(d=>`<span class="ch ${c.days.includes(d)?'on':''}" onclick="tgDay(${d})">${DOW[d]}</span>`).join('')}</div><label>Ore al giorno<input type="number" step="0.5" min="0.5" value="${c.hours}" oninput="S.cfg.hours=+this.value||1;save()"></label><label>Ripassi dopo (giorni, separati da virgola)<input value="${esc(c.rev)}" oninput="S.cfg.rev=this.value;save()" placeholder="3,7,21"></label></div>
+  <div class="card"><h3>Obiettivo ed esame</h3><label>Nome<input value="${esc(e.name)}" oninput="S.exam.name=this.value;saveSoft()" placeholder="es. TOLC-I"></label><div class="row"><label>Inizio studio<input type="date" value="${e.start}" onchange="S.exam.start=this.value;save()"></label><label>Data esame<input type="date" value="${e.date}" onchange="S.exam.date=this.value;save()"></label></div><div class="row"><label>Punteggio target<input type="number" step="0.25" value="${e.target||''}" oninput="S.exam.target=+this.value;saveSoft()"></label><label>TOLC collegato<select onchange="S.exam.tolc=this.value;save()"><option value="">—</option>${allTolc().map(t=>`<option value="${t.id}" ${e.tolc===t.id?'selected':''}>${esc(t.code)}</option>`).join('')}</select></label></div></div>
+  <div class="card"><h3>Studio</h3><p class="dim">Valori predefiniti (opzionali: puoi sempre pianificare a mano).</p><label>Giorni di studio</label><div class="chips">${[1,2,3,4,5,6,0].map(d=>`<span class="ch ${c.days.includes(d)?'on':''}" onclick="tgDay(${d})">${DOW[d]}</span>`).join('')}</div><div class="row"><label>Ore al giorno<input type="number" step="0.5" min="0.5" value="${c.hours}" oninput="S.cfg.hours=+this.value||1;saveSoft()"></label><label>Obiettivo focus (min/giorno)<input type="number" min="0" step="5" value="${c.goal}" oninput="S.cfg.goal=+this.value||0;saveSoft()"></label></div><label>Ripassi dopo (giorni, separati da virgola)<input value="${esc(c.rev)}" oninput="S.cfg.rev=this.value;saveSoft()" placeholder="3,7,21"></label>
+  <div class="row"><label>Punti per risposta corretta<input type="number" step="0.25" value="${c.score.c}" oninput="S.cfg.score.c=+this.value;saveSoft()"></label><label>Penalità per errata<input type="number" step="0.25" value="${c.score.w}" oninput="S.cfg.score.w=+this.value;saveSoft()"></label></div>
+  ${'Notification' in window?`<label class="sw"><input type="checkbox" ${c.notif?'checked':''} onchange="notifyOn(this.checked)"><span></span>Promemoria per attività con orario (con l'app aperta)</label>`:''}</div>
   <div class="card"><h3>Dati e backup</h3><p class="dim">I dati sono salvati in questo browser (${kb} KB) e restano anche se aggiorni la pagina o il file su GitHub. Fai un backup ogni tanto, soprattutto prima di cambiare dispositivo o cancellare i dati del browser.</p>
   <div class="acts"><button class="b p" onclick="Data.json();render()">Backup .json</button><button class="b" onclick="Data.csv()">Piano .csv</button><button class="b" onclick="Data.ics()">Calendario .ics</button></div>
+  <div class="acts" style="margin-top:8px"><button class="b" onclick="Data.copy()">Copia dati come testo</button><button class="b" onclick="Data.paste()">Incolla dati…</button></div>
   ${S.lb?`<p class="dim">Ultimo backup scaricato: ${esc(fmt(S.lb,{day:'numeric',month:'long'}))}</p>`:''}
   <label>Importa backup .json<input type="file" accept=".json,application/json" onchange="Data.read(this.files[0])"></label>
   <h4 style="margin-top:18px">Copie automatiche</h4>${sn.length?sn.map((x,i)=>`<div class="sp tp"><span>${esc(new Date(x.t).toLocaleString('it-IT',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}))} <span class="dim">· ${esc(x.l)}</span></span><button class="b sm" onclick="if(confirm('Ripristinare questa copia?'))Snap.restore(${i})">Ripristina</button></div>`).join(''):'<p class="dim">Nessuna copia.</p>'}
-  <button class="b d w" onclick="Data.reset()">Cancella tutti i dati…</button></div>
-  <p class="dim" style="text-align:center;margin-top:20px">StudyForge · versione dati ${S.v}</p>`}
+  ${S.demo?`<button class="b w" onclick="clearDemo()">Elimina i dati demo</button>`:''}<button class="b d w" onclick="Data.reset()">Cancella tutti i dati…</button></div>
+  <div class="card"><h4>Scorciatoie</h4><p class="dim"><kbd>Ctrl/⌘ K</kbd> o <kbd>/</kbd> cerca ovunque · <kbd>N</kbd> nuova attività · <kbd>T</kbd> vai a oggi · <kbd>Esc</kbd> chiudi</p></div>
+  <p class="dim" style="text-align:center;margin-top:20px">StudyForge ${APP_VER} · versione dati ${S.v}</p>`}
 };
-function subCard(s){const tp=topicsOf(s.id),m=tp.filter(x=>x.st===2).length,open=V.open[s.id];
- return `<div class="card scard" style="--c:${s.color}"><div class="sch" onclick="V.open['${s.id}']=!V.open['${s.id}'];render()"><span class="emo">${esc(s.emo||'')||'●'}</span><div><b class="fd" style="font-size:1.15rem">${esc(s.name||'Senza nome')}</b><div class="dim">${m}/${tp.length} padroneggiati · peso ${s.w} · difficoltà ${s.diff}/5</div></div><button class="ib" onclick="event.stopPropagation();subForm('${s.id}')" aria-label="Modifica">✎</button><span>${open?'▾':'▸'}</span></div><div class="pb"><i style="width:${tp.length?m/tp.length*100:0}%"></i></div>
- ${open?`<div style="margin-top:8px">${tp.map(topicRow).join('')||'<p class="dim">Nessun argomento: aggiungine uno qui sotto.</p>'}</div><textarea class="ad" id="ad_${s.id}" rows="1" placeholder="＋ Nuovo argomento (Invio per aggiungere, anche più righe incollate)" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();addT('${s.id}',this.value)}"></textarea><button class="b sm w" onclick="taskForm('',{sub:'${s.id}',date:V.sel})">＋ Attività per ${esc(s.name||'questa materia')}</button>`:''}</div>`}
-function topicRow(t){const d=t.rev.some(r=>!r.done&&r.d<=today());return `<div class="tp"><button class="dot s${t.st}" onclick="cyc('${t.id}')" aria-label="Cambia stato" title="Da fare → In corso → Padroneggiato"></button><span class="tn" onclick="topicForm('${t.id}')">${esc(t.t)}</span>${d?'<span class="pill on">ripasso</span>':''}${t.note?'<span class="pill">nota</span>':''}<button class="ib sm" title="Copia prompt per AI" onclick="copyP('${t.id}')">✨</button></div>`}
-function simCard(x){const tl=x.tolc&&tolcById(x.tolc);return `<div class="card"><div class="sim"><div><b>${r2(x.tot)}</b> <span class="dim">${tl?esc(tl.code)+' · ':''}${esc(fmt(x.d,{day:'numeric',month:'short',year:'numeric'}))}</span></div><button class="ib sm" onclick="delSim('${x.id}')" aria-label="Elimina">✕</button></div>${x.secs&&x.secs.length?`<div class="mt">${x.secs.map(s=>`<span class="pill">${esc(s.n)} ${r2(s.v)}${s.q?'/'+s.q:''}</span>`).join('')}</div>`:''}${x.note?`<p style="margin:8px 0 0">${esc(x.note)}</p>`:''}</div>`}
+function revRow(x,i){return `<div class="tp" style="border:0;padding:6px 0"><button class="ck" onclick="revDone('${x.id}',${i},'ok')" aria-label="Ripasso fatto"></button><span class="tn">${esc(x.t)} <span class="dim">· ${esc(sub(x.sub)?.name||'')}</span></span><button class="b sm g" onclick="revDone('${x.id}',${i},'hard')" title="Difficile: lo ripeti tra 2 giorni">😓</button><button class="b sm g" onclick="revDone('${x.id}',${i},'later')" title="Rimanda a domani">⏭</button></div>`}
+function badgeHtml(){return BADGES.map(([id,ic,nm,ds])=>`<div class="${S.bd[id]?'u':''}" title="${esc(ds)}"><b>${ic}</b>${esc(nm)}<small>${S.bd[id]?esc(fmt(S.bd[id],{day:'numeric',month:'short'})):esc(ds)}</small></div>`).join('')}
+function projection(){const all=Object.values(S.topics);if(!all.length)return '<p class="dim">Aggiungi materie e argomenti per vedere la previsione.</p>';const rem=all.filter(x=>x.st<2).length;if(!rem)return '<p>🎉 Hai padroneggiato tutto il sillabo!</p>';const t=today(),r=all.filter(x=>x.ma&&x.ma>add(t,-21)).length/3;if(r<.3)return '<p class="dim">Segna qualche argomento come padroneggiato: ti mostro il ritmo e quando finirai il sillabo.</p>';const fin=add(t,Math.ceil(rem/r*7)),ex=S.exam.date,late=ex&&fin>ex;
+ return `<p style="margin:0">Ritmo: <b>${r2(r)}</b> argomenti a settimana. Al ritmo attuale finirai il sillabo il <b>${esc(fmt(fin,{day:'numeric',month:'long'}))}</b>${ex?late?` — <span style="color:var(--bad)">${dd(ex,fin)} giorni dopo l'esame: ti servono circa ${r2(rem/Math.max(.5,dd(t,ex)/7))} argomenti a settimana.</span>`:' — <span style="color:var(--ok)">in tempo ✓</span>':''}.</p>`}
+function subCard(s){const tp=topicsOf(s.id),m=tp.filter(x=>x.st===2).length,open=V.open[s.id],tm=S.log.filter(l=>l.sub===s.id).reduce((a,l)=>a+l.min,0);
+ return `<div class="card scard" style="--c:${s.color}"><div class="sch" onclick="V.open['${s.id}']=!V.open['${s.id}'];render()"><span class="emo">${esc(s.emo||'')||'●'}</span><div><b class="fd" style="font-size:1.15rem">${esc(s.name||'Senza nome')}</b><div class="dim">${m}/${tp.length} padroneggiati · peso ${s.w} · difficoltà ${s.diff}/5${tm?' · '+fh(tm):''}</div></div><button class="ib" onclick="event.stopPropagation();subForm('${s.id}')" aria-label="Modifica materia">✎</button><span>${open?'▾':'▸'}</span></div><div class="pb"><i style="width:${tp.length?m/tp.length*100:0}%"></i></div>
+ ${open?`<p class="dim" style="margin:10px 0 0">Tocca il cerchio per cambiare stato: 🔴 da fare → 🟡 in ripasso → 🟢 padroneggiato</p><div style="margin-top:4px">${tp.map(topicRow).join('')||'<p class="dim">Nessun argomento: aggiungine uno qui sotto.</p>'}</div><textarea class="ad" id="ad_${s.id}" rows="1" placeholder="＋ Nuovo argomento (Invio per aggiungere; incolla più righe per aggiungerne molti)" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();addT('${s.id}',this.value)}"></textarea><div class="acts" style="margin-top:10px"><button class="b sm" onclick="taskForm('',{sub:'${s.id}',date:V.sel})">＋ Attività</button><button class="b sm" onclick="bulk('${s.id}',2)">Tutti 🟢</button><button class="b sm" onclick="bulk('${s.id}',0)">Azzera 🔴</button></div>`:''}</div>`}
+function topicRow(t){const d=t.rev.some(r=>!r.done&&r.d<=today());return `<div class="tp"><button class="dot s${t.st}" onclick="cyc('${t.id}')" aria-label="Stato: ${['da fare','in ripasso','padroneggiato'][t.st]}" title="${['Da fare','In ripasso','Padroneggiato'][t.st]}"></button><span class="tn" onclick="topicForm('${t.id}')">${esc(t.t)}</span>${d?'<span class="pill on">ripasso</span>':''}${t.note?'<span class="pill">nota</span>':''}<button class="ib sm" title="Copia prompt per l'AI" aria-label="Copia prompt per l'AI" onclick="copyP('${t.id}')">✨</button></div>`}
+function simCard(x){const tl=x.tolc&&tolcById(x.tolc);return `<div class="card"><div class="sim"><div><b>${r2(x.tot)}</b> <span class="dim">${tl?esc(tl.code)+' · ':''}${esc(fmt(x.d,{day:'numeric',month:'short',year:'numeric'}))}</span></div><span style="display:flex;gap:6px"><button class="ib sm" onclick="simForm('${esc(x.tolc||'')}',{eid:'${x.id}'})" aria-label="Modifica">✎</button><button class="ib sm" onclick="delSim('${x.id}')" aria-label="Elimina">✕</button></span></div>${x.secs&&x.secs.length?`<div class="mt">${x.secs.map(s=>`<span class="pill">${esc(s.n)} ${r2(s.v)}${s.q?'/'+s.q:''}</span>`).join('')}</div>`:''}${x.note?`<p style="margin:8px 0 0">${esc(x.note)}</p>`:''}</div>`}
 function chart(sm,tg){if(!sm.length)return '<p class="dim">Registra la prima simulazione per vedere il grafico.</p>';
- const W=340,H=160,P=26,mx=Math.max((tg||0)*1.12,...sm.map(x=>x.tot),5),mn=Math.min(0,...sm.map(x=>x.tot)),X=i=>sm.length>1?P+i*(W-2*P)/(sm.length-1):W/2,Yy=v=>H-P-(v-mn)/(mx-mn)*(H-2*P),pts=sm.map((x,i)=>`${X(i)},${Yy(x.tot)}`).join(' ');
- return `<svg viewBox="0 0 ${W} ${H}" width="100%">${tg?`<line x1="0" x2="${W}" y1="${Yy(tg)}" y2="${Yy(tg)}" stroke="var(--ok)" stroke-dasharray="4 4"/><text x="4" y="${Yy(tg)-4}">target ${tg}</text>`:''}<line x1="0" x2="${W}" y1="${Yy(0)}" y2="${Yy(0)}" stroke="var(--bd)" stroke-opacity=".3"/><polyline points="${pts}" fill="none" stroke="var(--acc)" stroke-width="3" stroke-linejoin="round"/>${sm.map((x,i)=>`<circle cx="${X(i)}" cy="${Yy(x.tot)}" r="5" fill="var(--card)" stroke="var(--bd)" stroke-width="2"/><text x="${X(i)-8}" y="${Yy(x.tot)-10}">${r2(x.tot)}</text>`).join('')}</svg>`}
-const BADGES=[['🔥','Prima scintilla',()=>S.tasks.some(s=>s.done)],['⚡','Serie di 3',()=>streak()>=3],['🌋','Serie di 7',()=>streak()>=7],['⏱️','100 min focus',()=>S.log.reduce((a,l)=>a+l.min,0)>=100],['🎯','3 simulazioni',()=>S.sims.length>=3],['🧠','10 argomenti',()=>Object.values(S.topics).filter(t=>t.st===2).length>=10],['👑','Livello 5',()=>lvl()>=5],['🚀','Target battuto',()=>S.exam.target&&S.sims.some(x=>x.tot>=S.exam.target)]];
+ const W=340,H=180,L=30,Rr=14,T0=14,B=26,mx=Math.max((tg||0)*1.1,...sm.map(x=>x.tot),5),mn=Math.min(0,...sm.map(x=>x.tot)),X=i=>sm.length>1?L+i*(W-L-Rr)/(sm.length-1):(L+W-Rr)/2,Yy=v=>H-B-(v-mn)/(mx-mn)*(H-B-T0),pts=sm.map((x,i)=>`${X(i)},${Yy(x.tot)}`).join(' '),tk=[0,1,2,3].map(i=>mn+(mx-mn)*i/3),sd=d=>fmt(d,{day:'numeric',month:'numeric'});
+ return `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Andamento delle simulazioni">${tk.map(v=>`<line x1="${L}" x2="${W-Rr}" y1="${Yy(v)}" y2="${Yy(v)}" stroke="var(--mut)" stroke-opacity=".25"/><text x="${L-5}" y="${Yy(v)+3}" text-anchor="end">${Math.round(v*10)/10}</text>`).join('')}${tg?`<line x1="${L}" x2="${W-Rr}" y1="${Yy(tg)}" y2="${Yy(tg)}" stroke="var(--ok)" stroke-width="1.5" stroke-dasharray="4 4"/><text x="${W-Rr}" y="${Yy(tg)-4}" text-anchor="end" style="fill:var(--ok)">target ${tg}</text>`:''}<polyline points="${pts}" fill="none" stroke="var(--acc)" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>${sm.map((x,i)=>`<circle cx="${X(i)}" cy="${Yy(x.tot)}" r="5" fill="var(--card)" stroke="var(--acc)" stroke-width="2.5"><title>${esc(sd(x.d))}: ${r2(x.tot)}</title></circle>${sm.length<=8?`<text x="${X(i)}" y="${Yy(x.tot)-10}" text-anchor="middle">${r2(x.tot)}</text>`:''}`).join('')}<text x="${L}" y="${H-8}">${esc(sd(sm[0].d))}</text><text x="${W-Rr}" y="${H-8}" text-anchor="end">${esc(sd(sm[sm.length-1].d))}</text></svg>`}
 
 function render(){
- $('#sd').innerHTML=`<div class="logo"><i>${'<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2c1 4 5 6 5 11a5 5 0 0 1-10 0c0-2 1-3 2-4 0 2 1 3 2 3 0-4-1-6 1-10z"/></svg>'}</i>StudyForge</div>`+NAV.map(([k,n])=>`<button class="ni ${V.tab===k?'on':''}" onclick="go('${k}')">${ico(k)}${n}</button>`).join('')+`<div class="foot">I tuoi dati restano<br>salvati nel browser.</div>`;
+ $('#sd').innerHTML=`<div class="logo"><i><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2c1 4 5 6 5 11a5 5 0 0 1-10 0c0-2 1-3 2-4 0 2 1 3 2 3 0-4-1-6 1-10z"/></svg></i>StudyForge</div>`+NAV.map(([k,n])=>`<button class="ni ${V.tab===k?'on':''}" onclick="go('${k}')">${ico(k)}${n}</button>`).join('')+`<div class="qk"><button class="b" onclick="openSearch()" aria-label="Cerca">${ico('search')}</button><button class="b" onclick="Data.json();render()" aria-label="Backup">${ico('save')}</button><button class="b" onclick="taskForm('')" aria-label="Nuova attività">${ico('plus')}</button></div><div class="foot">I tuoi dati restano<br>salvati nel browser.</div>`;
+ $('#tb').innerHTML=`<div class="logo"><i><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2c1 4 5 6 5 11a5 5 0 0 1-10 0c0-2 1-3 2-4 0 2 1 3 2 3 0-4-1-6 1-10z"/></svg></i>StudyForge</div><button class="ib" onclick="openSearch()" aria-label="Cerca">${ico('search')}</button><button class="ib" onclick="Data.json();render()" aria-label="Backup">${ico('save')}</button>`;
  const bn=[['oggi','Oggi'],['plan','Piano'],['mat','Materie'],['focus','Focus'],['tolc','TOLC']];
  $('#bn').innerHTML=bn.map(([k,n])=>`<button class="${V.tab===k?'on':''}" onclick="go('${k}')">${ico(k)}${n}</button>`).join('')+`<button class="${['prog','set'].includes(V.tab)?'on':''}" onclick="moreM()">${ico('more')}Altro</button>`;
- $('#v').innerHTML=R[V.tab]();Pom.paint();
-}
+ const y=scrollY;
+ try{$('#v').innerHTML=R[V.tab]()}catch(e){console.error(e);$('#v').innerHTML=`<div class="card"><h3>Qualcosa non ha funzionato</h3><p class="dim">Nessun dato è stato perso. Scarica subito un backup, poi ricarica la pagina.</p><div class="acts"><button class="b p" onclick="Data.json()">Scarica backup</button><button class="b" onclick="location.reload()">Ricarica</button><button class="b" onclick="go('oggi')">Torna a Oggi</button></div><pre class="dim" style="white-space:pre-wrap">${esc(e&&e.message)}</pre></div>`}
+ Pom.paint();scrollTo(0,y)}
 function go(t){V.tab=t;V.tolc='';try{history.replaceState(null,'','#'+t)}catch(e){}closeM();render();scrollTo(0,0)}
-function moreM(){openM(`<h3>Altro</h3><div class="mlist"><button class="b" onclick="go('prog')">${ico('prog')} Progressi</button><button class="b" onclick="go('set')">${ico('set')} Impostazioni</button></div>`)}
+function moreM(){openM(`<h3>Altro</h3><div class="mlist"><button class="b" onclick="go('prog')">${ico('prog')} Progressi</button><button class="b" onclick="go('set')">${ico('set')} Impostazioni</button><button class="b" onclick="openSearch()">${ico('search')} Cerca</button><button class="b" onclick="closeM();Data.json()">${ico('save')} Backup</button></div>`)}
 
 /* ===== Azioni: attività ===== */
 function qadd(el,d){const v=el.value.trim();if(!v)return;S.tasks.push(mkTask({title:v,date:d,dur:0}));save();render();setTimeout(()=>{const q=$('#qa')||$('.qa');q&&q.focus()})}
-function tgTask(id){const t=S.tasks.find(x=>x.id===id);if(!t)return;t.done=!t.done;if(t.done){gain(15);if(t.mast)t.topics.forEach(i=>S.topics[i]&&S.topics[i].st<2&&SR.set(i,2));toast('Fatto! +15 XP')}save();render()}
+function tgTask(id){const t=S.tasks.find(x=>x.id===id);if(!t)return;t.done=!t.done;if(t.done){gain(15);if(t.mast)t.topics.forEach(i=>S.topics[i]&&S.topics[i].st<2&&SR.set(i,2));const same=S.tasks.filter(x=>x.date===t.date);if(t.date===today()&&same.length>=2&&same.every(x=>x.done)){toast('Giornata completata! 🎉');confetti()}else toast('Fatto! +15 XP')}save();render()}
 function tgCk(id,i){const t=S.tasks.find(x=>x.id===id);t.check[i].d=!t.check[i].d;save();render()}
 function delTask(id,all){const t=S.tasks.find(x=>x.id===id);if(!t)return;const bak=S.tasks.slice(),rm=all&&t.series?S.tasks.filter(x=>x.series===t.series):[t];S.tasks=S.tasks.filter(x=>!rm.includes(x));save();closeM();render();toast(rm.length>1?rm.length+' attività eliminate':'Attività eliminata',()=>{S.tasks=bak;save();render()})}
-function moveTask(id,d){const t=S.tasks.find(x=>x.id===id);t.date=d;save();closeM();render();toast('Spostata al '+fmt(d,{day:'numeric',month:'short'}))}
+function moveTask(id,d){const t=S.tasks.find(x=>x.id===id);if(!t)return;t.date=d;save();closeM();render();toast('Spostata al '+fmt(d,{day:'numeric',month:'short'}))}
 function dupTask(id){const t=S.tasks.find(x=>x.id===id);S.tasks.push({...structuredClone(t),id:'k'+uid(),done:false,spent:0,series:'',check:t.check.map(x=>({...x,d:false}))});save();closeM();render();toast('Duplicata')}
-function taskMenu(id){const t=S.tasks.find(x=>x.id===id);openM(`<h3>${esc(t.title)}</h3><div class="mlist"><button class="b" onclick="taskForm('${id}')">✎ Modifica</button><button class="b" onclick="moveTask('${id}',today())">→ Sposta a oggi</button><button class="b" onclick="moveTask('${id}',add(t_(\'${id}\'),1))">→ Sposta al giorno dopo</button><button class="b" onclick="moveTask('${id}',add(today(),1))">→ Sposta a domani</button><button class="b" onclick="dupTask('${id}')">⧉ Duplica</button><button class="b" onclick="Pom.link('${id}')">◔ Avvia focus</button><button class="b d" onclick="delTask('${id}')">🗑 Elimina</button>${t.series?`<button class="b d" onclick="if(confirm('Eliminare tutta la serie?'))delTask('${id}',1)">🗑 Elimina tutta la serie</button>`:''}</div>`)}
 const t_=id=>(S.tasks.find(x=>x.id===id)||{}).date||today();
+const nextStudy=d=>{let x=add(d,1),i=0;while(!S.cfg.days.includes(D(x).getDay())&&i++<14)x=add(x,1);return x};
+function shiftTask(id){const t=S.tasks.find(x=>x.id===id);if(!t)return;t.date=nextStudy(t.date&&t.date>=today()?t.date:add(today(),-1));save();closeM();render();toast('Spostata a '+fmt(t.date,{weekday:'short',day:'numeric',month:'short'}))}
+function slideFrom(id){const t=S.tasks.find(x=>x.id===id);if(!t)return;const from=t.date||today(),L=S.tasks.filter(x=>!x.done&&x.date&&x.date>=from);L.forEach(x=>x.date=nextStudy(x.date));const late=S.exam.date?L.filter(x=>x.date>=S.exam.date).length:0;save();closeM();render();toast(L.length+' attività slittate di un giorno'+(late?' · '+late+' oltre la data d\'esame ⚠️':''))}
+function taskMenu(id){const t=S.tasks.find(x=>x.id===id);openM(`<h3>${esc(t.title)}</h3><div class="mlist"><button class="b" onclick="taskForm('${id}')">✎ Modifica</button><button class="b" onclick="moveTask('${id}',today())">→ Sposta a oggi</button><button class="b" onclick="moveTask('${id}',add(today(),1))">→ Sposta a domani</button><button class="b" onclick="shiftTask('${id}')">⏭ Sposta al prossimo giorno di studio</button><button class="b" onclick="slideFrom('${id}')">⇢ Slitta questa e le successive di un giorno</button><button class="b" onclick="dupTask('${id}')">⧉ Duplica</button><button class="b" onclick="Pom.link('${id}')">◔ Avvia focus</button><button class="b d" onclick="delTask('${id}')">🗑 Elimina</button>${t.series?`<button class="b d" onclick="if(confirm('Eliminare tutta la serie?'))delTask('${id}',1)">🗑 Elimina tutta la serie</button>`:''}</div>`)}
 function moveOver(d){S.tasks.forEach(t=>{if(!t.done&&t.date&&t.date<d)t.date=d});save();render();toast('Arretrati spostati a oggi')}
-function spreadOver(){const p=S.tasks.filter(t=>!t.done&&t.date&&t.date<today()).sort((a,b)=>a.date.localeCompare(b.date)),ds=[];let d=today();const lim=S.exam.date&&S.exam.date>today()?S.exam.date:add(today(),30);while(d<=lim&&ds.length<400){if(S.cfg.days.includes(D(d).getDay()))ds.push(d);d=add(d,1)}
- if(!ds.length)return moveOver(today());const per=Math.ceil(p.length/ds.length);p.forEach((t,i)=>t.date=ds[Math.min(ds.length-1,Math.floor(i/per))]);save();render();toast('Arretrati distribuiti nei prossimi giorni di studio')}
+/* ridistribuisce gli arretrati sui prossimi giorni di studio rispettando la capienza giornaliera (ore al giorno) */
+function spreadOver(){const t=today(),p=S.tasks.filter(x=>!x.done&&x.date&&x.date<t).sort((a,b)=>a.date.localeCompare(b.date)),cap=Math.round(S.cfg.hours*60),load={};S.tasks.forEach(x=>{if(!x.done&&x.date>=t)load[x.date]=(load[x.date]||0)+(x.dur||30)});
+ const lim=S.exam.date&&S.exam.date>t?add(S.exam.date,-1):add(t,60),ds=[];for(let d=t;d<=lim&&ds.length<400;d=add(d,1))if(S.cfg.days.includes(D(d).getDay()))ds.push(d);
+ if(!ds.length)return moveOver(t);let i=0;p.forEach(x=>{const du=x.dur||30;while(i<ds.length-1&&(load[ds[i]]||0)>0&&(load[ds[i]]||0)+du>cap)i++;x.date=ds[i];load[ds[i]]=(load[ds[i]]||0)+du});
+ save();closeM();render();toast(p.length+' arretrati distribuiti nei prossimi giorni di studio')}
 function navCal(n){if(V.pm==='month'){const d=D(V.cur);d.setMonth(d.getMonth()+n);V.cur=Y(d);V.sel=V.cur}else V.sel=add(V.sel,7*n);render()}
+function dragT(e,id){try{e.dataTransfer.setData('text/plain',id);e.dataTransfer.effectAllowed='move'}catch(_){}}
+function dropT(e,d){e.preventDefault();const id=e.dataTransfer.getData('text/plain');if(id&&S.tasks.some(x=>x.id===id))moveTask(id,d)}
+function restDay(){const t=today();if(S.rest[t])delete S.rest[t];else{S.rest[t]=1;toast('Giorno di riposo: la tua serie non si interrompe 🌙')}save();render()}
+function quick30(sid){const s=sub(sid);S.tasks.push(mkTask({title:`${s.name} · studio`,date:today(),dur:30,sub:sid,type:'Teoria'}));save();render();toast('Aggiunta a oggi')}
 
 let TM={};
-function taskForm(id,pre){const t=id?S.tasks.find(x=>x.id===id):mkTask({date:V.tab==='plan'||V.tab==='oggi'?(V.tab==='oggi'?today():V.sel):'',...(pre||{})});
+function taskForm(id,pre){const t=id?S.tasks.find(x=>x.id===id):mkTask({date:V.tab==='oggi'?today():V.tab==='plan'?V.sel:'',...(pre||{})});
  TM={id,sel:new Set(t.topics),sub:t.sub,prio:t.prio};
  openM(`<h3>${id?'Modifica attività':'Nuova attività'}</h3>
  <label>Titolo<input id="f_t" value="${esc(t.title)}" placeholder="Cosa devi fare?"></label>
@@ -435,7 +523,7 @@ function taskForm(id,pre){const t=id?S.tasks.find(x=>x.id===id):mkTask({date:V.t
  <label>Note<textarea id="f_n" placeholder="Appunti, link, pagine…">${esc(t.note)}</textarea></label>
  ${id?'':`<div class="row"><label>Ripeti<select id="f_r"><option value="">No</option><option value="d">Ogni giorno</option><option value="wd">Giorni feriali</option><option value="w">Ogni settimana</option></select></label><label>Volte<input type="number" id="f_rn" min="1" max="60" value="4"></label></div>`}
  <div class="acts"><button class="b p" onclick="saveTask()">Salva</button>${id?`<button class="b d" onclick="delTask('${id}')">Elimina</button>`:'<button class="b" onclick="closeM()">Annulla</button>'}</div>`);paintTC();setTimeout(()=>$('#f_t')&&!id&&$('#f_t').focus(),50)}
-const ckRow=x=>`<div class="ckr row" style="align-items:center;margin-top:6px;flex-wrap:nowrap" data-d="${x.d?1:0}"><input value="${esc(x.t)}" placeholder="Passaggio…"><button class="ib sm" style="flex:0 0 28px;min-width:28px" onclick="this.parentNode.remove()">✕</button></div>`;
+const ckRow=x=>`<div class="ckr row" style="align-items:center;margin-top:6px;flex-wrap:nowrap" data-d="${x.d?1:0}"><input value="${esc(x.t)}" placeholder="Passaggio…"><button class="ib sm" style="flex:0 0 28px;min-width:28px" onclick="this.parentNode.remove()" aria-label="Rimuovi">✕</button></div>`;
 function paintTC(){const el=$('#f_tc');if(!el)return;const l=TM.sub?topicsOf(TM.sub):[];el.innerHTML=l.length?l.map(t=>`<span class="ch ${TM.sel.has(t.id)?'on':''}" onclick="TM.sel.has('${t.id}')?TM.sel.delete('${t.id}'):TM.sel.add('${t.id}');this.classList.toggle('on')">${esc(t.t)}</span>`).join(''):'<span class="dim">Scegli una materia per collegare gli argomenti</span>'}
 function saveTask(){const g=i=>$('#'+i),title=g('f_t').value.trim();if(!title)return toast('Dai un titolo all\'attività');
  const base={title,date:g('f_d').value,time:g('f_h').value,dur:Math.max(0,+g('f_m').value||0),sub:g('f_s').value,type:g('f_y').value.trim(),prio:TM.prio,note:g('f_n').value,mast:g('f_ms').checked,topics:[...TM.sel].filter(i=>S.topics[i]),check:$$('#f_ck .ckr').map(r=>({t:r.querySelector('input').value.trim(),d:r.dataset.d==='1'})).filter(x=>x.t)};
@@ -445,48 +533,57 @@ function saveTask(){const g=i=>$('#'+i),title=g('f_t').value.trim();if(!title)re
   else S.tasks.push(mkTask(base))}
  save();closeM();render();toast('Salvata')}
 
-/* ===== Strumenti piano (generatore automatico opzionale) ===== */
-function planTools(){const auto=S.tasks.filter(t=>t.auto&&!t.done).length;openM(`<h3>Strumenti del piano</h3><p class="dim">Nessun obbligo: puoi costruire tutto a mano. Questi strumenti servono solo se ti aiutano.</p><div class="mlist"><button class="b" onclick="autoForm()">⚡ Genera piano automatico dalle materie</button><button class="b" onclick="spreadOver();closeM()">⏳ Distribuisci le attività arretrate</button><button class="b" onclick="eventForm('')">⚑ Aggiungi data importante</button><button class="b d" onclick="clearTasks('auto')">Elimina le attività automatiche non fatte (${auto})</button><button class="b d" onclick="clearTasks('done')">Elimina le attività completate</button></div>`)}
+/* ===== ScheduleEngine: generatore del piano (opzionale) ===== */
+function planTools(){const auto=S.tasks.filter(t=>t.auto&&!t.done).length;openM(`<h3>Strumenti del piano</h3><p class="dim">Nessun obbligo: puoi costruire tutto a mano. Questi strumenti servono solo se ti aiutano.</p><div class="mlist"><button class="b" onclick="autoForm()">⚡ Genera piano automatico dalle materie</button><button class="b" onclick="spreadOver();closeM()">⏳ Distribuisci le attività arretrate</button><button class="b" onclick="eventForm('')">⚑ Aggiungi data importante</button><button class="b" onclick="Data.csv()">⬇ Esporta il piano in .csv (Excel)</button><button class="b d" onclick="clearTasks('auto')">Elimina le attività automatiche non fatte (${auto})</button><button class="b d" onclick="clearTasks('done')">Elimina le attività completate</button></div>`)}
 function clearTasks(k){const f=k==='auto'?t=>t.auto&&!t.done:t=>t.done,n=S.tasks.filter(f).length;if(!n)return toast('Niente da eliminare');if(!confirm('Eliminare '+n+' attività?'))return;const bak=S.tasks.slice();S.tasks=S.tasks.filter(t=>!f(t));save();closeM();render();toast(n+' eliminate',()=>{S.tasks=bak;save();render()})}
-function autoForm(){const e=S.exam;openM(`<h3>Piano automatico</h3><p class="dim">Distribuisce gli argomenti delle tue materie (in base a peso e difficoltà) sui giorni scelti. Le tue attività manuali e quelle già completate non vengono toccate. Potrai modificare ogni attività dopo.</p>
- <div class="row"><label>Da<input type="date" id="a_f" value="${e.start&&e.start>today()?e.start:today()}"></label><label>Fino a<input type="date" id="a_t" value="${e.date}"></label></div>
- <label>Giorni di studio</label><div class="chips" id="a_d">${[1,2,3,4,5,6,0].map(d=>`<span class="ch ${S.cfg.days.includes(d)?'on':''}" data-d="${d}" onclick="this.classList.toggle('on')">${DOW[d]}</span>`).join('')}</div>
- <div class="row"><label>Minuti per sessione<input type="number" id="a_m" min="10" step="5" value="${Math.round(S.cfg.hours*60)}"></label><label>Giorni finali per simulazioni/ripasso<input type="number" id="a_n" min="0" value="${e.date?12:0}"></label></div>
- <label class="sw"><input type="checkbox" id="a_r" checked><span></span>Sostituisci prima le attività automatiche future non completate</label>
- <div class="acts"><button class="b p" onclick="runAuto()">Genera</button><button class="b" onclick="closeM()">Annulla</button></div>`)}
-function runAuto(){const from=$('#a_f').value,to=$('#a_t').value,mins=+$('#a_m').value||60,fin=Math.max(0,+$('#a_n').value||0),rep=$('#a_r').checked,ds=new Set($$('#a_d .ch.on').map(c=>+c.dataset.d));
- if(!from||!to||D(to)<=D(from))return toast('Controlla le date');if(!ds.size)return toast('Scegli almeno un giorno');
- const act=S.subs.filter(s=>topicsOf(s.id).length);if(!act.length)return toast('Servono materie con argomenti');
- const days=[];for(let d=from;d<to;d=add(d,1))if(ds.has(D(d).getDay()))days.push(d);if(!days.length)return toast('Nessun giorno disponibile');
- let main=fin?days.filter(d=>d<=add(to,-fin)):days;if(!main.length)main=days.slice(0,Math.max(1,Math.ceil(days.length*.8)));const fd=days.filter(d=>!main.includes(d));
- const wt=act.map(s=>Math.max(.1,s.w*(1+.15*(s.diff-3)))),sum=wt.reduce((a,b)=>a+b,0),q=wt.map(w=>w/sum*main.length),base=q.map(Math.floor);let left=main.length-base.reduce((a,b)=>a+b,0);
+function genPlan(o){
+ const act=S.subs.filter(s=>topicsOf(s.id).length);if(!act.length)return{err:'Servono materie con argomenti'};
+ const days=[];for(let d=o.from;d<o.to;d=add(d,1))if(o.ds.has(D(d).getDay()))days.push(d);if(!days.length)return{err:'Nessun giorno disponibile in questo intervallo'};
+ let main=o.fin?days.filter(d=>d<=add(o.to,-o.fin)):days;if(!main.length)main=days.slice(0,Math.max(1,Math.ceil(days.length*.8)));
+ const fd=days.filter(d=>!main.includes(d)),slots=[];main.forEach(d=>{for(let k=0;k<o.per;k++)slots.push(d)});
+ const wt=act.map(s=>Math.max(.1,s.w*(1+.15*(s.diff-3)))),sum=wt.reduce((a,b)=>a+b,0),q=wt.map(w=>w/sum*slots.length),base=q.map(Math.floor);let left=slots.length-base.reduce((a,b)=>a+b,0);
  q.map((v,i)=>[v-base[i],i]).sort((a,b)=>b[0]-a[0]).slice(0,left).forEach(([,i])=>base[i]++);
- const tot=base.slice(),used=act.map(()=>0),out=[];
- main.forEach(d=>{let bi=-1,br=-1;act.forEach((s,i)=>{const r=base[i]>used[i]?(base[i]-used[i])/tot[i]:-1;if(r>br){br=r;bi=i}});if(bi<0)return;
-  const s=act[bi],T=topicsOf(s.id),i=used[bi]++,a=Math.floor(i*T.length/tot[bi]),b=Math.floor((i+1)*T.length/tot[bi]),type=i<tot[bi]*.6?'Teoria':'Esercizi';
-  out.push(mkTask({title:`${s.name} · ${type}`,date:d,sub:s.id,topics:T.slice(a,b).map(x=>x.id),dur:mins,type,auto:true,mast:true}))});
- fd.forEach((d,i)=>{const sim=i%2===0,gaps=Object.values(S.topics).filter(t=>t.st<2).sort((a,b)=>a.st-b.st).slice(0,6);out.push(mkTask({title:sim?'Simulazione completa':'Ripasso lacune',date:d,dur:mins,type:sim?'Simulazione':'Ripasso',topics:sim?[]:gaps.map(x=>x.id),auto:true}))});
- if(rep)S.tasks=S.tasks.filter(t=>!(t.auto&&!t.done&&t.date>=from));S.tasks.push(...out);save();closeM();V.sel=from;V.cur=from.slice(0,8)+'01';go('plan');toast(out.length+' attività create')}
+ const tot=base.slice(),used=act.map(()=>0),out=[],prev={},pick=(arr,i,n)=>{const a=Math.floor(i*arr.length/n),b=Math.floor((i+1)*arr.length/n);return b>a?arr.slice(a,b):[arr[Math.min(arr.length-1,a)]]};
+ slots.forEach(d=>{let bi=-1,br=-1;act.forEach((s,i)=>{if(base[i]<=used[i])return;let r=(base[i]-used[i])/tot[i];if(prev[d]===i)r-=.5;if(r>br){br=r;bi=i}});if(bi<0)return;prev[d]=bi;
+  const s=act[bi],al=topicsOf(s.id),i=used[bi]++,th=Math.max(1,Math.round(tot[bi]*.65)),pend=al.filter(x=>x.st<2);let type,list;
+  if(i<th&&pend.length){type='Teoria';list=pick(pend,i,th)}else{type='Esercizi';list=pick(al,Math.max(0,i-th),Math.max(1,tot[bi]-th))}
+  out.push(mkTask({title:`${s.name} · ${type}`,date:d,sub:s.id,topics:list.map(x=>x.id),dur:o.mins,type,auto:true,mast:type==='Teoria'}))});
+ fd.forEach((d,i)=>{const sim=i%2===0,gaps=Object.values(S.topics).filter(t=>t.st<2).sort((a,b)=>a.st-b.st).slice(0,6);out.push(mkTask({title:sim?'Simulazione completa':'Ripasso lacune',date:d,dur:o.mins,type:sim?'Simulazione':'Ripasso',topics:sim?[]:gaps.map(x=>x.id),auto:true}))});
+ return{out,main:main.length,fd:fd.length,days:days.length}}
+function autoForm(){const e=S.exam;openM(`<h3>Piano automatico</h3><p class="dim">Distribuisce gli argomenti (in base a peso e difficoltà): prima la teoria, poi gli esercizi di ripasso su tutti gli argomenti, e negli ultimi giorni simulazioni e ripasso lacune. Le tue attività manuali e quelle completate non vengono toccate; potrai modificare tutto dopo.</p>
+ <div oninput="autoPv()" onchange="autoPv()"><div class="row"><label>Da<input type="date" id="a_f" value="${e.start&&e.start>today()?e.start:today()}"></label><label>Fino a (esame escluso)<input type="date" id="a_t" value="${e.date}"></label></div>
+ <label>Giorni di studio</label><div class="chips" id="a_d">${[1,2,3,4,5,6,0].map(d=>`<span class="ch ${S.cfg.days.includes(d)?'on':''}" data-d="${d}" onclick="this.classList.toggle('on');autoPv()">${DOW[d]}</span>`).join('')}</div>
+ <div class="row"><label>Minuti per sessione<input type="number" id="a_m" min="10" step="5" value="60"></label><label>Sessioni al giorno<input type="number" id="a_p" min="1" max="6" value="${Math.max(1,Math.round(S.cfg.hours))}"></label><label>Giorni finali per simulazioni<input type="number" id="a_n" min="0" value="${e.date?12:0}"></label></div></div>
+ <label class="sw"><input type="checkbox" id="a_r" checked><span></span>Sostituisci prima le attività automatiche future non completate</label>
+ <p class="dim" id="a_pv" style="margin-top:12px"></p>
+ <div class="acts"><button class="b p" onclick="runAuto()">Genera</button><button class="b" onclick="closeM()">Annulla</button></div>`);autoPv()}
+function readAuto(){return{from:$('#a_f').value,to:$('#a_t').value,ds:new Set($$('#a_d .ch.on').map(c=>+c.dataset.d)),mins:Math.max(10,+$('#a_m').value||60),per:Math.min(6,Math.max(1,+$('#a_p').value||1)),fin:Math.max(0,+$('#a_n').value||0)}}
+function autoPv(){const el=$('#a_pv');if(!el)return;const o=readAuto();if(!o.from||!o.to||D(o.to)<=D(o.from)){el.textContent='Imposta un intervallo di date valido.';return}const r=genPlan(o);el.innerHTML=r.err?esc(r.err):`<b>${r.out.length}</b> attività su ${r.days} giorni di studio · ${r.main} di studio + ${r.fd} finali per simulazioni e ripasso (${Math.round(r.fd/r.days*100)}% del calendario) · circa ${esc(fh(r.out.reduce((a,x)=>a+x.dur,0)))} in tutto.`}
+function runAuto(){const o=readAuto();if(!o.from||!o.to||D(o.to)<=D(o.from))return toast('Controlla le date');if(!o.ds.size)return toast('Scegli almeno un giorno');
+ const r=genPlan(o);if(r.err)return toast(r.err);Snap.take('Prima del piano automatico');
+ if($('#a_r').checked)S.tasks=S.tasks.filter(t=>!(t.auto&&!t.done&&t.date>=o.from));S.tasks.push(...r.out);save();closeM();V.sel=o.from;V.cur=o.from.slice(0,8)+'01';go('plan');toast(r.out.length+' attività create (annulla da Impostazioni → copie automatiche)')}
+const ScheduleEngine={gen:genPlan,shift:shiftTask,slide:slideFrom,spread:spreadOver};
 
 /* ===== Materie & argomenti ===== */
-function cyc(id){SR.set(id,(S.topics[id].st+1)%3);render()}
-function revDone(id,i){S.topics[id].rev[i].done=true;gain(5);save();render()}
-function addT(sid,v){if(!v.trim())return;const n=addTopics(sid,v);V.open[sid]=true;render();setTimeout(()=>{const e=$('#ad_'+sid);e&&e.focus()});if(!n)toast('Già presente')}
-function copyP(id){const t=S.topics[id],p=`Sei un tutor esperto per ${S.exam.name||'il mio esame'}. Spiegami "${t.t}" (${sub(t.sub)?.name||''}): prima una spiegazione chiara con esempi e formule chiave, poi crea 5 quiz a risposta multipla (4 opzioni, una sola corretta), mostrando le soluzioni commentate solo dopo che ho risposto.`;
- (navigator.clipboard?navigator.clipboard.writeText(p):Promise.reject()).then(()=>toast('Prompt copiato ✨'),()=>prompt('Copia il prompt:',p))}
+function cyc(id){const n=(S.topics[id].st+1)%3;SR.set(id,n);if(n===2)toast('Padroneggiato! Ripassi pianificati 🧠');render()}
+function revDone(id,i,mode){SR.done(id,i,mode);render();if(mode==='hard')toast('Lo rivedrai tra 2 giorni');else if(mode==='later')toast('Rimandato a domani')}
+function addT(sid,v){if(!v.trim())return;const n=addTopics(sid,v);V.open[sid]=true;render();setTimeout(()=>{const e=$('#ad_'+sid);e&&e.focus()});toast(n?n+(n===1?' argomento aggiunto':' argomenti aggiunti'):'Già presente')}
+function bulk(sid,st){const l=topicsOf(sid);if(!l.length)return;if(!confirm((st===2?'Segnare tutti gli argomenti come padroneggiati?':'Azzerare lo stato di tutti gli argomenti?')))return;l.forEach(x=>SR.set(x.id,st));render()}
+function copyP(id){const t=S.topics[id],p=`Sei un tutor esperto per ${S.exam.name||'il mio esame'}. Spiegami "${t.t}" (${sub(t.sub)?.name||''}): prima una spiegazione chiara e progressiva con esempi svolti e formule/regole chiave, poi crea 5 quiz a risposta multipla (4 opzioni, una sola corretta) di difficoltà crescente. Mostra le soluzioni commentate solo dopo che ho risposto.`;
+ (navigator.clipboard?navigator.clipboard.writeText(p):Promise.reject()).then(()=>toast('Prompt copiato ✨ Incollalo nella tua chat AI'),()=>prompt('Copia il prompt:',p))}
 function subForm(id){const s=id?sub(id):{name:'',emo:'',color:PAL[S.subs.length%PAL.length],w:20,diff:3};
  openM(`<h3>${id?'Modifica materia':'Nuova materia'}</h3><div class="row"><label style="flex:0 0 70px">Emoji<input id="m_e" maxlength="2" value="${esc(s.emo||'')}" placeholder="📘"></label><label style="flex:3">Nome<input id="m_n" value="${esc(s.name)}" placeholder="es. Matematica"></label><label style="flex:0 0 60px">Colore<input type="color" id="m_c" value="${s.color}"></label></div>
  <div class="row"><label>Peso (importanza)<input type="number" id="m_w" min="1" value="${s.w}"></label><label>Difficoltà (1-5)<input type="number" id="m_d" min="1" max="5" value="${s.diff}"></label></div>
- <label>Aggiungi argomenti (uno per riga, oppure con ; - •)<textarea id="m_s" rows="4" placeholder="Equazioni\nDisequazioni\nLogaritmi"></textarea></label>
+ <label>Aggiungi argomenti (uno per riga, oppure con ; - •)<textarea id="m_s" rows="4" placeholder="Equazioni\nDisequazioni\nLogaritmi" oninput="$('#m_c2').textContent=SyllabusParser.parse(this.value).length+' argomenti riconosciuti'"></textarea></label><div class="dim" id="m_c2"></div>
  <div class="acts"><button class="b p" onclick="saveSub('${id||''}')">Salva</button>${id?`<button class="b d" onclick="delSub('${id}')">Elimina</button>`:'<button class="b" onclick="closeM()">Annulla</button>'}</div>`)}
 function saveSub(id){const n=$('#m_n').value.trim();if(!n)return toast('Serve un nome');const o={name:n,emo:$('#m_e').value.trim(),color:$('#m_c').value,w:Math.max(1,+$('#m_w').value||1),diff:Math.min(5,Math.max(1,+$('#m_d').value||3))};
  let s;if(id){s=sub(id);Object.assign(s,o)}else{s={id:'m'+uid(),...o};S.subs.push(s)}addTopics(s.id,$('#m_s').value);V.open[s.id]=true;save();closeM();render()}
-function delSub(id){const n=topicsOf(id).length;if(!confirm(`Eliminare la materia e i suoi ${n} argomenti? (Le attività restano, senza materia.)`))return;Snap.take('Prima di eliminare materia');Object.values(S.topics).forEach(t=>{if(t.sub===id)delete S.topics[t.id]});S.tasks.forEach(t=>{if(t.sub===id){t.sub='';t.topics=[]}});S.subs=S.subs.filter(s=>s.id!==id);save();closeM();render()}
+function delSub(id){const n=topicsOf(id).length;if(!confirm(`Eliminare la materia e i suoi ${n} argomenti? (Le attività restano, senza materia.)`))return;Snap.take('Prima di eliminare una materia');Object.values(S.topics).forEach(t=>{if(t.sub===id)delete S.topics[t.id]});S.tasks.forEach(t=>{if(t.sub===id){t.sub='';t.topics=[]}});S.subs=S.subs.filter(s=>s.id!==id);save();closeM();render()}
 function topicForm(id){const t=S.topics[id];TM={tid:id,st:t.st};openM(`<h3>Argomento</h3><label>Nome<input id="p_n" value="${esc(t.t)}"></label><label>Materia<select id="p_s">${S.subs.map(s=>`<option value="${s.id}" ${t.sub===s.id?'selected':''}>${esc(s.name)}</option>`).join('')}</select></label>
- <label>Stato</label><div class="chips" id="p_st">${['Da fare','In corso','Padroneggiato'].map((n,i)=>`<span class="ch ${t.st===i?'on':''}" onclick="TM.st=${i};$$('#p_st .ch').forEach((c,j)=>c.classList.toggle('on',j===${i}))">${n}</span>`).join('')}</div>
- ${t.rev.length?`<p class="dim">Ripassi: ${t.rev.map(r=>(r.done?'✓ ':'')+fmt(r.d,{day:'numeric',month:'short'})).join(' · ')}</p>`:''}
- <label>Note e formule<textarea id="p_o" rows="5">${esc(t.note)}</textarea></label>
- <div class="acts"><button class="b p" onclick="saveTopic()">Salva</button><button class="b" onclick="topicTask('${id}')">＋ Attività</button><button class="b d" onclick="if(confirm('Eliminare l\\'argomento?')){delete S.topics['${id}'];S.tasks.forEach(k=>k.topics=k.topics.filter(x=>x!=='${id}'));save();closeM();render()}">Elimina</button></div>`)}
+ <label>Stato</label><div class="chips" id="p_st">${['🔴 Da fare','🟡 In ripasso','🟢 Padroneggiato'].map((n,i)=>`<span class="ch ${t.st===i?'on':''}" onclick="TM.st=${i};$$('#p_st .ch').forEach((c,j)=>c.classList.toggle('on',j===${i}))">${n}</span>`).join('')}</div>
+ ${t.rev.length?`<p class="dim">Ripassi: ${t.rev.map(r=>(r.done?'✓ ':'')+esc(fmt(r.d,{day:'numeric',month:'short'}))).join(' · ')}</p>`:''}
+ <label>Note e formule (si salvano da sole)<textarea id="p_o" rows="6" oninput="S.topics['${id}'].note=this.value;saveSoft()">${esc(t.note)}</textarea></label>
+ <div class="acts"><button class="b p" onclick="saveTopic()">Salva</button><button class="b" onclick="copyP('${id}')">✨ Prompt AI</button><button class="b" onclick="topicTask('${id}')">＋ Attività</button><button class="b d" onclick="if(confirm('Eliminare l\\'argomento?')){delete S.topics['${id}'];S.tasks.forEach(k=>k.topics=k.topics.filter(x=>x!=='${id}'));save();closeM();render()}">Elimina</button></div>`)}
 function topicTask(id){const t=S.topics[id];closeM();taskForm('',{sub:t.sub,topics:[id],title:t.t,date:V.tab==='oggi'?today():V.sel})}
 function saveTopic(){const t=S.topics[TM.tid];t.t=$('#p_n').value.trim()||t.t;t.sub=$('#p_s').value;t.note=$('#p_o').value;if(TM.st!==t.st)SR.set(t.id,TM.st);save();closeM();render()}
 
@@ -496,82 +593,110 @@ function eventForm(id){const e=id?S.events.find(x=>x.id===id):{name:'',date:'',t
 function saveEvent(id){const n=$('#e_n').value.trim(),d=$('#e_d').value;if(!n||!d)return toast('Nome e data');const o={name:n,date:d,tolc:$('#e_t').value};if(id)Object.assign(S.events.find(x=>x.id===id),o);else S.events.push({id:'e'+uid(),...o});save();closeM();render()}
 
 /* ===== TOLC ===== */
-function openTolc(id){V.tolc=id;render();scrollTo(0,0)}
+function openTolc(id){V.tab='tolc';V.tolc=id;render();scrollTo(0,0)}
 function tolcDetail(id){const t=tolcById(id);if(!t){V.tolc='';return R.tolc()}
  const sm=S.sims.filter(x=>x.tolc===id),secs=secsOf(t),best=sm.length?Math.max(...sm.map(x=>x.tot)):null,avg=sm.length?sm.reduce((a,x)=>a+x.tot,0)/sm.length:null,main=secs.filter(s=>!s.en);
- const perf=s=>{const L=sm.map(x=>(x.secs||[]).find(y=>y.n===s.n&&y.q)).filter(Boolean);return L.length?L.reduce((a,y)=>a+Math.max(0,y.v)/y.q,0)/L.length:null};
+ const perf=s=>{const L=sm.map(x=>(x.secs||[]).find(y=>y.n===s.n&&y.q&&y.v!==undefined)).filter(Boolean);return L.length?L.reduce((a,y)=>a+Math.max(0,y.v)/y.q,0)/L.length:null};
  return `<div class="head"><div><button class="b sm g" onclick="V.tolc='';render()">‹ Tutti i TOLC</button><div class="eyebrow" style="margin-top:10px">${esc(t.area||'')}</div><h1>${esc(t.code)}</h1><p>${esc(t.name)}</p></div></div>
  <div class="card"><div class="stats" style="grid-template-columns:repeat(4,1fr)"><div><b>${main.reduce((a,s)=>a+s.q,0)}</b><span>quesiti</span></div><div><b>${main.reduce((a,s)=>a+s.m,0)}'</b><span>minuti</span></div><div><b>${best!==null?r2(best):'–'}</b><span>migliore</span></div><div><b>${avg!==null?r2(avg):'–'}</b><span>media</span></div></div>
- <div class="acts"><button class="b p" onclick="runStart('${id}')">▶ Simulazione a tempo</button><button class="b" onclick="simForm('${id}')">Registra risultato</button></div><div class="acts" style="margin-top:8px"><button class="b" onclick="useTolc('${id}')">🎯 Usa come obiettivo e crea le materie</button><button class="b" onclick="tolcForm('${id}')">✎ Personalizza</button></div>
- ${t.est?`<p class="dim" style="margin-top:12px">Le sezioni sono quelle ufficiali CISIA; numero di quesiti e minuti sono <b>indicativi</b>: verificali nella pagina ufficiale del tuo TOLC e correggili con “Personalizza”. Punteggio: +1 corretta, −0,25 errata, 0 omessa (inglese: solo +1).</p>`:`<p class="dim" style="margin-top:12px">Punteggio: +1 corretta, −0,25 errata, 0 omessa (inglese: solo +1, non conta nel totale).</p>`}
- <p class="dim" style="margin:6px 0 0"><a href="https://www.cisiaonline.it/area-tematica-tolc-cisia/home-tolc-generale/" target="_blank" rel="noopener" style="color:var(--at)">Sito ufficiale CISIA ↗</a></p></div>
+ <div class="acts"><button class="b p" onclick="runStart('${id}')">▶ Simulazione a tempo</button><button class="b" onclick="runStart('${id}',1)">▶ Allenamento libero</button><button class="b" onclick="simForm('${id}')">Registra risultato</button></div><div class="acts" style="margin-top:8px"><button class="b" onclick="useTolc('${id}')">🎯 Usa come obiettivo e crea le materie</button><button class="b" onclick="tolcForm('${id}')">✎ Personalizza</button></div>
+ ${t.est?`<p class="dim" style="margin-top:12px">Le sezioni sono quelle ufficiali CISIA; numero di quesiti e minuti sono <b>indicativi</b>: verificali nella pagina ufficiale del tuo TOLC e correggili con “Personalizza”.</p>`:''}
+ <p class="dim" style="margin:6px 0 0">Punteggio predefinito: +${S.cfg.score.c} corretta, −${S.cfg.score.w} errata, 0 omessa (inglese: solo corrette). Modificabile in Impostazioni e in ogni simulazione.</p>
+ <p class="dim" style="margin:6px 0 0"><a href="https://www.cisiaonline.it/area-tematica-tolc-cisia/home-tolc-generale/" target="_blank" rel="noopener">Sito ufficiale CISIA ↗</a></p></div>
  <div class="card"><h3>Sezioni</h3>${secs.map(s=>{const p=perf(s);return `<div class="srow"><span><b>${esc(s.n)}</b>${s.en?' <span class="pill">non nel totale</span>':''}</span><span class="dim mono">${s.q} q · ${s.m} min</span>${p!==null?`<div class="pb" style="--c:${p>.7?'var(--ok)':p>.45?'var(--warn)':'var(--bad)'}"><i style="width:${Math.round(p*100)}%"></i></div>`:''}</div>`}).join('')}${sm.length?'<p class="dim" style="margin:10px 0 0">Le barre mostrano la resa media nelle tue simulazioni: parti dalle sezioni più basse.</p>':''}</div>
  <div class="card"><h3>Andamento</h3>${chart(sm,S.exam.tolc===id?S.exam.target:0)}</div>
  ${sm.slice().reverse().map(simCard).join('')}`}
-function useTolc(id){const t=tolcById(id),secs=secsOf(t),tq=secs.filter(s=>!s.en).reduce((a,s)=>a+s.q,0)||1;let ns=0,nt=0;
- secs.forEach(s=>{let b=S.subs.find(x=>x.name.toLowerCase()===s.n.toLowerCase());if(!b){b={id:'m'+uid(),name:s.n,emo:'',color:PAL[S.subs.length%PAL.length],w:s.en?10:Math.max(1,Math.round(s.q/tq*100)),diff:3};S.subs.push(b);ns++}nt+=addTopics(b.id,s.syl||'')});
- S.exam.name=t.code;S.exam.tolc=id;save();render();toast(`Obiettivo ${t.code}: ${ns} materie e ${nt} argomenti aggiunti`)}
+function importTolc(id){const t=tolcById(id),secs=secsOf(t),tq=secs.filter(s=>!s.en).reduce((a,s)=>a+s.q,0)||1;let ns=0,nt=0;
+ secs.forEach(s=>{let b=S.subs.find(x=>x.name.toLowerCase()===s.n.toLowerCase());if(!b){b={id:'m'+uid(),name:s.n,emo:'',color:PAL[S.subs.length%PAL.length],w:s.en?10:Math.max(1,Math.round(s.q/tq*100)),diff:3};S.subs.push(b);ns++}nt+=addTopics(b.id,s.syl||'')});return{ns,nt,t}}
+function useTolc(id){const r=importTolc(id);S.exam.name=r.t.code;S.exam.tolc=id;save();render();toast(`Obiettivo ${r.t.code}: ${r.ns} materie e ${r.nt} argomenti aggiunti`)}
 function tolcForm(id){const cu=id?S.tcustom.find(x=>x.id===id):null,t=id?tolcById(id):{code:'',name:'',area:'',eng:0,secs:[{n:'',q:10,m:30,syl:''}]};TM={tolc:id,cu:!id||!!cu};
  openM(`<h3>${id?'Personalizza '+esc(t.code):'Nuovo TOLC personalizzato'}</h3>${TM.cu?`<div class="row"><label>Sigla<input id="c_c" value="${esc(t.code)}" placeholder="es. TOLC-X"></label><label>Nome<input id="c_n" value="${esc(t.name)}"></label></div><label class="sw"><input type="checkbox" id="c_e" ${t.eng?'checked':''}><span></span>Include sezione di inglese (30 q, 15 min, fuori dal totale)</label>`:''}
  <label>Sezioni (nome · quesiti · minuti · argomenti)</label><div id="c_s">${t.secs.map(secRow).join('')}</div><button class="b sm g" onclick="$('#c_s').insertAdjacentHTML('beforeend',secRow({n:'',q:10,m:20,syl:''}))">＋ Sezione</button>
  <div class="acts"><button class="b p" onclick="saveTolc()">Salva</button>${id&&!cu&&S.tmods[id]?`<button class="b" onclick="delete S.tmods['${id}'];save();closeM();render()">Ripristina originale</button>`:''}${cu?`<button class="b d" onclick="if(confirm('Eliminare questo TOLC?')){S.tcustom=S.tcustom.filter(x=>x.id!=='${id}');V.tolc='';save();closeM();render()}">Elimina</button>`:''}</div>`)}
-const secRow=s=>`<div class="sr"><input class="sn" value="${esc(s.n)}" placeholder="Sezione"><input class="sq" type="number" min="0" value="${s.q}"><input class="sm" type="number" min="0" value="${s.m}"><button class="ib sm" onclick="this.parentNode.remove()">✕</button><textarea class="ss" placeholder="Argomenti (uno per riga o separati da ;)">${esc((s.syl||'').split(';').map(x=>x.trim()).join('\n'))}</textarea></div>`;
+const secRow=s=>`<div class="sr"><input class="sn" value="${esc(s.n)}" placeholder="Sezione"><input class="sq" type="number" min="0" value="${s.q}"><input class="sm" type="number" min="0" value="${s.m}"><button class="ib sm" onclick="this.parentNode.remove()" aria-label="Rimuovi">✕</button><textarea class="ss" placeholder="Argomenti (uno per riga o separati da ;)">${esc((s.syl||'').split(';').map(x=>x.trim()).join('\n'))}</textarea></div>`;
 function saveTolc(){const secs=$$('#c_s .sr').map(r=>({n:r.querySelector('.sn').value.trim(),q:+r.querySelector('.sq').value||0,m:+r.querySelector('.sm').value||0,syl:SyllabusParser.parse(r.querySelector('.ss').value).join('; ')})).filter(s=>s.n);if(!secs.length)return toast('Aggiungi almeno una sezione');
  if(TM.cu){const code=$('#c_c').value.trim();if(!code)return toast('Serve una sigla');const o={code,name:$('#c_n').value.trim(),area:'Personalizzato',eng:$('#c_e').checked?1:0,secs};if(TM.tolc)Object.assign(S.tcustom.find(x=>x.id===TM.tolc),o);else S.tcustom.push({id:'c'+uid(),...o})}
  else S.tmods[TM.tolc]=secs;save();closeM();render()}
 
-/* simulazioni */
-function simForm(id,pre){const t=tolcById(id),secs=secsOf(t);TM={sim:id};pre=pre||{};
- openM(`<h3>Risultato ${esc(t.code)}</h3><label>Data<input type="date" id="s_d" value="${today()}"></label><p class="dim">Inserisci corrette ed errate per sezione: le omesse e il punteggio si calcolano da soli.</p>
- ${secs.map((s,i)=>`<div class="srow" style="grid-template-columns:1fr 70px 70px 60px;align-items:center"><span><b>${esc(s.n)}</b><br><span class="dim">${s.q} quesiti${pre.used&&pre.used[i]!=null?' · usati '+pre.used[i]+'′':''}</span></span><input type="number" min="0" max="${s.q}" class="sc" data-i="${i}" placeholder="✓" oninput="simCalc()"><input type="number" min="0" max="${s.q}" class="sw_" data-i="${i}" placeholder="✗" oninput="simCalc()" ${s.en?'disabled':''}><b class="mono sp_" data-i="${i}">0</b></div>`).join('')}
- <div class="sp" style="margin-top:12px"><b>Totale</b><b class="fd" style="font-size:1.8rem" id="s_tot">0</b></div>
- <label>Note sugli errori<textarea id="s_n" placeholder="Cosa ripassare?"></textarea></label>
- <div class="acts"><button class="b p" onclick="saveSim('${id}')">Salva</button><button class="b" onclick="closeM()">Annulla</button></div>`)}
-function simCalc(){const t=tolcById(TM.sim),secs=secsOf(t);let tot=0;secs.forEach((s,i)=>{const c=+$(`.sc[data-i="${i}"]`).value||0,w=s.en?0:+$(`.sw_[data-i="${i}"]`).value||0,v=c-.25*w;$(`.sp_[data-i="${i}"]`).textContent=r2(v);if(!s.en)tot+=v});$('#s_tot').textContent=r2(tot)}
-function saveSim(id){const t=tolcById(id),secs=secsOf(t);let tot=0,any=false;const out=secs.map((s,i)=>{const ce=$(`.sc[data-i="${i}"]`),we=$(`.sw_[data-i="${i}"]`),c=+ce.value||0,w=s.en?0:+we.value||0;if(ce.value!==''||we.value!=='')any=true;const v=c-.25*w;if(!s.en)tot+=v;return{n:s.n,q:s.q,c,w,v:r2(v),en:s.en?1:0}});
- if(!any)return toast('Inserisci almeno una sezione');S.sims.push({id:'m'+uid(),d:$('#s_d').value||today(),tot:r2(tot),tolc:id,secs:out,note:$('#s_n').value});S.sims.sort((a,b)=>a.d.localeCompare(b.d));gain(30);save();closeM();render();toast('Simulazione salvata +30 XP')}
+/* ===== Simulazioni: inserimento libero e modificabile ===== */
+function calcSim(rows,pc,pw){let tot=0;const out=rows.map(r=>{const c=+r.c||0,w=r.en?0:+r.w||0,v=(r.m!==undefined&&r.m!==''&&r.m!==null)?+r.m:r2(c*pc-w*pw);if(!r.en)tot+=v;return{...r,v}});return{rows:out,tot:r2(tot)}}
+const simRow=(s,e)=>`<div class="sr2" data-en="${s.en?1:0}" style="display:grid;grid-template-columns:1fr 46px 50px 50px 62px 28px;gap:6px;margin-top:8px;align-items:center"><input class="sn" value="${esc(s.n)}" placeholder="Sezione"><input class="sq" type="number" min="0" placeholder="q" value="${s.q||''}"><input class="sc" type="number" min="0" placeholder="✓" value="${e&&e.c!==undefined?e.c:''}" oninput="simCalc()"><input class="sw_" type="number" min="0" placeholder="✗" value="${e&&e.w!==undefined?e.w:''}" oninput="simCalc()" ${s.en?'disabled':''}><input class="sp_" type="number" step="0.25" placeholder="pt" value="${e&&e.v!==undefined&&(e.c===undefined)?e.v:''}" ${e&&e.c===undefined&&e.v!==undefined?'data-m="1"':''} oninput="this.dataset.m=1;simCalc()"><button class="ib sm" onclick="this.parentNode.remove();simCalc()" aria-label="Rimuovi">✕</button></div>`;
+function simForm(id,o){o=o||{};const e=o.eid?S.sims.find(x=>x.id===o.eid):null,t=id?tolcById(id):null;
+ let secs=t?secsOf(t).map(s=>({n:s.n,q:s.q,en:s.en})):(e&&e.secs.length?e.secs.map(s=>({n:s.n,q:s.q})):S.subs.slice(0,6).map(s=>({n:s.name,q:0})));
+ if(!secs.length)secs=[{n:'',q:0}];
+ const sc=(e&&e.sc)||S.cfg.score;TM={sim:id||'',eid:o.eid||''};
+ openM(`<h3>${e?'Modifica':'Registra'} ${t?esc(t.code):'simulazione'}</h3><div class="row"><label>Data<input type="date" id="s_d" value="${e?e.d:today()}"></label><label>Punti corretta<input type="number" step="0.25" id="s_pc" value="${sc.c}" oninput="simCalc()"></label><label>Penalità errata<input type="number" step="0.25" id="s_pw" value="${sc.w}" oninput="simCalc()"></label></div>
+ <p class="dim" style="margin:10px 0 0">Per ogni sezione inserisci corrette ed errate (il punteggio si calcola) oppure scrivi direttamente i punti. Puoi rinominare, aggiungere o togliere sezioni.</p>${o.used?`<p class="dim" style="margin:4px 0 0">Tempo usato: ${o.used.map((m,i)=>esc((secs[i]||{}).n||'')+' '+m+'′').join(' · ')}</p>`:''}
+ <div id="s_rows">${secs.map(s=>simRow(s,e&&e.secs.find(x=>x.n===s.n))).join('')}</div><button class="b sm g" onclick="$('#s_rows').insertAdjacentHTML('beforeend',simRow({n:'',q:0},null))">＋ Sezione</button>
+ <div class="sp" style="margin-top:12px"><b>Totale</b><input id="s_tot" type="number" step="0.25" style="width:110px;font:800 1.3rem var(--fd);text-align:right" value="${e?e.tot:''}" ${e?'data-m="1"':''} oninput="this.dataset.m=1"></div>
+ <label>Note sugli errori<textarea id="s_n" placeholder="Cosa ripassare?">${esc(e?e.note:'')}</textarea></label>
+ <div class="acts"><button class="b p" onclick="saveSim()">Salva</button><button class="b" onclick="closeM()">Annulla</button></div>`);if(!e)simCalc()}
+function readSim(){return $$('#s_rows .sr2').map(r=>{const g=c=>r.querySelector(c),pt=g('.sp_');return{n:g('.sn').value.trim(),q:+g('.sq').value||0,c:g('.sc').value===''?undefined:+g('.sc').value,w:g('.sw_').value===''?undefined:+g('.sw_').value,m:pt.dataset.m?pt.value:'',en:r.dataset.en==='1'}})}
+function simCalc(){const rows=readSim(),pc=+$('#s_pc').value,pw=+$('#s_pw').value,r=calcSim(rows,pc,pw);$$('#s_rows .sr2').forEach((el,i)=>{const p=el.querySelector('.sp_');if(!p.dataset.m){const has=rows[i].c!==undefined||rows[i].w!==undefined;p.value=has?r.rows[i].v:''}});const t=$('#s_tot');if(!t.dataset.m)t.value=r.rows.some(x=>x.c!==undefined||x.w!==undefined||x.m!=='')?r.tot:''}
+function saveSim(){const rows=readSim().filter(r=>r.n||r.c!==undefined||r.w!==undefined||r.m!==''),pc=+$('#s_pc').value,pw=+$('#s_pw').value,r=calcSim(rows,pc,pw),tv=$('#s_tot').value;
+ if(!rows.length&&tv==='')return toast('Inserisci almeno una sezione o il totale');const tot=tv!==''?+tv:r.tot,d=$('#s_d').value||today();
+ const secs=r.rows.filter(x=>x.n||x.v).map(x=>({n:x.n||'Sezione',q:x.q,c:x.c,w:x.w,v:x.v,en:x.en?1:0})),sim={id:TM.eid||'m'+uid(),d,tot:r2(tot),tolc:TM.sim,secs,note:$('#s_n').value,sc:{c:pc,w:pw}};
+ if(TM.eid){const i=S.sims.findIndex(x=>x.id===TM.eid);S.sims[i]=sim}else{S.sims.push(sim);gain(30)}
+ S.sims.sort((a,b)=>a.d.localeCompare(b.d));S.tasks.forEach(t=>{if(t.date===d&&t.type==='Simulazione'&&!t.done)t.done=true});save();closeM();render();toast(TM.eid?'Simulazione aggiornata':'Simulazione salvata +30 XP')}
 function delSim(id){if(confirm('Eliminare la simulazione?')){S.sims=S.sims.filter(x=>x.id!==id);save();render()}}
 
-/* simulazione a tempo */
+/* simulazione a tempo (con pausa; l'allenamento libero non cambia sezione da solo) */
 let RUN=null,wl=null;
-function runStart(id){const t=tolcById(id);RUN={id,secs:secsOf(t),i:0,t0:Date.now(),used:[]};$('#run').hidden=false;document.body.classList.add('lock');try{navigator.wakeLock&&navigator.wakeLock.request('screen').then(l=>wl=l).catch(()=>{})}catch(e){}paintRun(true)}
-function paintRun(full){if(!RUN)return;const s=RUN.secs[RUN.i],last=RUN.i===RUN.secs.length-1,el=Math.floor((Date.now()-RUN.t0)/1000),rem=s.m*60-el;
- if(full)$('#run').innerHTML=`<div class="eyebrow">${esc(tolcById(RUN.id).code)} · sezione ${RUN.i+1}/${RUN.secs.length}</div><h1>${esc(s.n)}</h1><div class="dim">${s.q} quesiti · ${s.m} minuti</div><div class="big" id="rt"></div><div class="pb" style="width:min(420px,80vw)"><i id="rb" style="width:0"></i></div><div class="acts"><button class="b p" onclick="runNext()">${last?'Termina e registra':'Sezione successiva →'}</button><button class="b d" onclick="runStop()">Annulla</button></div><p class="dim" style="max-width:420px">Come nel vero test: allo scadere del tempo si passa alla sezione dopo e non si torna indietro.</p>`;
+function runStart(id,train){const t=tolcById(id);RUN={id,secs:secsOf(t),i:0,t0:Date.now(),used:[],p:0,train:!!train};$('#run').hidden=false;document.body.classList.add('lock');try{navigator.wakeLock&&navigator.wakeLock.request('screen').then(l=>wl=l).catch(()=>{})}catch(e){}paintRun(true)}
+function paintRun(full){if(!RUN)return;const s=RUN.secs[RUN.i],last=RUN.i===RUN.secs.length-1,now=RUN.p||Date.now(),el=Math.floor((now-RUN.t0)/1000),rem=s.m*60-el;
+ if(full)$('#run').innerHTML=`<div class="eyebrow">${esc(tolcById(RUN.id).code)} · ${RUN.train?'allenamento':'simulazione'} · sezione ${RUN.i+1}/${RUN.secs.length}</div><h1>${esc(s.n)}</h1><div class="dim">${s.q} quesiti · ${s.m} minuti · circa ${Math.round(s.m*60/Math.max(1,s.q))} secondi a quesito</div><div class="big" id="rt"></div><div class="pb" style="width:min(420px,80vw)"><i id="rb" style="width:0"></i></div><div class="acts" style="justify-content:center"><button class="b" onclick="runPause()">${RUN.p?'▶ Riprendi':'⏸ Pausa'}</button>${RUN.train&&RUN.i>0?'<button class="b" onclick="runPrev()">← Precedente</button>':''}<button class="b p" onclick="runNext()">${last?'Termina e registra':'Sezione successiva →'}</button><button class="b d" onclick="if(confirm(\'Annullare la simulazione?\'))runStop()">Annulla</button></div><p class="dim" style="max-width:440px">${RUN.train?'Modalità allenamento: nessun cambio automatico di sezione, puoi tornare indietro.':'Come nel vero test: allo scadere del tempo si passa alla sezione dopo.'}</p>`;
  const a=Math.abs(rem);$('#rt').textContent=(rem<0?'+':'')+String(Math.floor(a/60)).padStart(2,'0')+':'+String(a%60).padStart(2,'0');$('#rb').style.width=Math.min(100,el/(s.m*60||1)*100)+'%';
- if(rem<=0&&s.m>0){beep();navigator.vibrate&&navigator.vibrate([300,100,300]);runNext(true)}}
-function runNext(auto){RUN.used[RUN.i]=Math.round((Date.now()-RUN.t0)/60000);if(RUN.i>=RUN.secs.length-1){const id=RUN.id,u=RUN.used;runStop(1);simForm(id,{used:u});return}RUN.i++;RUN.t0=Date.now();if(auto)toast('Tempo scaduto: sezione successiva');paintRun(true)}
-function runStop(keep){RUN=null;$('#run').hidden=true;document.body.classList.remove('lock');try{wl&&wl.release()}catch(e){}}
+ if(!RUN.p&&!RUN.train&&rem<=0&&s.m>0){beep();navigator.vibrate&&navigator.vibrate([300,100,300]);runNext(true)}}
+function runPause(){if(!RUN)return;if(RUN.p){RUN.t0+=Date.now()-RUN.p;RUN.p=0}else RUN.p=Date.now();paintRun(true)}
+function runPrev(){if(!RUN||RUN.i<1)return;RUN.i--;RUN.t0=Date.now();RUN.p=0;paintRun(true)}
+function runNext(auto){RUN.used[RUN.i]=Math.round(((RUN.p||Date.now())-RUN.t0)/60000);if(RUN.i>=RUN.secs.length-1){const id=RUN.id,u=RUN.used;runStop(1);simForm(id,{used:u});return}RUN.i++;RUN.t0=Date.now();RUN.p=0;if(auto)toast('Tempo scaduto: sezione successiva');paintRun(true)}
+function runStop(){RUN=null;$('#run').hidden=true;document.body.classList.remove('lock');try{wl&&wl.release()}catch(e){}}
 
-/* ===== Timer Pomodoro / cronometro ===== */
-const T=Object.assign({mode:'work',run:false,end:0,left:S.pom.work*60,acc:0,t0:0,cyc:0,sub:'',task:''},S.tm||{});
+/* ===== PomodoroTimer / cronometro ===== */
+const T=Object.assign({mode:'work',run:false,end:0,left:S.pom.work*60,acc:0,t0:0,cyc:0,sub:'',topic:'',task:''},S.tm||{});
 const saveT=()=>{S.tm={...T};save()};
 function beep(){try{const a=new(window.AudioContext||window.webkitAudioContext)(),o=a.createOscillator(),g=a.createGain();o.connect(g);g.connect(a.destination);o.frequency.value=880;g.gain.setValueAtTime(.2,a.currentTime);g.gain.exponentialRampToValueAtTime(.001,a.currentTime+.8);o.start();o.stop(a.currentTime+.8)}catch(e){}}
+const fmtT=s=>String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');
+function notify(m){try{if(S.cfg.notif&&'Notification' in window&&Notification.permission==='granted')new Notification('StudyForge',{body:m})}catch(e){}}
 const Pom={
  tot(){return(T.mode==='work'?S.pom.work:T.mode==='brk'?S.pom.brk:S.pom.long)*60},
  rem(){return T.run?Math.max(0,Math.ceil((T.end-Date.now())/1000)):T.left},
  el(){return T.run?Math.floor((Date.now()-T.t0)/1000):T.acc},
  go(){const n=Date.now();if(T.mode==='free'){if(T.run){T.acc=this.el();T.run=false}else{T.t0=n-T.acc*1000;T.run=true}}else{if(T.run){T.left=this.rem();T.run=false}else{T.end=n+T.left*1000;T.run=true}}saveT();render()},
- log(min){if(min<1)return;S.log.push({d:today(),min,sub:T.sub,task:T.task});const k=S.tasks.find(x=>x.id===T.task);if(k)k.spent=(k.spent||0)+min;gain(Math.round(min));save()},
+ log(min){if(min<1)return;S.log.push({d:today(),min,sub:T.sub,topic:T.topic,task:T.task});const k=S.tasks.find(x=>x.id===T.task);if(k)k.spent=(k.spent||0)+min;gain(Math.round(min));save()},
  finish(){T.run=false;beep();navigator.vibrate&&navigator.vibrate([200,100,200]);
-  if(T.mode==='work'){this.log(S.pom.work);T.cyc++;toast('Sessione completata 🎉');T.mode=T.cyc%S.pom.every===0?'long':'brk'}else{T.mode='work';toast('Pausa finita')}
+  if(T.mode==='work'){this.log(S.pom.work);T.cyc++;toast('Sessione completata 🎉');notify('Sessione completata: fai una pausa');T.mode=T.cyc%S.pom.every===0?'long':'brk'}else{T.mode='work';toast('Pausa finita');notify('Pausa finita: si riparte')}
   T.left=this.tot();if(S.pom.auto){T.end=Date.now()+T.left*1000;T.run=true}saveT();render()},
  stop(){let m=0;if(T.mode==='free')m=Math.floor(this.el()/60);else if(T.mode==='work')m=Math.floor((this.tot()-this.rem())/60);if(m>=1){this.log(m);toast('Registrati '+m+' min')}this.reset()},
  reset(){T.run=false;T.acc=0;T.left=this.tot();saveT();render()},
  mode(m){T.mode=m;T.run=false;T.acc=0;T.left=this.tot();saveT();render()},
- link(id){closeM();const k=S.tasks.find(x=>x.id===id);T.task=id;if(k&&k.sub)T.sub=k.sub;saveT();go('focus')},
+ link(id){closeM();const k=S.tasks.find(x=>x.id===id);T.task=id;if(k&&k.sub)T.sub=k.sub;if(k&&k.topics[0])T.topic=k.topics[0];saveT();go('focus')},
  paint(){const m=$('#tm');if(!m){document.title=T.run&&T.mode!=='free'?fmtT(this.rem())+' · StudyForge':'StudyForge';return}
   const s=T.mode==='free'?this.el():this.rem();m.textContent=fmtT(s);const r=$('#rg');if(r){const p=T.mode==='free'?(s%3600)/3600:1-this.rem()/this.tot();r.style.strokeDashoffset=263.9*(1-Math.min(1,Math.max(0,p)))}
   document.title=T.run?fmtT(s)+' · StudyForge':'StudyForge'}};
-const fmtT=s=>String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');
 function setP(k,v){S.pom[k]=Math.max(1,+v||1);if(!T.run&&T.mode!=='free')T.left=Pom.tot();save();render()}
 function presetP(w,b,l){S.pom.work=w;S.pom.brk=b;S.pom.long=l;T.mode='work';T.run=false;T.left=w*60;save();render()}
-function manLog(){const m=+$('#ml_m').value;if(!m||m<1)return toast('Inserisci i minuti');S.log.push({d:$('#ml_d').value||today(),min:m,sub:$('#ml_s').value,task:''});S.log.sort((a,b)=>a.d.localeCompare(b.d));gain(Math.round(m));save();render();toast('Registrato')}
+function manLog(){const m=+$('#ml_m').value;if(!m||m<1)return toast('Inserisci i minuti');S.log.push({d:$('#ml_d').value||today(),min:m,sub:$('#ml_s').value,topic:'',task:''});S.log.sort((a,b)=>a.d.localeCompare(b.d));gain(Math.round(m));save();render();toast('Registrato')}
 function delLog(i){S.log.splice(i,1);save();render()}
-setInterval(()=>{if(RUN)paintRun();if(T.run){if(T.mode!=='free'&&Pom.rem()<=0)Pom.finish();else Pom.paint()}},300);
-if(T.run&&T.mode!=='free'&&T.end<=Date.now()){Pom.finish()}else if(!T.run&&T.mode!=='free')T.left=T.left||Pom.tot();
-
-/* ===== Impostazioni: azioni ===== */
 function tgDay(d){S.cfg.days=S.cfg.days.includes(d)?S.cfg.days.filter(x=>x!==d):[...S.cfg.days,d];save();render()}
+setInterval(()=>{if(RUN)paintRun();if(T.run){if(T.mode!=='free'&&Pom.rem()<=0)Pom.finish();else Pom.paint()}},300);
+
+/* ===== Notifiche (solo con l'app aperta) ===== */
+function notifyOn(on){if(on&&'Notification' in window){Notification.requestPermission().then(p=>{S.cfg.notif=p==='granted';save();render();if(p!=='granted')toast('Permesso negato dal browser')})}else{S.cfg.notif=false;save();render()}}
+const NT=new Set();setInterval(()=>{if(!S.cfg.notif||!('Notification' in window)||Notification.permission!=='granted')return;const n=new Date(),d=today(),hm=n.getHours()*60+n.getMinutes();S.tasks.forEach(t=>{if(t.date!==d||t.done||!t.time||NT.has(t.id))return;const[h,m]=t.time.split(':').map(Number),df=h*60+m-hm;if(df<=5&&df>=-1){NT.add(t.id);notify(t.title+' · '+t.time)}})},20000);
+
+/* ===== Demo TOLC-I ===== */
+function loadDemo(){if((S.subs.length||S.tasks.length)&&!confirm('La demo sostituisce i dati attuali (una copia automatica resta ripristinabile da Impostazioni). Continuare?'))return;Snap.take('Prima della demo');
+ const cf=S.cfg;S=structuredClone(DEF);S.cfg={...DEF.cfg,...cf,wel:false,days:[1,2,3,4,5,6],hours:2};S.demo=true;
+ const t=today(),r=importTolc('I');S.exam={name:'TOLC-I',tolc:'I',start:t,date:add(t,84),target:30};
+ S.subs.forEach((s,si)=>topicsOf(s.id).forEach((x,i)=>{if(i<(si===0?7:3)){x.st=2;x.ma=add(t,-(i+1)*2);x.rev=SR.ints().map(n=>({d:add(x.ma,n),done:add(x.ma,n)<t}))}else if(i<(si===0?10:4))x.st=1}));
+ for(let k=1;k<=14;k++)if(k%5!==0){const d=add(t,-k);S.log.push({d,min:35+((k*17)%70),sub:S.subs[k%S.subs.length].id,topic:'',task:''});S.act[d]=1}
+ S.log.sort((a,b)=>a.d.localeCompare(b.d));
+ const mk=(d,v)=>{const rows=r.t.secs.concat([{n:'Inglese',q:30,en:1}]).map((s,i)=>({n:s.n,q:s.q,c:v[i][0],w:v[i][1],en:s.en}));const c=calcSim(rows,1,.25);return{id:'m'+uid(),d,tot:c.tot,tolc:'I',secs:c.rows.map(x=>({n:x.n,q:x.q,c:x.c,w:x.w,v:x.v,en:x.en?1:0})),note:'',sc:{c:1,w:.25}}};
+ S.sims=[mk(add(t,-21),[[11,6],[6,3],[5,4],[7,2],[18,0]]),mk(add(t,-8),[[14,4],[7,2],[6,3],[8,2],[22,0]])];
+ S.events=[{id:'e'+uid(),name:'TOLC-I (demo)',date:S.exam.date,tolc:'I'}];
+ const g=genPlan({from:t,to:S.exam.date,ds:new Set(S.cfg.days),mins:60,per:2,fin:12});S.tasks=g.out;S.xp=260;S.bi=1;S.appv=APP_VER;checkBadges(true);save();applyTheme();V.tab='oggi';render();scrollTo(0,0);toast('Demo caricata: esplora tutto, poi eliminala da Impostazioni')}
+function clearDemo(){if(!confirm('Eliminare i dati demo? Le tue impostazioni di aspetto restano.'))return;Snap.take('Prima di eliminare la demo');const cf=S.cfg;S=structuredClone(DEF);S.cfg={...cf,wel:false};S.appv=APP_VER;S.bi=1;save();render();toast('Dati demo eliminati')}
 
 /* ===== Dati & Backup ===== */
 const Data={
@@ -579,25 +704,58 @@ const Data={
  stamp(){return Y(new Date())+'_'+new Date().toTimeString().slice(0,5).replace(':','-')},
  json(){this.dl(`studyforge_backup_${this.stamp()}.json`,JSON.stringify(S,null,1),'application/json');S.lb=today();save();toast('Backup scaricato')},
  csv(){const r=[['Data','Ora','Titolo','Materia','Tipo','Minuti','Argomenti','Completata']];S.tasks.slice().sort((a,b)=>(a.date||'').localeCompare(b.date||'')).forEach(s=>r.push([s.date,s.time,s.title,sub(s.sub)?.name||'',s.type,s.dur,s.topics.map(i=>S.topics[i]?.t).filter(Boolean).join(' | '),s.done?'Sì':'No']));
-  this.dl(`studyforge_piano_${this.stamp()}.csv`,'﻿'+r.map(x=>x.map(c=>'"'+String(c).replace(/"/g,'""')+'"').join(';')).join('\r\n'),'text/csv')},
+  this.dl(`studyforge_piano_${this.stamp()}.csv`,'\uFEFF'+r.map(x=>x.map(c=>'"'+String(c).replace(/"/g,'""')+'"').join(';')).join('\r\n'),'text/csv')},
  ics(){const z=n=>String(n).padStart(2,'0'),L=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//StudyForge//IT'];
   S.tasks.filter(t=>t.date).forEach(t=>{L.push('BEGIN:VEVENT','UID:'+t.id+'@studyforge','DTSTAMP:'+new Date().toISOString().replace(/[-:]/g,'').slice(0,15)+'Z');
-   if(t.time){const s=new Date(D(t.date).getTime());const[h,m]=t.time.split(':').map(Number);s.setHours(h,m);const e=new Date(s.getTime()+(t.dur||60)*6e4),f=d=>`${d.getFullYear()}${z(d.getMonth()+1)}${z(d.getDate())}T${z(d.getHours())}${z(d.getMinutes())}00`;L.push('DTSTART:'+f(s),'DTEND:'+f(e))}
+   if(t.time){const s=D(t.date),[h,m]=t.time.split(':').map(Number);s.setHours(h,m);const e=new Date(s.getTime()+(t.dur||60)*6e4),f=d=>`${d.getFullYear()}${z(d.getMonth()+1)}${z(d.getDate())}T${z(d.getHours())}${z(d.getMinutes())}00`;L.push('DTSTART:'+f(s),'DTEND:'+f(e))}
    else L.push('DTSTART;VALUE=DATE:'+t.date.replace(/-/g,''),'DTEND;VALUE=DATE:'+add(t.date,1).replace(/-/g,''));
    L.push('SUMMARY:'+(t.done?'✓ ':'')+t.title.replace(/[,;\n]/g,' '),'END:VEVENT')});
   L.push('END:VCALENDAR');this.dl(`studyforge_${this.stamp()}.ics`,L.join('\r\n'),'text/calendar')},
- read(f){if(!f)return;f.text().then(t=>{let o;try{o=JSON.parse(t)}catch(e){return toast('File non valido: JSON illeggibile')}
-  if(!o||typeof o!=='object'||!Array.isArray(o.subs)||!(Array.isArray(o.tasks)||Array.isArray(o.sessions))||typeof o.topics!=='object')return toast('Non sembra un backup di StudyForge');
+ copy(){const t=JSON.stringify(S);(navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(()=>toast('Dati copiati: incollali sull\'altro dispositivo'),()=>prompt('Copia i dati:',t))},
+ paste(){openM(`<h3>Incolla i dati</h3><p class="dim">Incolla il testo copiato con “Copia dati come testo” (o il contenuto di un backup .json).</p><textarea id="pt" rows="6" placeholder="{ … }"></textarea><div class="acts"><button class="b p" onclick="Data.preview($('#pt').value)">Continua</button><button class="b" onclick="closeM()">Annulla</button></div>`)},
+ valid(o){return o&&typeof o==='object'&&Array.isArray(o.subs)&&(Array.isArray(o.tasks)||Array.isArray(o.sessions))&&o.topics&&typeof o.topics==='object'},
+ read(f){if(f)f.text().then(t=>this.preview(t))},
+ preview(t){let o;try{o=JSON.parse(t)}catch(e){return toast('File non valido: JSON illeggibile')}if(!this.valid(o))return toast('Non sembra un backup di StudyForge');
   window._imp=t;const n=Array.isArray(o.tasks)?o.tasks.length:o.sessions.length;
-  openM(`<h3>Importa backup</h3><p>${esc((o.exam&&o.exam.name)||'Senza nome')} · ${o.subs.length} materie · ${Object.keys(o.topics).length} argomenti · ${n} attività · ${(o.sims||[]).length} simulazioni.</p><p class="dim">Sostituirà i dati attuali. Prima viene salvata una copia automatica, quindi puoi tornare indietro.</p><div class="acts"><button class="b p" onclick="Data.apply()">Sostituisci i miei dati</button><button class="b" onclick="closeM()">Annulla</button></div>`)})},
- apply(){Snap.take('Prima dell\'importazione');S=StorageManager.parse(window._imp);save();applyTheme();closeM();render();toast('Backup ripristinato')},
- reset(){if(!confirm('Cancellare TUTTI i dati? Verrà salvata una copia automatica ripristinabile.'))return;Snap.take('Prima del reset');const sn=Snap.list();S=structuredClone(DEF);save();try{localStorage.setItem(KEY+'_snaps',JSON.stringify(sn))}catch(e){}applyTheme();render();toast('Dati cancellati')}
+  openM(`<h3>Importa backup</h3><p>${esc((o.exam&&o.exam.name)||'Senza nome')} · ${o.subs.length} materie · ${Object.keys(o.topics).length} argomenti · ${n} attività · ${(o.sims||[]).length} simulazioni.</p><p class="dim"><b>Sostituisci</b> cancella i dati attuali; <b>Unisci</b> mantiene i tuoi e aggiunge ciò che manca. In entrambi i casi prima viene salvata una copia automatica.</p><div class="acts"><button class="b p" onclick="Data.apply('replace')">Sostituisci</button><button class="b" onclick="Data.apply('merge')">Unisci</button><button class="b" onclick="closeM()">Annulla</button></div>`)},
+ apply(mode){Snap.take('Prima dell\'importazione');const x=StorageManager.parse(window._imp);if(mode==='merge')this.merge(x);else S=x;save();applyTheme();closeM();render();toast(mode==='merge'?'Dati uniti':'Backup ripristinato')},
+ merge(x){const by=(a,b)=>{const s=new Set(a.map(i=>i.id));b.forEach(i=>{if(!s.has(i.id))a.push(i)})};by(S.subs,x.subs);by(S.tasks,x.tasks);by(S.sims,x.sims);by(S.events,x.events);by(S.tcustom,x.tcustom);
+  Object.keys(x.topics).forEach(k=>{if(!S.topics[k])S.topics[k]=x.topics[k]});const key=l=>[l.d,l.min,l.sub,l.task].join('|'),have=new Set(S.log.map(key));x.log.forEach(l=>{if(!have.has(key(l)))S.log.push(l)});
+  S.log.sort((a,b)=>a.d.localeCompare(b.d));S.sims.sort((a,b)=>a.d.localeCompare(b.d));Object.keys(x.act).forEach(k=>S.act[k]=1);Object.keys(x.rest||{}).forEach(k=>S.rest[k]=1);Object.keys(x.bd||{}).forEach(k=>{if(!S.bd[k])S.bd[k]=x.bd[k]});S.xp=Math.max(S.xp,x.xp);if(!S.exam.date&&x.exam.date)S.exam=x.exam},
+ reset(){if(!confirm('Cancellare TUTTI i dati? Verrà salvata una copia automatica ripristinabile.'))return;Snap.take('Prima del reset');const sn=Snap.list();S=structuredClone(DEF);S.appv=APP_VER;S.bi=1;save();try{localStorage.setItem(KEY+'_snaps',JSON.stringify(sn))}catch(e){}applyTheme();render();toast('Dati cancellati')}
 };
 
+/* ===== Cerca ovunque (Ctrl/⌘ K) ===== */
+let SRES=[];
+function searchAll(q){q=q.trim().toLowerCase();const o=[],has=s=>String(s||'').toLowerCase().includes(q);
+ if(!q)return[{t:'＋ Nuova attività',s:'azione',f:()=>taskForm('')},...NAV.map(([k,n])=>({t:'Vai a '+n,s:'pagina',f:()=>go(k)})),{t:'Backup .json',s:'azione',f:()=>Data.json()}];
+ S.tasks.filter(x=>has(x.title)||has(x.note)).slice(0,8).forEach(x=>o.push({t:x.title,s:'attività'+(x.date?' · '+fmt(x.date,{day:'numeric',month:'short'}):''),f:()=>taskForm(x.id)}));
+ Object.values(S.topics).filter(x=>has(x.t)||has(x.note)).slice(0,8).forEach(x=>o.push({t:x.t,s:'argomento · '+(sub(x.sub)?.name||''),f:()=>topicForm(x.id)}));
+ S.subs.filter(x=>has(x.name)).slice(0,5).forEach(x=>o.push({t:x.name,s:'materia',f:()=>{V.open[x.id]=true;go('mat')}}));
+ S.events.filter(x=>has(x.name)).slice(0,4).forEach(x=>o.push({t:x.name,s:'data',f:()=>eventForm(x.id)}));
+ allTolc().filter(x=>has(x.code)||has(x.name)).slice(0,5).forEach(x=>o.push({t:x.code+' '+x.name,s:'TOLC',f:()=>openTolc(x.id)}));
+ NAV.filter(([k,n])=>has(n)).forEach(([k,n])=>o.push({t:'Vai a '+n,s:'pagina',f:()=>go(k)}));return o}
+function openSearch(){openM(`<input id="sq" placeholder="Cerca attività, argomenti, note, materie, TOLC…" oninput="doSearch(this.value)" autocomplete="off" aria-label="Cerca"><div id="sr" class="mlist"></div>`);doSearch('');setTimeout(()=>$('#sq')&&$('#sq').focus(),50)}
+function doSearch(q){SRES=searchAll(q);$('#sr').innerHTML=SRES.length?SRES.map((r,i)=>`<div class="res" onclick="runRes(${i})" tabindex="0" onkeydown="if(event.key==='Enter')runRes(${i})"><span>${esc(r.t)}</span><small>${esc(r.s)}</small></div>`).join(''):'<p class="dim">Nessun risultato.</p>'}
+function runRes(i){const r=SRES[i];closeM();r&&r.f()}
+document.addEventListener('keydown',e=>{const tg=e.target,typing=/^(INPUT|TEXTAREA|SELECT)$/.test(tg.tagName);
+ if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='k'){e.preventDefault();openSearch();return}
+ if(typing||e.ctrlKey||e.metaKey||e.altKey||!$('#mo').hidden||!$('#run').hidden)return;
+ if(e.key==='/'){e.preventDefault();openSearch()}else if(e.key==='n'||e.key==='N'){e.preventDefault();taskForm('')}else if(e.key==='t'||e.key==='T'){go('oggi')}});
+
 /* ===== Avvio ===== */
-applyTheme();matchMedia('(prefers-color-scheme: dark)').addEventListener&&matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>S.cfg.theme==='auto'&&applyTheme());
-{const h=location.hash.slice(1);if(NAV.some(n=>n[0]===h))V.tab=h}
-render();
+(function boot(){
+ if(!S.bi){checkBadges(true);S.bi=1}
+ const has=S.subs.length||S.tasks.length,a=Snap.list();
+ if(S.appv!==APP_VER){if(has)Snap.take(S.appv?'Prima dell\'aggiornamento '+APP_VER:'Prima del primo avvio v'+APP_VER);S.appv=APP_VER}
+ else if(has&&(!a.length||Date.now()-a[0].t>12*36e5))Snap.take('Automatico');
+ if(T.run&&T.mode!=='free'&&T.end<=Date.now())Pom.finish();else if(!T.run&&T.mode!=='free')T.left=T.left||Pom.tot();
+ save();applyTheme();
+ const mq=matchMedia('(prefers-color-scheme: dark)');mq.addEventListener&&mq.addEventListener('change',()=>S.cfg.theme==='auto'&&applyTheme());
+ document.addEventListener('visibilitychange',()=>{if(document.hidden)save()});
+ window.addEventListener('error',e=>console.error(e.error||e.message));
+ const h=location.hash.slice(1);if(NAV.some(n=>n[0]===h))V.tab=h;
+ render()})();
 </script>
 </body>
 </html>
