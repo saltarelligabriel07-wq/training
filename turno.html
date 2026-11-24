@@ -658,6 +658,7 @@ function setMood(v) { const k = ymd(todayD()); if (S.mood[k] === v) delete S.moo
 function renderX() {
   const c = S.cfg, k = calc(), el = $('v-x'), t = tenure(), today = todayD();
   let h = `<div class="card" style="margin-top:14px"><h2>Da quanto lavori</h2>${t ? `<div class="big">${t.y ? t.y + ' a ' : ''}${t.m} m ${t.d} g</div><div class="sub">${t.days} giorni dall'assunzione, circa <b>${t.worked}</b> giorni di lavoro effettivo.</div>` : `<div class="sub">Imposta la data di assunzione per vedere da quanto sei lì dentro.</div><button class="btn sec" style="margin-top:12px" onclick="openCfg()">Imposta</button>`}</div>`;
+  h += payHtml();
   if (!k || k.over) { el.innerHTML = h + '<div class="card"><div class="sub">Imposta una data di arrivo nelle impostazioni per vedere il resto.</div></div>'; return; }
   const r = remDays(k);
   h += `<div class="card"><h2>Metriche del dolore</h2><div class="rows"><div><span>Lunedì da sopportare</span><b>${r.mon}</b></div><div><span>Venerdì (quasi liberi)</span><b>${r.fri}</b></div><div><span>Ore di lavoro effettivo</span><b>${fh(k.r.h)}</b></div></div></div>`;
@@ -748,6 +749,43 @@ function readPro() {
   if ($('cPS')) { c.pn = tmpN; c.pw = tmpW.slice(0, tmpN).map((w) => w.slice()); c.ps = $('cPS').value; c.pt = {}; ['M', 'P', 'N'].forEach((k) => { c.pt[k] = [$('t' + k + '1').value || SDEF[k][0], $('t' + k + '2').value || SDEF[k][1]]; }); }
   if ($('cNP')) { c.nightPct = parseFloat($('cNP').value) || 0; c.holPct = parseFloat($('cHP').value) || 0; c.otPct = parseFloat($('cOP').value) || 0; }
 }
+/* ---------- controllo busta paga (Pro) ---------- */
+let pcV = (() => { const t = new Date(); return new Date(t.getFullYear(), t.getMonth() - 1, 1); })();
+const pcKey = () => 'pay-' + pcV.getFullYear() + '-' + p2(pcV.getMonth() + 1);
+function pcGo(n) { pcV = new Date(pcV.getFullYear(), pcV.getMonth() + n, 1); render(); }
+function pcSet(v) { const n = parseFloat(String(v).replace(',', '.')); if (n > 0) S.chk[pcKey()] = n; else delete S.chk[pcKey()]; save(); }
+function payCalc(y, m) {
+  const c = S.cfg, a = new Date(y, m, 1), b = new Date(y, m + 1, 0), all = span(a, b);
+  const hr = c.payMode === 'month' ? (c.monthly > 0 && all.h > 0 ? c.monthly / all.h : 0) : (c.rate || 0);
+  const o = { days: 0, h: 0, ex: 0, nt: 0, fs: 0, ferie: 0, perm: 0, eN: 0, eF: 0, eX: 0 };
+  for (let d = new Date(a); d <= b; d.setDate(d.getDate() + 1)) {
+    const i = info(d), e = S.ex[ymd(d)];
+    if (e && e.t === 'ferie' && norm(d)) o.ferie++;
+    if (i.t === 'perm') o.perm += i.ph || 0;
+    if (!i.w) continue;
+    o.days++;
+    if (i.t === 'extra') { o.ex += i.h; o.eX += i.h * hr * (c.otPct || 0) / 100; }
+    else { o.h += i.h; const s = c.mode === 'rot' ? rotShift(d) : null; if (s) { const n = nightH(s); o.nt += n; o.eN += n * hr * (c.nightPct || 0) / 100; } }
+    if (hol(d) || d.getDay() === 0) { o.fs += i.h; o.eF += i.h * hr * (c.holPct || 0) / 100; }
+  }
+  o.base = c.payMode === 'month' ? c.monthly + o.ex * hr : (o.h + o.ex + o.ferie * c.hours + o.perm) * hr;
+  o.total = o.base + o.eN + o.eF + o.eX;
+  return o;
+}
+function payHtml() {
+  if (!PRO()) return '<div class="card"><h2>Controllo busta paga (Pro)</h2><p class="sub">🔒 Ti dice quanto dovresti trovare in busta paga e se la cifra torna. Disponibile con Pro: arriverà a breve.</p></div>';
+  const c = S.cfg, y = pcV.getFullYear(), m = pcV.getMonth();
+  const head = `<h2>Controllo busta paga</h2><div class="ch"><h2 style="font-size:1.05rem">${MESI[m]} ${y}</h2><button class="sq" onclick="pcGo(-1)" aria-label="Mese precedente">‹</button><button class="sq" onclick="pcGo(1)" aria-label="Mese successivo">›</button></div>`;
+  if (!(c.payMode === 'month' ? c.monthly > 0 : c.rate > 0)) return `<div class="card">${head}<p class="sub">Imposta prima la paga nelle impostazioni.</p><button class="btn sec" onclick="openCfg()">Imposta la paga</button></div>`;
+  const o = payCalc(y, m), real = S.chk[pcKey()] || 0, r = (l, v) => `<div><span>${l}</span><b>${v}</b></div>`;
+  const rows = [r('Giorni lavorati', o.days), r('Ore lavorate', fh(o.h + o.ex) + ' h'), o.ex > 0 ? r('di cui extra', fh(o.ex) + ' h') : '', o.ferie ? r('Ferie', o.ferie + ' giorni') : '', o.perm ? r('Permessi/ROL', fh(o.perm) + ' h') : '',
+    r('Paga base', eur2(o.base)), o.eN > 0 ? r(`Notte (${fh(o.nt)} h)`, '+ ' + eur2(o.eN)) : '', o.eF > 0 ? r(`Domenica/festivi (${fh(o.fs)} h)`, '+ ' + eur2(o.eF)) : '', o.eX > 0 ? r('Extra', '+ ' + eur2(o.eX)) : '', r('<b>Totale lordo previsto</b>', eur2(o.total))].join('');
+  let res = '';
+  if (real > 0) { const df = real - o.total, tol = Math.max(5, o.total * .02);
+    res = Math.abs(df) <= tol ? `<p class="sub" style="margin-top:10px"><b>✓ Torna.</b> Differenza di ${eur2(Math.abs(df))}, nei limiti.</p>` : df < 0 ? `<p class="sub" style="margin-top:10px"><b>⚠ Ti hanno dato ${eur2(-df)} in meno del previsto.</b> Controlla ore e maggiorazioni qui sopra e chiedi spiegazioni al datore di lavoro o a un patronato.</p>` : `<p class="sub" style="margin-top:10px">Hai ${eur2(df)} in più del previsto: forse un premio, un arretrato o una voce che non ho contato.</p>`; }
+  return `<div class="card">${head}<p class="hint" style="margin:0 0 6px">Cosa dovresti trovare in busta paga, in base al tuo calendario.</p><div class="rows">${rows}</div><div class="f" style="margin-top:12px"><label>Lordo scritto sulla tua busta paga (€)</label><input type="number" step="0.01" min="0" inputmode="decimal" value="${real || ''}" onchange="pcSet(this.value)"></div>${res}<p class="hint">Confronta con il <b>lordo</b> (totale competenze), non con il netto. Ferie e permessi/ROL sono contati come pagati. È una stima: i contratti calcolano le voci in modi diversi.</p></div>`;
+}
+
 /* ---------- account e sincronizzazione (Firebase) ---------- */
 const FB = { apiKey: "AIzaSyBf9_RgZ7UGtlqu_ySIsLQQ4qk9ymJr6WI", authDomain: "turno-6b6fb.firebaseapp.com", projectId: "turno-6b6fb", storageBucket: "turno-6b6fb.firebasestorage.app", messagingSenderId: "5394387407", appId: "1:5394387407:web:1f4691b23b193fbdb882ba" };
 let cloudUser = null, cloudDb = null, pushT = null, cloudReady = false;
