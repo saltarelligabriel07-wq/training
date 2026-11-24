@@ -1,0 +1,16 @@
+{
+  "name": "Turno — quanto manca",
+  "short_name": "Turno",
+  "id": "turno",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "lang": "it",
+  "background_color": "#0C0E13",
+  "theme_color": "#0C0E13",
+  "icons": [
+    { "src": "turno-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "turno-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}
