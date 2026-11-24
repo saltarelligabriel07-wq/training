@@ -8,6 +8,8 @@
 <meta name="mobile-web-app-capable" content="yes">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='26' fill='%230C0E13'/%3E%3Ccircle cx='50' cy='50' r='30' fill='none' stroke='%232a3142' stroke-width='9'/%3E%3Cpath d='M50 20a30 30 0 0 1 28 40' fill='none' stroke='%238AB4FF' stroke-width='9' stroke-linecap='round'/%3E%3C/svg%3E">
 <title>Turno — quanto manca</title>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="data:image/png;base64,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">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@200;300;400;600&family=Manrope:wght@400;500;700&display=swap" rel="stylesheet">
@@ -15,10 +17,10 @@
 :root{--bg:#0C0E13;--s1:#141821;--s2:#1B2130;--line:#252C3D;--tx:#E9ECF3;--dim:#8F99AD;--faint:#5C667A;--ac:#8AB4FF;--ac2:#5EE0B0;--warn:#F2B35E;--bad:#F27A7A;--on:#0C0E13}
 :root[data-t=light]{--bg:#F4F5F8;--s1:#fff;--s2:#EBEEF4;--line:#DDE1EA;--tx:#12151C;--dim:#5B6578;--faint:#8E97A8;--ac:#2F5BFF;--ac2:#0F8A5C;--warn:#B8741A;--bad:#D14B4B;--on:#fff}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-body{margin:0;background:var(--bg);color:var(--tx);font-family:Manrope,sans-serif;min-height:100vh;padding-top:env(safe-area-inset-top,0)}
+body{margin:0;background:var(--bg);color:var(--tx);font-family:Manrope,system-ui,sans-serif;min-height:100vh;padding-top:env(safe-area-inset-top,0)}
 html{scroll-padding-bottom:140px}
 .app{max-width:500px;margin:0 auto;padding:0 18px calc(140px + env(safe-area-inset-bottom,0))}
-h2,h3,.so{font-family:Sora,sans-serif}
+h2,h3,.so{font-family:Sora,system-ui,sans-serif}
 button{font-family:inherit;color:inherit}
 :focus-visible{outline:2px solid var(--ac);outline-offset:2px}
 header{display:flex;justify-content:space-between;align-items:center;padding:18px 0 4px}
@@ -171,7 +173,7 @@ nav button{padding:10px 13px}
   <div class="sec-t">Obiettivo, ferie e permessi (facoltativo)</div>
   <div class="row2"><div class="f"><label>Soldi che hai adesso (€)</label><input type="number" id="cSaved" step="1" min="0" inputmode="decimal"></div><div class="f"><label>Ferie annue spettanti (giorni)</label><input type="number" id="cFerie" step="1" min="0" inputmode="numeric"></div></div>
   <div class="row2"><div class="f"><label>Cosa vuoi fare/comprare?</label><input type="text" id="cGoalN" maxlength="30" placeholder="Es. Viaggio, Auto"></div><div class="f"><label>Quanto serve (€)</label><input type="number" id="cGoalA" step="1" min="0" inputmode="decimal"></div></div>
-  <label class="chk"><input type="checkbox" id="cHol"> Escludi le festività italiane</label><p class="hint"><b>Ferie, permessi e ROL:</b> «Ferie annue spettanti» alimenta il conteggio usate/rimaste in Calendario e Statistiche. I singoli giorni di ferie e le ore di permesso/ROL si segnano toccando un giorno nel Calendario. «Ferie/ROL ancora da usare» (sezione stime) serve a calcolare l'ultimo giorno di lavoro in Extra.</p>
+  <label class="chk"><input type="checkbox" id="cHol"> Escludi le festività italiane</label><div class="f"><label>Festa del patrono della tua città (GG/MM, facoltativa)</label><input type="text" id="cPatron" maxlength="5" placeholder="Es. 21/05" inputmode="numeric"></div><p class="hint"><b>Ferie, permessi e ROL:</b> «Ferie annue spettanti» alimenta il conteggio usate/rimaste in Calendario e Statistiche. I singoli giorni di ferie e le ore di permesso/ROL si segnano toccando un giorno nel Calendario. «Ferie/ROL ancora da usare» (sezione stime) serve a calcolare l'ultimo giorno di lavoro in Extra.</p>
   <div class="sec-t">Per le stime (facoltativo)</div>
   <div class="row2"><div class="f"><label>Data di assunzione</label><input type="date" id="cHire"></div><div class="f"><label>Inizio turno</label><input type="time" id="cStT"></div></div>
   <div class="row2"><div class="f"><label>RAL lorda annua (€)</label><input type="number" id="cRal" step="100" min="0" inputmode="decimal"></div><div class="f"><label>Ferie/ROL ancora da usare (giorni)</label><input type="number" id="cResid" step="0.5" min="0" inputmode="decimal"></div></div>
@@ -181,16 +183,16 @@ nav button{padding:10px 13px}
   <div class="sec-t">Aspetto</div>
   <div class="f"><div class="seg"><button type="button" id="th-auto" onclick="setTh('auto')">Automatico</button><button type="button" id="th-dark" onclick="setTh('dark')">Scuro</button><button type="button" id="th-light" onclick="setTh('light')">Chiaro</button></div></div>
   <button class="btn" style="margin-top:6px" onclick="saveCfg()">Salva</button>
-  <div class="opts" style="margin-top:10px"><button class="btn sec" onclick="exp()">Scarica backup</button><button class="btn sec" onclick="document.getElementById('cFile').click()">Ripristina backup</button></div>
+  <button class="btn sec" id="instBtn" hidden onclick="instApp()" style="margin-top:10px">Installa come app</button><div class="opts" style="margin-top:10px"><button class="btn sec" onclick="exp()">Scarica backup</button><button class="btn sec" onclick="document.getElementById('cFile').click()">Ripristina backup</button></div>
   <input type="file" id="cFile" accept="application/json" hidden onchange="imp(this.files[0])">
-  <p class="hint">I dati restano su questo dispositivo. Scarica un backup ogni tanto per non perderli o per spostarli su un altro telefono.</p>
+  <p class="hint">I dati restano su questo dispositivo. Scarica un backup ogni tanto per non perderli o per spostarli su un altro telefono.</p><p class="hint"><b>Installa:</b> su iPhone usa Condividi → Aggiungi a Home; su Android il pulsante qui sopra o il menu del browser. <b>Privacy:</b> nessun account e nessun tracciamento, i dati restano nel tuo browser; i font si caricano da Google Fonts. <b>Avviso:</b> TFR, NASpI e ogni cifra sono stime indicative, non consulenza.</p>
 </div></div>
 <div id="fk" hidden><div id="fkD" onpointerdown="fkT=setTimeout(()=>panic(0),800)" onpointerup="clearTimeout(fkT)" onpointerleave="clearTimeout(fkT)">0</div><div id="fkK"></div></div>
 <div id="toast"></div>
 
 <script>
 const KEY = 'turno_v1';
-const D0 = { cfg: { mode: 'week', days: [1,2,3,4,5], cycleOn: 5, cycleOff: 2, cycleStart: '', hours: 8, rate: 0, monthly: 0, payMode: 'hour', payday: 0, payAdj: true, saved: 0, goalName: '', goalAmt: 0, end: '', start: '', label: 'Il mio traguardo', hol: true, ferie: 0, theme: 'auto', hire: '', stT: '09:00', ral: 0, prev: 0, resid: 0, shake: false }, ex: {}, notes: {}, mood: {}, chk: {} };
+const D0 = { cfg: { mode: 'week', days: [1,2,3,4,5], cycleOn: 5, cycleOff: 2, cycleStart: '', hours: 8, rate: 0, monthly: 0, payMode: 'hour', payday: 0, payAdj: true, saved: 0, goalName: '', goalAmt: 0, end: '', start: '', label: 'Il mio traguardo', hol: true, ferie: 0, theme: 'auto', hire: '', stT: '09:00', ral: 0, prev: 0, resid: 0, shake: false, patron: '', lastBackup: '' }, ex: {}, notes: {}, mood: {}, chk: {} };
 const MESI = ['gennaio','febbraio','marzo','aprile','maggio','giugno','luglio','agosto','settembre','ottobre','novembre','dicembre'];
 const $ = (id) => document.getElementById(id);
 const p2 = (n) => String(n).padStart(2, '0');
@@ -239,6 +241,8 @@ function holName(d) {
   if (!HC[y]) {
     HC[y] = {}; Object.keys(FIX).forEach((k) => { HC[y][`${y}-${k}`] = FIX[k]; });
     const e = easter(y); HC[y][ymd(addD(e, 1))] = 'Lunedì dell\'Angelo (Pasquetta)';
+    const pm = /^(\d{1,2})\/(\d{1,2})$/.exec((S.cfg.patron || '').trim());
+    if (pm) { const dm = +pm[1], mm = +pm[2]; if (mm >= 1 && mm <= 12 && dm >= 1 && dm <= new Date(y, mm, 0).getDate()) HC[y][`${y}-${p2(mm)}-${p2(dm)}`] = 'Festa del patrono'; }
   }
   return HC[y][ymd(d)] || '';
 }
@@ -388,7 +392,7 @@ function renderHome() {
     <button class="quote" onclick="nextPhrase()">${esc(phrase(k.r.n, today))}<small>tocca per un'altra frase</small></button>
     <div class="date">${fdate(k.end)} · ${k.pct}% del percorso · oggi incluso nel conto</div>
     <div class="card"><h3>Oggi</h3><div class="sub"><b>${tmsg}</b><br>${nfTxt}${nt ? `<br>📝 ${esc(nt)}` : ''}</div></div>
-    ${payHtml}${liveHtml()}${proHtml}${tapHtml}
+    ${payHtml}${liveHtml()}${proHtml}${tapHtml}${bkHtml()}
     <div class="acts"><button class="btn sec" onclick="shareImg()">Condividi come immagine</button><button class="btn sec" onclick="exportIcs()">Esporta nel calendario</button></div>`;
   countUp($('cnt'), k.r.n);
   if (first) requestAnimationFrame(() => requestAnimationFrame(() => { const rg = $('rg'); if (rg) rg.style.strokeDashoffset = off; }));
@@ -517,7 +521,7 @@ function openCfg() {
   $('cPayday').value = c.payday || ''; $('cSaved').value = c.saved || ''; $('cFerie').value = c.ferie || '';
   $('cGoalN').value = c.goalName; $('cGoalA').value = c.goalAmt || '';
   $('cPayAdj').checked = c.payAdj; $('cHol').checked = c.hol;
-  $('cHire').value = c.hire; $('cStT').value = c.stT; $('cRal').value = c.ral || ''; $('cResid').value = c.resid || ''; $('cPrev').value = c.prev || ''; $('cShake').checked = c.shake;
+  $('cHire').value = c.hire; $('cPatron').value = c.patron || ''; $('cStT').value = c.stT; $('cRal').value = c.ral || ''; $('cResid').value = c.resid || ''; $('cPrev').value = c.prev || ''; $('cShake').checked = c.shake;
   tmpPM = c.payMode === 'month' ? 'hour' : 'month'; setPM(c.payMode);
   $('cPay').value = (c.payMode === 'month' ? c.monthly : c.rate) || '';
   tmpDays = [...c.days]; drawChips(); setMode(c.mode); setTh(c.theme); openS('cfg');
@@ -538,13 +542,13 @@ function saveCfg() {
   c.payday = pd; c.payAdj = $('cPayAdj').checked; c.saved = parseFloat($('cSaved').value) || 0;
   c.goalName = $('cGoalN').value.trim(); c.goalAmt = parseFloat($('cGoalA').value) || 0;
   c.ferie = parseInt($('cFerie').value, 10) || 0; c.hol = $('cHol').checked; c.theme = tmpTh;
-  c.hire = $('cHire').value; c.stT = $('cStT').value || '09:00'; c.ral = parseFloat($('cRal').value) || 0; c.resid = parseFloat($('cResid').value) || 0; c.prev = parseInt($('cPrev').value, 10) || 0; c.shake = $('cShake').checked; setupShake(c.shake);
+  c.patron = $('cPatron').value.trim(); Object.keys(HC).forEach((q) => delete HC[q]); c.hire = $('cHire').value; c.stT = $('cStT').value || '09:00'; c.ral = parseFloat($('cRal').value) || 0; c.resid = parseFloat($('cResid').value) || 0; c.prev = parseInt($('cPrev').value, 10) || 0; c.shake = $('cShake').checked; setupShake(c.shake);
   first = true; save(); closeS('cfg'); toast('Impostazioni salvate.');
 }
 
 /* ---------- condividi / esporta ---------- */
 function download(blob, name) { const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 4000); }
-function exp() { download(new Blob([JSON.stringify(S)], { type: 'application/json' }), `turno-backup-${ymd(new Date())}.json`); }
+function exp() { S.cfg.lastBackup = ymd(new Date()); try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} download(new Blob([JSON.stringify(S)], { type: 'application/json' }), `turno-backup-${ymd(new Date())}.json`); }
 function imp(f) {
   if (!f) return;
   const r = new FileReader();
@@ -643,7 +647,7 @@ function renderX() {
   const f = fuga(k);
   h += `<div class="card"><h2>Ultimo giorno di lavoro</h2>${f ? `<div class="big">${f.last ? fshort(f.last) : 'Già da oggi'}</div><div class="sub">Se smalti i ${fh(c.resid)} giorni di ferie/ROL alla fine, il tuo vero ultimo giorno è questo (contratto fino al ${fshort(k.end)}).${f.short ? ' Hai più giorni di quanti ne restino da lavorare.' : ''} A fine contratto le ferie non godute di solito vengono pagate: confrontale con il consulente.</div><button class="btn sec" style="margin-top:12px" onclick="applyFuga()">Segna queste ferie nel calendario</button>` : `<div class="sub">Indica i giorni di ferie/ROL residui nelle impostazioni (ROL: ore ÷ ore al giorno).</div>`}</div>`;
   const n = nas(k), tf = tfr(k);
-  h += `<div class="card"><h2>NASpI e TFR (stime indicative)</h2>${n.err ? `<div class="sub">${n.err}</div>` : `<div class="rows"><div><span>Settimane contributive a fine contratto</span><b>${Math.floor(n.w)}</b></div><div><span>NASpI mensile lorda (all'inizio)</span><b>${eur2(n.base)}</b></div><div><span>Durata</span><b>${fh(n.mesi)} mesi</b></div><div><span>Dopo il calo del 3%/mese</span><b>${eur2(n.last)}</b></div><div><span>Totale stimato</span><b>${eur(n.tot)}</b></div></div>`}${tf ? `<div class="rows" style="margin-top:8px"><div><span>TFR stimato maturato oggi</span><b>${eur(tf.now)}</b></div><div><span>TFR stimato a fine contratto</span><b>${eur(tf.end)}</b></div></div>` : ''}<p class="hint">Stima lorda con valori INPS 2026 (soglia 1.456,72 €, massimo 1.584,70 €), calo del 3% dal 6° mese (vale per under 55). La NASpI spetta in caso di perdita involontaria del lavoro, come la scadenza del contratto, ma non con dimissioni volontarie. Il TFR è una stima teorica: retribuzione utile annua ÷ 13,5 per ogni anno di servizio, senza rivalutazione (qui la RAL fa da retribuzione utile, quindi il valore è indicativo). Per cifre ufficiali usa il simulatore INPS o un patronato.</p></div>`;
+  h += `<div class="card"><h2>NASpI e TFR (stime indicative)</h2>${n.err ? `<div class="sub">${n.err}</div>` : `<div class="rows"><div><span>Settimane contributive a fine contratto</span><b>${Math.floor(n.w)}</b></div><div><span>NASpI mensile lorda (all'inizio)</span><b>${eur2(n.base)}</b></div><div><span>Durata</span><b>${fh(n.mesi)} mesi</b></div><div><span>Dopo il calo del 3%/mese</span><b>${eur2(n.last)}</b></div><div><span>Totale stimato</span><b>${eur(n.tot)}</b></div></div>`}${tf ? `<div class="rows" style="margin-top:8px"><div><span>TFR stimato maturato oggi</span><b>${eur(tf.now)}</b></div><div><span>TFR stimato a fine contratto</span><b>${eur(tf.end)}</b></div></div>` : ''}<p class="hint">Stima lorda con valori INPS 2026 (da verificare ogni anno sul sito INPS) (soglia 1.456,72 €, massimo 1.584,70 €), calo del 3% dal 6° mese (vale per under 55). La NASpI spetta in caso di perdita involontaria del lavoro, come la scadenza del contratto, ma non con dimissioni volontarie. Il TFR è una stima teorica: retribuzione utile annua ÷ 13,5 per ogni anno di servizio, senza rivalutazione (qui la RAL fa da retribuzione utile, quindi il valore è indicativo). Per cifre ufficiali usa il simulatore INPS o un patronato.</p></div>`;
   const gd = dd(today, k.end);
   h += `<div class="card"><h2>Checklist di uscita</h2>${CK.map(([id, tx, d]) => `<label class="chk"><input type="checkbox" ${S.chk[id] ? 'checked' : ''} onchange="tick('${id}',this.checked)"> <span>${tx}${gd <= d && !S.chk[id] ? ' ⏰' : ''}</span></label>`).join('')}<p class="hint">⏰ = è ora di farlo.</p></div>`;
   const ms = Object.keys(S.mood), bad = ms.filter((x) => S.mood[x] === 3).length, tm = S.mood[ymd(today)], wd = {};
@@ -674,6 +678,10 @@ async function setupShake(on) {
   window.addEventListener('devicemotion', onMotion);
 }
 setupShake(S.cfg.shake);
+function bkHtml() { const c = S.cfg; if (!c.end) return ''; const l = c.lastBackup ? dd(parse(c.lastBackup), todayD()) : 999; if (l < 30) return ''; return `<div class="card"><h3>Backup</h3><div class="sub">${c.lastBackup ? `Ultimo backup ${l} giorni fa.` : 'Non hai ancora fatto un backup.'} I dati sono solo su questo dispositivo: salvane una copia.</div><button class="btn sec" style="margin-top:12px" onclick="exp(); render()">Scarica backup</button></div>`; }
+let dip = null; addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); dip = e; $('instBtn').hidden = false; });
+function instApp() { if (!dip) return; dip.prompt(); dip = null; $('instBtn').hidden = true; }
+if ('serviceWorker' in navigator && location.protocol.indexOf('http') === 0) navigator.serviceWorker.register('./sw.js').catch(() => {});
 
 applyTheme(); render();
 </script>
