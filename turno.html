@@ -700,6 +700,17 @@ function bkHtml() { const c = S.cfg; if (!c.end) return ''; const l = c.lastBack
 let dip = null; addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); dip = e; $('instBtn').hidden = false; });
 function instApp() { if (!dip) return; dip.prompt(); dip = null; $('instBtn').hidden = true; }
 if ('serviceWorker' in navigator && location.protocol.indexOf('http') === 0) navigator.serviceWorker.register('./sw.js').catch(() => {});
+/* manifest dedicato: Turno ha il suo id e il suo percorso */
+(function () {
+  if (location.protocol.indexOf('http') !== 0) return;
+  const link = document.querySelector('link[rel=manifest]'); if (!link) return;
+  const page = location.origin + location.pathname, dir = location.origin + location.pathname.replace(/[^/]*$/, '');
+  fetch(link.href).then((r) => r.json()).then((m) => {
+    m.id = page + '?turno'; m.start_url = page; m.scope = dir;
+    m.icons = (m.icons || []).map((i) => ({ ...i, src: new URL(i.src, link.href).href }));
+    link.href = URL.createObjectURL(new Blob([JSON.stringify(m)], { type: 'application/manifest+json' }));
+  }).catch(() => {});
+})();
 /* ---------- turni avanzati (Pro) ---------- */
 const PRO = () => { try { return localStorage.getItem('turno_pro') === '1'; } catch (e) { return false; } };
 function setPro(v) { const was = PRO(); try { if (v) localStorage.setItem('turno_pro', '1'); else localStorage.removeItem('turno_pro'); } catch (e) {} if (was !== v) { drawPro(); cloudUI(); render(); } }
