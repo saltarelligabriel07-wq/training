@@ -121,6 +121,10 @@ nav button{padding:10px 13px}
 #fkK button{aspect-ratio:1;border:0;border-radius:50%;background:#333;color:#fff;font-size:1.7rem}
 #fkK button:nth-child(4n){background:#ff9f0a}
 .lock{opacity:.4}
+.wg{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;margin-bottom:4px}
+.wd{aspect-ratio:1;border-radius:12px;border:1.5px solid var(--line);background:var(--s2);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:0;cursor:pointer;font-size:1.15rem}
+.wd small{font:600 .56rem Manrope;color:var(--dim)}
+.wd.on{border-color:var(--ac);background:rgba(138,180,255,.16)}
 </style>
 </head>
 <body>
@@ -163,7 +167,7 @@ nav button{padding:10px 13px}
   <div class="f"><label>Cosa stai aspettando?</label><input type="text" id="cLabel" maxlength="40" placeholder="Es. Fine contratto, Vacanze"></div>
   <div class="row2"><div class="f"><label>Data di inizio (vuota = oggi)</label><input type="date" id="cStart"></div><div class="f"><label>Data di fine *</label><input type="date" id="cEnd"></div></div>
   <div class="sec-t">Orario (obbligatorio)</div>
-  <div class="f"><div class="seg"><button type="button" id="md-week" onclick="setMode('week')">Settimana fissa</button><button type="button" id="md-cycle" onclick="setMode('cycle')">Turni a ciclo</button><button type="button" id="md-rot" onclick="setMode('rot')">Rotazione (Pro)</button></div></div>
+  <div class="f"><div class="seg"><button type="button" id="md-week" onclick="setMode('week')">Settimana fissa</button><button type="button" id="md-cycle" onclick="setMode('cycle')">Turni a ciclo</button><button type="button" id="md-rot" onclick="setMode('rot')">Turni (Pro)</button></div></div>
   <div id="wkBox" class="f"><label>Giorni in cui lavori di solito</label><div class="chips" id="cDays"></div></div>
   <div id="rtBox" hidden></div>
   <div id="cyBox"><div class="row2"><div class="f"><label>Giorni di lavoro di fila</label><input type="number" id="cOn" min="1" step="1" inputmode="numeric"></div><div class="f"><label>Giorni di riposo di fila</label><input type="number" id="cOff" min="0" step="1" inputmode="numeric"></div></div>
@@ -519,7 +523,7 @@ let tmpDays = [], tmpPM = 'hour', tmpMode = 'week', tmpTh = 'auto';
 const seg = (p, v, l) => l.forEach((x) => $(p + x).classList.toggle('on', x === v));
 function drawChips() { $('cDays').innerHTML = ORDER.map((n, i) => `<button type="button" class="chip ${tmpDays.includes(n) ? 'on' : ''}" onclick="togDay(${n})">${LET[i]}</button>`).join(''); }
 function togDay(n) { tmpDays = tmpDays.includes(n) ? tmpDays.filter((x) => x !== n) : [...tmpDays, n]; drawChips(); }
-function setMode(m) { if (m === 'rot' && !PRO()) { toast('Rotazione turni: funzione Pro.'); return; } tmpMode = m; seg('md-', m, ['week', 'cycle', 'rot']); $('wkBox').hidden = m !== 'week'; $('cyBox').hidden = m !== 'cycle'; $('rtBox').hidden = m !== 'rot'; }
+function setMode(m) { if (m === 'rot' && !PRO()) { toast('I turni per giorno sono una funzione Pro.'); return; } tmpMode = m; seg('md-', m, ['week', 'cycle', 'rot']); $('wkBox').hidden = m !== 'week'; $('cyBox').hidden = m !== 'cycle'; $('rtBox').hidden = m !== 'rot'; }
 function setTh(t) { tmpTh = t; seg('th-', t, ['auto', 'dark', 'light']); }
 function setPM(m) {
   const c = S.cfg, prev = tmpPM; tmpPM = m; seg('pm-', m, ['hour', 'month']);
@@ -543,7 +547,7 @@ function saveCfg() {
   const on = parseInt($('cOn').value, 10) || 0, offd = parseInt($('cOff').value, 10) || 0;
   if (tmpMode === 'week' && !tmpDays.length) { toast('Scegli almeno un giorno di lavoro.'); return; }
   if (tmpMode === 'cycle' && (on < 1 || !$('cCy').value)) { toast('Indica giorni di lavoro e data di inizio del ciclo.'); return; }
-  if (tmpMode === 'rot' && !($('cRot') && $('cRot').value.trim() && $('cRotS').value && $('sc0').value.trim())) { toast('Rotazione: scrivi almeno un turno, la sequenza e il giorno di inizio.'); return; }
+  if (tmpMode === 'rot' && !rotValid()) { toast('Turni: scegli almeno un giorno di lavoro.'); return; }
   if (!(hours > 0)) { toast('Scrivi quante ore lavori al giorno.'); return; }
   if (pd < 0 || pd > 31) { toast('Il giorno di paga va da 1 a 31.'); return; }
   if ($('cEnd').value && $('cStart').value && $('cStart').value > $('cEnd').value) { toast('La data di inizio è dopo quella di fine: controlla le due date.'); return; }
@@ -700,10 +704,14 @@ const PRO = () => { try { return localStorage.getItem('turno_pro') === '1'; } ca
 function setPro(v) { const was = PRO(); try { if (v) localStorage.setItem('turno_pro', '1'); else localStorage.removeItem('turno_pro'); } catch (e) {} if (was !== v) { drawPro(); cloudUI(); render(); } }
 async function cloudPro() { try { const s = await cloudDb.collection('entitlements').doc(cloudUser.uid).get(); setPro(!!(s.exists && s.data().pro === true)); } catch (e) {} }
 const tmin = (s) => { const p = String(s || '0:0').split(':').map(Number); return (p[0] || 0) * 60 + (p[1] || 0); };
-function rotTok(d) { const c = S.cfg, t = (c.rot || '').trim().split(/[\s,]+/).filter(Boolean); if (!t.length || !c.rotStart) return null; return t[((dd(parse(c.rotStart), d) % t.length) + t.length) % t.length].toUpperCase(); }
-function rotShift(d) { if (!PRO()) return null; const k = rotTok(d); return k ? (S.cfg.shifts || []).find((x) => x.code === k) || null : null; }
+const SN = { M: 'Mattina', P: 'Pomeriggio', N: 'Notte' }, SL = { M: 'mat', P: 'pom', N: 'notte' }, SE = { '': '—', M: '☀️', P: '🌆', N: '🌙' }, SO = ['', 'M', 'P', 'N'];
+const SDEF = { M: ['06:00', '14:00'], P: ['14:00', '22:00'], N: ['22:00', '06:00'] };
+function PD() { const c = S.cfg, t = {}; ['M', 'P', 'N'].forEach((k) => { const x = c.pt && c.pt[k]; t[k] = x && x[0] && x[1] ? x : SDEF[k]; }); return { n: Math.min(4, Math.max(1, c.pn || 1)), w: c.pw || [], t, s: c.ps || '' }; }
+function rotCode(d) { const p = PD(); if (!p.s) return ''; const st = parse(p.s), mon = addD(st, -((st.getDay() + 6) % 7)), n = dd(mon, d), wk = ((Math.floor(n / 7) % p.n) + p.n) % p.n; return ((p.w[wk] || [])[((n % 7) + 7) % 7]) || ''; }
+function rotTok(d) { if (!PRO()) return null; const k = rotCode(d); return k ? SL[k] : null; }
+function rotShift(d) { if (!PRO()) return null; const k = rotCode(d); if (!k) return null; const t = PD().t[k]; return { code: k, start: t[0], end: t[1] }; }
 function shiftH(d) { if (S.cfg.mode !== 'rot' || !PRO()) return 0; const s = rotShift(d); if (!s) return 0; const a = tmin(s.start); let b = tmin(s.end); if (b <= a) b += 1440; return (b - a) / 60; }
-function nightH(s) { const c = S.cfg, a = tmin(s.start); let b = tmin(s.end); if (b <= a) b += 1440; const n0 = tmin(c.nightFrom || '22:00'); let n1 = tmin(c.nightTo || '06:00'); if (n1 <= n0) n1 += 1440; let t = 0; [-1440, 0, 1440].forEach((o) => { t += Math.max(0, Math.min(b, n1 + o) - Math.max(a, n0 + o)); }); return t / 60; }
+function nightH(s) { const a = tmin(s.start); let b = tmin(s.end); if (b <= a) b += 1440; let t = 0; [-1440, 0, 1440].forEach((o) => { t += Math.max(0, Math.min(b, 1800 + o) - Math.max(a, 1320 + o)); }); return t / 60; }
 function bonus(a, b) {
   const c = S.cfg, hr = hourly(); if (!PRO() || !hr) return 0; let eu = 0; const d = new Date(a);
   while (d <= b) {
@@ -716,18 +724,29 @@ function bonus(a, b) {
   }
   return eu;
 }
+let tmpW = [], tmpN = 1;
+const rotValid = () => tmpW.slice(0, tmpN).some((w) => w.some((x) => x));
+function wkInit() { const p = PD(); tmpN = p.n; tmpW = []; for (let i = 0; i < 4; i++) tmpW.push((p.w[i] || []).concat(Array(7).fill('')).slice(0, 7)); }
+function wkCyc(w, i) { tmpW[w][i] = SO[(SO.indexOf(tmpW[w][i]) + 1) % 4]; drawWk(); }
+function setPn(n) { tmpN = n; drawWk(); }
+function drawWk() {
+  const el = $('pwBox'); if (!el) return; const nm = ['Lun', 'Mar', 'Mer', 'Gio', 'Ven', 'Sab', 'Dom'];
+  el.innerHTML = '<div class="seg" style="margin-bottom:10px">' + [1, 2, 3, 4].map((n) => `<button type="button" class="${tmpN === n ? 'on' : ''}" onclick="setPn(${n})">${n}</button>`).join('') + '</div>'
+    + Array.from({ length: tmpN }, (_, w) => `${tmpN > 1 ? `<div class="hint" style="margin:10px 0 4px"><b>Settimana ${w + 1}</b></div>` : ''}<div class="wg">${nm.map((x) => `<div class="dow">${x}</div>`).join('')}${tmpW[w].map((v, i) => `<button type="button" class="wd ${v ? 'on' : ''}" onclick="wkCyc(${w},${i})"><span>${SE[v]}</span><small>${v ? SL[v] : 'riposo'}</small></button>`).join('')}</div>`).join('');
+}
 function drawPro() {
   const c = S.cfg, rt = $('rtBox'), pb = $('proBox'); if (!rt || !pb) return;
-  if (!PRO()) { rt.innerHTML = ''; pb.innerHTML = '<div class="sec-t">Turni avanzati (Pro)</div><p class="hint" style="margin:0">🔒 Rotazioni come M M P P N R, maggiorazioni notturne e festive, straordinari. Disponibile con Pro: arriverà a breve.</p>'; return; }
-  const sh = c.shifts || [];
-  const row = (i) => { const s = sh[i] || {}; return `<div class="f" style="display:grid;grid-template-columns:62px 1fr 1fr;gap:8px"><input type="text" id="sc${i}" maxlength="2" placeholder="Cod." value="${esc(s.code || '')}"><input type="time" id="ss${i}" value="${s.start || ''}"><input type="time" id="se${i}" value="${s.end || ''}"></div>`; };
-  rt.innerHTML = `<div class="sec-t" style="margin-top:6px">Turni (codice, inizio, fine)</div>${[0, 1, 2, 3].map(row).join('')}<p class="hint" style="margin:-4px 0 10px">Es. M 06:00-14:00, P 14:00-22:00, N 22:00-06:00. Con la lettera R scrivi i giorni di riposo nella sequenza. In questa modalità le ore al giorno sono quelle del turno.</p><div class="f"><label>Sequenza (un codice per giorno)</label><input type="text" id="cRot" maxlength="60" placeholder="Es. M M P P N R R" value="${esc(c.rot || '')}"></div><div class="f"><label>Giorno in cui inizia la sequenza</label><input type="date" id="cRotS" value="${c.rotStart || ''}"></div>`;
-  pb.innerHTML = `<div class="sec-t">Maggiorazioni (Pro)</div><p class="hint" style="margin:0 0 8px">Percentuali in più sulla paga oraria, come da contratto. Lascia vuoto se non le hai. Entrano nelle stime di guadagno.</p><div class="row2"><div class="f"><label>Notte dalle</label><input type="time" id="cNF" value="${c.nightFrom}"></div><div class="f"><label>alle</label><input type="time" id="cNT" value="${c.nightTo}"></div></div><div class="row2"><div class="f"><label>Notturno (%)</label><input type="number" id="cNP" step="1" min="0" inputmode="decimal" value="${c.nightPct || ''}"></div><div class="f"><label>Festivo/domenica (%)</label><input type="number" id="cHP" step="1" min="0" inputmode="decimal" value="${c.holPct || ''}"></div></div><div class="f"><label>Straordinario / lavoro extra (%)</label><input type="number" id="cOP" step="1" min="0" inputmode="decimal" value="${c.otPct || ''}"></div>`;
+  if (!PRO()) { rt.innerHTML = ''; pb.innerHTML = '<div class="sec-t">Turni e maggiorazioni (Pro)</div><p class="hint" style="margin:0">🔒 Scegli per ogni giorno mattina, pomeriggio, notte o riposo, e aggiungi quanto ti pagano in più. Disponibile con Pro: arriverà a breve.</p>'; return; }
+  wkInit(); const p = PD();
+  const tr = (k, ic) => `<div class="f"><label>${ic} ${SN[k]} (dalle / alle)</label><div class="row2"><input type="time" id="t${k}1" value="${p.t[k][0]}"><input type="time" id="t${k}2" value="${p.t[k][1]}"></div></div>`;
+  rt.innerHTML = `<div class="sec-t" style="margin-top:6px">1 · A che ora sono i tuoi turni?</div>${tr('M', '☀️')}${tr('P', '🌆')}${tr('N', '🌙')}<div class="sec-t">2 · Ogni quante settimane si ripete il tuo giro?</div><p class="hint" style="margin:0 0 8px">1 = ogni settimana è uguale. 2 = due settimane diverse che si alternano, e così via.</p><div id="pwBox"></div><p class="hint">Tocca un giorno per cambiarlo: riposo → mattina → pomeriggio → notte.</p><div class="f"><label>3 · La settimana 1 è quella del</label><input type="date" id="cPS" value="${c.ps || ymd(todayD())}"></div><p class="hint" style="margin:-4px 0 10px">Scegli un giorno qualsiasi di quella settimana. In questa modalità le ore al giorno sono quelle del turno.</p>`;
+  drawWk();
+  pb.innerHTML = `<div class="sec-t">Quanto ti pagano in più (Pro)</div><p class="hint" style="margin:0 0 8px">Scrivi di quanto aumenta la paga oraria. Esempio: 25 vuol dire +25%. Lascia vuoto se non hai la maggiorazione.</p><div class="f"><label>🌙 Lavoro di notte (dalle 22:00 alle 06:00)</label><input type="number" id="cNP" step="1" min="0" inputmode="decimal" placeholder="Es. 25" value="${c.nightPct || ''}"></div><div class="f"><label>📅 Domenica e festivi</label><input type="number" id="cHP" step="1" min="0" inputmode="decimal" placeholder="Es. 30" value="${c.holPct || ''}"></div><div class="f"><label>➕ Lavoro extra (straordinario)</label><input type="number" id="cOP" step="1" min="0" inputmode="decimal" placeholder="Es. 20" value="${c.otPct || ''}"></div><p class="hint">Se lavori anche nei festivi, togli la spunta a «Escludi le festività italiane». Sono stime: confrontale con la tua busta paga.</p>`;
 }
 function readPro() {
   if (!PRO()) return; const c = S.cfg;
-  if ($('sc0')) { c.shifts = [0, 1, 2, 3].map((i) => ({ code: $('sc' + i).value.trim().toUpperCase(), start: $('ss' + i).value, end: $('se' + i).value })).filter((x) => x.code && x.code !== 'R' && x.start && x.end); c.rot = $('cRot').value.trim(); c.rotStart = $('cRotS').value; }
-  if ($('cNP')) { c.nightFrom = $('cNF').value || '22:00'; c.nightTo = $('cNT').value || '06:00'; c.nightPct = parseFloat($('cNP').value) || 0; c.holPct = parseFloat($('cHP').value) || 0; c.otPct = parseFloat($('cOP').value) || 0; }
+  if ($('cPS')) { c.pn = tmpN; c.pw = tmpW.slice(0, tmpN).map((w) => w.slice()); c.ps = $('cPS').value; c.pt = {}; ['M', 'P', 'N'].forEach((k) => { c.pt[k] = [$('t' + k + '1').value || SDEF[k][0], $('t' + k + '2').value || SDEF[k][1]]; }); }
+  if ($('cNP')) { c.nightPct = parseFloat($('cNP').value) || 0; c.holPct = parseFloat($('cHP').value) || 0; c.otPct = parseFloat($('cOP').value) || 0; }
 }
 /* ---------- account e sincronizzazione (Firebase) ---------- */
 const FB = { apiKey: "AIzaSyBf9_RgZ7UGtlqu_ySIsLQQ4qk9ymJr6WI", authDomain: "turno-6b6fb.firebaseapp.com", projectId: "turno-6b6fb", storageBucket: "turno-6b6fb.firebasestorage.app", messagingSenderId: "5394387407", appId: "1:5394387407:web:1f4691b23b193fbdb882ba" };
