@@ -125,6 +125,39 @@ nav button{padding:10px 13px}
 .wd{aspect-ratio:1;border-radius:12px;border:1.5px solid var(--line);background:var(--s2);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:0;cursor:pointer;font-size:1.15rem}
 .wd small{font:600 .56rem Manrope;color:var(--dim)}
 .wd.on{border-color:var(--ac);background:rgba(138,180,255,.16)}
+/* --- telefono: spazi e sovrapposizioni --- */
+html,body{overflow-x:hidden}
+body{min-height:100dvh}
+.sheet{max-height:92dvh}
+nav{width:calc(100vw - 24px);max-width:476px}
+nav button{flex:1;min-width:0;padding:10px 4px;font-size:.8rem;white-space:nowrap}
+#toast{top:calc(14px + env(safe-area-inset-top,0px));bottom:auto;max-width:calc(100vw - 32px);text-align:center}
+.f,.row2>*{min-width:0}
+.f input{min-width:0;max-width:100%}
+.seg button,.chip{min-width:0;padding:10px 4px;font-size:.78rem}
+.btn{line-height:1.25}
+.opts .btn,.acts .btn{padding:12px 8px;font-size:.84rem}
+.big{font-size:clamp(1.6rem,8vw,2.3rem);overflow-wrap:anywhere}
+.ch{gap:6px}
+.ch h2{min-width:0;font-size:clamp(1.05rem,5vw,1.3rem)}
+.sq{min-width:34px;padding:0 9px}
+.trio span{display:block;padding:0 4px;line-height:1.25}
+.rows div{align-items:baseline;gap:10px}
+.rows span{flex:1 1 0;min-width:0}
+.rows b{flex:0 1 auto;max-width:60%;overflow-wrap:anywhere}
+.tap{align-items:baseline}
+.tap b{min-width:0}
+.tap span{white-space:nowrap}
+.br>div{min-width:0}
+.mh{gap:10px}
+.day small,.wd small{white-space:nowrap}
+.card{overflow-wrap:break-word}
+/* --- finta calcolatrice --- */
+#fk{padding-top:max(env(safe-area-inset-top,0px),10px)}
+#fkX{align-self:flex-start;margin:6px 4px 0;background:#333;color:#fff;border:0;border-radius:99px;padding:10px 20px;font:600 1rem system-ui,sans-serif;cursor:pointer}
+#fkD{font-size:clamp(2.6rem,13vw,4.2rem);min-height:0;overflow:hidden}
+#fkK{max-width:min(420px,max(220px,calc((100dvh - 260px) / 1.25)))}
+#fkK button{font-size:clamp(1.2rem,6vw,1.7rem)}
 </style>
 </head>
 <body>
@@ -197,7 +230,7 @@ nav button{padding:10px 13px}
   <input type="file" id="cFile" accept="application/json" hidden onchange="imp(this.files[0])">
   <p class="hint">Senza account i dati restano su questo dispositivo. Scarica un backup ogni tanto per non perderli o per spostarli su un altro telefono.</p><p class="hint"><b>Installa:</b> su iPhone usa Condividi → Aggiungi a Home; su Android il pulsante qui sopra o il menu del browser. <b>Privacy:</b> nessun tracciamento; i dati restano nel tuo browser e, se crei un account, vengono salvati anche nel cloud (Firebase, Google) per sincronizzarli; i font si caricano da Google Fonts. <b>Avviso:</b> TFR, NASpI e ogni cifra sono stime indicative, non consulenza.</p>
 </div></div>
-<div id="fk" hidden><div id="fkD" onpointerdown="fkT=setTimeout(()=>panic(0),800)" onpointerup="clearTimeout(fkT)" onpointerleave="clearTimeout(fkT)">0</div><div id="fkK"></div></div>
+<div id="fk" hidden><button id="fkX" type="button" onclick="panic(0)">Esci</button><div id="fkD" onpointerdown="fkT=setTimeout(()=>panic(0),800)" onpointerup="clearTimeout(fkT)" onpointerleave="clearTimeout(fkT)">0</div><div id="fkK"></div></div>
 <div id="toast"></div>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
