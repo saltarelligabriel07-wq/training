@@ -709,7 +709,7 @@ function setMood(v) { const k = ymd(todayD()); if (S.mood[k] === v) delete S.moo
 function renderX() {
   const c = S.cfg, k = calc(), el = $('v-x'), t = tenure(), today = todayD();
   let h = `<div class="card" style="margin-top:14px"><h2>Da quanto lavori</h2>${t ? `<div class="big">${t.y ? t.y + ' a ' : ''}${t.m} m ${t.d} g</div><div class="sub">${t.days} giorni dall'assunzione, circa <b>${t.worked}</b> giorni di lavoro effettivo.</div>` : `<div class="sub">Imposta la data di assunzione per vedere da quanto sei lì dentro.</div><button class="btn sec" style="margin-top:12px" onclick="openCfg()">Imposta</button>`}</div>`;
-  h += payHtml();
+  h += payHtml(); h += proPlus();
   if (!k || k.over) { el.innerHTML = h + '<div class="card"><div class="sub">Imposta una data di arrivo nelle impostazioni per vedere il resto.</div></div>'; return; }
   const r = remDays(k);
   h += `<div class="card"><h2>Metriche del dolore</h2><div class="rows"><div><span>Lunedì da sopportare</span><b>${r.mon}</b></div><div><span>Venerdì (quasi liberi)</span><b>${r.fri}</b></div><div><span>Ore di lavoro effettivo</span><b>${fh(k.r.h)}</b></div></div></div>`;
@@ -850,12 +850,56 @@ function openPro() {
     row('Conto alla rovescia, calendario e statistiche', Y, Y), row('Ferie, permessi/ROL e ponti', Y, Y), row('Paga, obiettivo e paghe nel calendario', Y, Y),
     row('Stime TFR e NASpI', Y, Y), row('Account e sincronizzazione', Y, Y), row('Backup e condivisione come immagine', Y, Y),
     row('<b>Turni a rotazione</b> (mattina, pomeriggio, notte)', N, Y), row('<b>Maggiorazioni</b> di notte, festivi e straordinari', N, Y), row('<b>Controllo busta paga</b>', N, Y),
-    row('Più traguardi insieme', N, Z), row('Planner ferie intelligente', N, Z), row('Report PDF ed Excel', N, Z), row('Promemoria e notifiche', N, Z)
+    row('<b>Più traguardi</b> insieme', N, Y), row('<b>Planner ferie</b> intelligente', N, Y), row('<b>Report</b> PDF e Excel (CSV)', N, Y), row('Promemoria e notifiche', N, Z)
   ].join('');
   const cta = PRO() ? '<p class="sub" style="margin:14px 0 0"><b>✓ Hai già Pro.</b> Grazie! Le funzioni segnate «presto» le troverai qui appena pronte.</p>'
     : '<p class="sub" style="margin:14px 0 8px">Con Pro: prova gratuita di 14 giorni, poi disdici quando vuoi. <b>I pagamenti non sono ancora attivi</b>, quindi Pro non è ancora in vendita.</p><button class="btn" disabled style="opacity:.55">Presto disponibile</button>';
   $('proIn').innerHTML = `<div class="pl"><div class="pc"><b>Standard</b><div class="pr">Gratis</div><span>Per sempre, senza pubblicità</span></div><div class="pc hi"><b>Pro</b><div class="pr">1,99 €</div><span>al mese, oppure 14,99 € all'anno (circa −37%)</span></div></div><div class="cmp"><div class="h"></div><div class="h">Standard</div><div class="h">Pro</div>${rows}</div><p class="hint">«presto» = in arrivo e già incluso in Pro. Prezzi e prova gratuita sono indicativi.</p>${cta}`;
   openS('pro');
+}
+/* ---------- planner ferie, traguardi, report (Pro) ---------- */
+let ppV = 0, rpY = new Date().getFullYear();
+function proPlus() { return PRO() ? plannerHtml() + goalsHtml() + reportHtml() : '<div class="card"><h2>Planner ferie, traguardi e report (Pro)</h2><p class="sub">🔒 Trova i giorni di ferie migliori, tieni più traguardi insieme e scarica il report in PDF o Excel. Disponibile con Pro.</p></div>'; }
+function planFerie(N, k) {
+  const t0 = todayD(), lim = k ? k.end : addD(t0, 365), cand = [];
+  for (let s = new Date(t0); s <= lim; s = addD(s, 1)) {
+    if (info(s).w) continue;
+    let need = 0;
+    for (let L = 1; L <= 16; L++) {
+      const e = addD(s, L - 1); if (e > lim) break;
+      if (info(e).w) { need++; if (need > N) break; continue; }
+      if (need >= 1 && L >= 3) cand.push({ s: new Date(s), e, L, need });
+    }
+  }
+  cand.sort((a, b) => b.L / b.need - a.L / a.need || b.L - a.L);
+  const out = []; let left = N;
+  for (const c of cand) { if (c.need > left || out.some((o) => c.s <= o.e && c.e >= o.s)) continue; out.push(c); left -= c.need; if (out.length >= 6 || left < 1) break; }
+  return out.sort((a, b) => a.s - b.s);
+}
+function ppApply(a, b) { const d = parse(a), e = parse(b); let n = 0; for (; d <= e; d.setDate(d.getDate() + 1)) { if (info(d).w === 1 && norm(d)) { S.ex[ymd(d)] = { t: 'ferie' }; n++; } } save(); toast(`Segnati ${n} giorni di ferie.`); }
+function plannerHtml() {
+  const k = calc(), y = todayD().getFullYear(), left = S.cfg.ferie > 0 ? Math.max(1, S.cfg.ferie - ferieUsate(y)) : 5, N = ppV || left;
+  const res = planFerie(N, k && !k.over ? k : null);
+  return `<div class="card"><h2>Planner ferie intelligente</h2><p class="hint" style="margin:0 0 8px">Ti dico quali giorni di ferie prendere per stare a casa il più a lungo possibile, tra riposi, festività e ponti.</p><div class="f"><label>Quanti giorni di ferie vuoi usare?</label><input type="number" id="ppN" min="1" step="1" inputmode="numeric" value="${N}"></div><button class="btn sec" onclick="ppV = parseInt($('ppN').value, 10) || 0; render()">Trova i periodi migliori</button>${res.length ? `<div style="margin-top:10px">${res.map((o) => `<div class="br"><div><b>${fshort(o.s)} → ${fshort(o.e)}</b><span>${o.need} ${o.need === 1 ? 'giorno' : 'giorni'} di ferie = ${o.L} giorni a casa</span></div><button class="btn sm" onclick="ppApply('${ymd(o.s)}','${ymd(o.e)}')">Segna ferie</button></div>`).join('')}</div>` : '<p class="sub" style="margin:10px 0 0">Nessun periodo conveniente trovato con questi giorni.</p>'}</div>`;
+}
+function goalAdd() { const n = $('gN').value.trim(), d = $('gD').value; if (!n || !d) { toast('Scrivi nome e data.'); return; } S.cfg.goals = (S.cfg.goals || []).concat({ n: n.slice(0, 30), d }).sort((a, b) => a.d < b.d ? -1 : 1); save(); }
+function goalDel(i) { S.cfg.goals.splice(i, 1); save(); }
+function goalsHtml() {
+  const t = todayD(), rows = (S.cfg.goals || []).map((x, i) => { const d = parse(x.d), past = d < t; return `<div class="br"><div><b>${esc(x.n)}</b><span>${fdate(d)} · ${past ? 'già passato ✓' : `tra ${dd(t, d)} giorni (${span(t, d).n} di lavoro)`}</span></div><button class="btn sm sec" onclick="goalDel(${i})" aria-label="Elimina">✕</button></div>`; }).join('');
+  return `<div class="card"><h2>I tuoi traguardi</h2><p class="hint" style="margin:0 0 6px">Oltre a quello principale: vacanze, rate, esami, qualsiasi data.</p>${rows || '<p class="sub">Nessun traguardo ancora.</p>'}<div class="f" style="margin-top:10px"><label>Nome</label><input type="text" id="gN" maxlength="30" placeholder="Es. Vacanza al mare"></div><div class="f"><label>Data</label><input type="date" id="gD"></div><button class="btn sec" onclick="goalAdd()">Aggiungi traguardo</button></div>`;
+}
+function repData(y) { const o = []; for (let m = 0; m < 12; m++) { const s = monthStat(y, m); o.push({ m: MESI[m], n: s.n, h: s.h, f: s.ferie, p: s.perm, e: s.money }); } return o; }
+function rpGo(n) { rpY += n; render(); }
+function repCsv() { const y = rpY, nf = (x) => String(Math.round(x * 100) / 100).replace('.', ','), L = ['Mese;Giorni di lavoro;Ore;Ferie;Permessi/ROL (ore);Guadagno previsto (euro)'].concat(repData(y).map((r) => [r.m, r.n, nf(r.h), r.f, nf(r.p), r.e === null ? '' : nf(r.e)].join(';'))); download(new Blob(['\ufeff' + L.join('\r\n')], { type: 'text/csv;charset=utf-8' }), `turno-report-${y}.csv`); }
+function repPdf() {
+  const y = rpY, w = window.open('', '_blank'); if (!w) { toast('Consenti i popup per creare il PDF.'); return; }
+  const tr = repData(y).map((r) => `<tr><td>${r.m}</td><td>${r.n}</td><td>${fh(r.h)}</td><td>${r.f}</td><td>${fh(r.p)}</td><td>${r.e === null ? '—' : eur2(r.e)}</td></tr>`).join('');
+  w.document.write(`<!DOCTYPE html><html lang="it"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Report ${y}</title><style>body{font:14px system-ui,sans-serif;padding:24px}table{border-collapse:collapse;width:100%}td,th{border-bottom:1px solid #ccc;padding:8px;text-align:right}td:first-child,th:first-child{text-align:left;text-transform:capitalize}</style><h1>Turno · Report ${y}</h1><table><tr><th>Mese</th><th>Giorni di lavoro</th><th>Ore</th><th>Ferie</th><th>Permessi/ROL (h)</th><th>Guadagno previsto</th></tr>${tr}</table><p>Stime calcolate da Turno: non sostituiscono la busta paga.</p>`);
+  w.document.close(); w.focus(); setTimeout(() => w.print(), 400);
+}
+function reportHtml() {
+  const R = repData(rpY), tn = R.reduce((a, r) => a + r.n, 0), th = R.reduce((a, r) => a + r.h, 0), te = R.reduce((a, r) => a + (r.e || 0), 0), any = R.some((r) => r.e !== null);
+  return `<div class="card"><h2>Report annuale</h2><div class="ch" style="margin:0 0 6px"><h2 style="font-size:1.05rem">Anno ${rpY}</h2><button class="sq" onclick="rpGo(-1)" aria-label="Anno precedente">‹</button><button class="sq" onclick="rpGo(1)" aria-label="Anno successivo">›</button></div><div class="rows"><div><span>Giorni di lavoro</span><b>${tn}</b></div><div><span>Ore</span><b>${fh(th)}</b></div>${any ? `<div><span>Guadagno previsto</span><b>${eur2(te)}</b></div>` : ''}</div><div class="opts" style="margin-top:12px"><button class="btn sec" onclick="repCsv()">Scarica per Excel (CSV)</button><button class="btn sec" onclick="repPdf()">Salva come PDF</button></div><p class="hint">Riepilogo mese per mese, calcolato dal tuo calendario. Sono stime: non sostituiscono la busta paga.</p></div>`;
 }
 /* ---------- account e sincronizzazione (Firebase) ---------- */
 const FB = { apiKey: "AIzaSyBf9_RgZ7UGtlqu_ySIsLQQ4qk9ymJr6WI", authDomain: "turno-6b6fb.firebaseapp.com", projectId: "turno-6b6fb", storageBucket: "turno-6b6fb.firebasestorage.app", messagingSenderId: "5394387407", appId: "1:5394387407:web:1f4691b23b193fbdb882ba" };
