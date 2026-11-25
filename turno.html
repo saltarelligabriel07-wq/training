@@ -121,6 +121,20 @@ nav button{padding:10px 13px}
 #fkK button{aspect-ratio:1;border:0;border-radius:50%;background:#333;color:#fff;font-size:1.7rem}
 #fkK button:nth-child(4n){background:#ff9f0a}
 .lock{opacity:.4}
+.pro-b{width:auto;padding:0 12px;font:700 .78rem Manrope,system-ui,sans-serif;letter-spacing:.04em;color:var(--on);background:var(--ac);border-color:var(--ac)}
+.pl{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.pc{border:1px solid var(--line);background:var(--s2);border-radius:16px;padding:14px;min-width:0}
+.pc.hi{border-color:var(--ac)}
+.pc b{display:block;font:600 1rem Sora,system-ui,sans-serif}
+.pc .pr{font:300 1.5rem Sora,system-ui,sans-serif;margin:6px 0 2px}
+.pc span{font-size:.74rem;color:var(--dim);line-height:1.3;display:block}
+.cmp{display:grid;grid-template-columns:1fr 62px 62px;align-items:center;font-size:.86rem}
+.cmp>div{padding:9px 0;border-bottom:1px solid var(--line);min-width:0}
+.cmp .h{font-weight:700;font-size:.74rem;color:var(--dim);text-align:center}
+.cmp .c{text-align:center}
+.cmp .y{color:var(--ac2);font-weight:700}
+.cmp .n{color:var(--faint)}
+.cmp .soon{font-size:.62rem;color:var(--warn);font-weight:700}
 .wg{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;margin-bottom:4px}
 .wd{aspect-ratio:1;border-radius:12px;border:1.5px solid var(--line);background:var(--s2);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:0;cursor:pointer;font-size:1.15rem}
 .wd small{font:600 .56rem Manrope;color:var(--dim)}
@@ -162,7 +176,7 @@ nav button{flex:1;min-width:0;padding:10px 4px;font-size:.8rem;white-space:nowra
 </head>
 <body>
 <div class="app">
-  <header><div class="logo">turno</div><div class="hr"><button class="ib" onclick="panic(1)" aria-label="Nascondi app">▦</button><button class="ib" id="thBtn" onclick="cycleTheme()" aria-label="Cambia tema">◐</button><button class="ib" onclick="openCfg()" aria-label="Impostazioni">⚙︎</button></div></header>
+  <header><div class="logo">turno</div><div class="hr"><button class="ib pro-b" onclick="openPro()" aria-label="Scopri Pro">PRO</button><button class="ib" onclick="panic(1)" aria-label="Nascondi app">▦</button><button class="ib" id="thBtn" onclick="cycleTheme()" aria-label="Cambia tema">◐</button><button class="ib" onclick="openCfg()" aria-label="Impostazioni">⚙︎</button></div></header>
   <main id="v-home"></main>
   <main id="v-cal" hidden>
     <section class="card" style="margin-top:14px">
@@ -231,6 +245,10 @@ nav button{flex:1;min-width:0;padding:10px 4px;font-size:.8rem;white-space:nowra
   <p class="hint">Senza account i dati restano su questo dispositivo. Scarica un backup ogni tanto per non perderli o per spostarli su un altro telefono.</p><p class="hint"><b>Installa:</b> su iPhone usa Condividi → Aggiungi a Home; su Android il pulsante qui sopra o il menu del browser. <b>Privacy:</b> nessun tracciamento; i dati restano nel tuo browser e, se crei un account, vengono salvati anche nel cloud (Firebase, Google) per sincronizzarli; i font si caricano da Google Fonts. <b>Avviso:</b> TFR, NASpI e ogni cifra sono stime indicative, non consulenza.</p>
 </div></div>
 <div id="fk" hidden><button id="fkX" type="button" onclick="panic(0)">Esci</button><div id="fkD" onpointerdown="fkT=setTimeout(()=>panic(0),800)" onpointerup="clearTimeout(fkT)" onpointerleave="clearTimeout(fkT)">0</div><div id="fkK"></div></div>
+<div class="ov" id="ov-pro" onclick="if(event.target===this)closeS('pro')"><div class="sheet">
+  <div class="sh"><h3>Turno Pro</h3><button class="ib" onclick="closeS('pro')" aria-label="Chiudi">✕</button></div>
+  <div id="proIn"></div>
+</div></div>
 <div id="toast"></div>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
@@ -824,6 +842,21 @@ function payHtml() {
   return `<div class="card">${head}<p class="hint" style="margin:0 0 6px">Quanto dovresti ricevere, in base al tuo calendario e alla paga che hai impostato.</p><div class="rows">${rows}</div><div class="f" style="margin-top:12px"><label>Netto a pagare scritto sulla tua busta paga (€)</label><input type="number" step="0.01" min="0" inputmode="decimal" value="${real || ''}" onchange="pcSet(this.value)"></div>${res}<p class="hint">Confronta con il <b>«netto a pagare»</b> della busta paga, cioè quello che ti arriva in banca. Il calcolo parte dalla paga che hai impostato. Le maggiorazioni sono approssimate (in busta sono tassate, quindi il netto in più è un po' più basso). Ferie e permessi/ROL sono contati come pagati.</p></div>`;
 }
 
+/* ---------- confronto Standard / Pro ---------- */
+function openPro() {
+  const Y = '<div class="c y">✓</div>', N = '<div class="c n">—</div>', Z = '<div class="c soon">presto</div>';
+  const row = (t, a, b) => `<div>${t}</div>${a}${b}`;
+  const rows = [
+    row('Conto alla rovescia, calendario e statistiche', Y, Y), row('Ferie, permessi/ROL e ponti', Y, Y), row('Paga, obiettivo e paghe nel calendario', Y, Y),
+    row('Stime TFR e NASpI', Y, Y), row('Account e sincronizzazione', Y, Y), row('Backup e condivisione come immagine', Y, Y),
+    row('<b>Turni a rotazione</b> (mattina, pomeriggio, notte)', N, Y), row('<b>Maggiorazioni</b> di notte, festivi e straordinari', N, Y), row('<b>Controllo busta paga</b>', N, Y),
+    row('Più traguardi insieme', N, Z), row('Planner ferie intelligente', N, Z), row('Report PDF ed Excel', N, Z), row('Promemoria e notifiche', N, Z)
+  ].join('');
+  const cta = PRO() ? '<p class="sub" style="margin:14px 0 0"><b>✓ Hai già Pro.</b> Grazie! Le funzioni segnate «presto» le troverai qui appena pronte.</p>'
+    : '<p class="sub" style="margin:14px 0 8px">Con Pro: prova gratuita di 14 giorni, poi disdici quando vuoi. <b>I pagamenti non sono ancora attivi</b>, quindi Pro non è ancora in vendita.</p><button class="btn" disabled style="opacity:.55">Presto disponibile</button>';
+  $('proIn').innerHTML = `<div class="pl"><div class="pc"><b>Standard</b><div class="pr">Gratis</div><span>Per sempre, senza pubblicità</span></div><div class="pc hi"><b>Pro</b><div class="pr">1,99 €</div><span>al mese, oppure 14,99 € all'anno (circa −37%)</span></div></div><div class="cmp"><div class="h"></div><div class="h">Standard</div><div class="h">Pro</div>${rows}</div><p class="hint">«presto» = in arrivo e già incluso in Pro. Prezzi e prova gratuita sono indicativi.</p>${cta}`;
+  openS('pro');
+}
 /* ---------- account e sincronizzazione (Firebase) ---------- */
 const FB = { apiKey: "AIzaSyBf9_RgZ7UGtlqu_ySIsLQQ4qk9ymJr6WI", authDomain: "turno-6b6fb.firebaseapp.com", projectId: "turno-6b6fb", storageBucket: "turno-6b6fb.firebasestorage.app", messagingSenderId: "5394387407", appId: "1:5394387407:web:1f4691b23b193fbdb882ba" };
 let cloudUser = null, cloudDb = null, pushT = null, cloudReady = false;
