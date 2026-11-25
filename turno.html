@@ -215,7 +215,7 @@ nav button{flex:1;min-width:0;padding:10px 4px;font-size:.8rem;white-space:nowra
 
 <div class="ov" id="ov-cfg" onclick="if(event.target===this)closeS('cfg')"><div class="sheet">
   <div class="sh"><h3>Impostazioni</h3><button class="ib" onclick="closeS('cfg')" aria-label="Chiudi">✕</button></div>
-  <p class="hint" style="margin:0 0 4px">Scegli che tipo di lavoro hai, poi compila giorni di lavoro e ore al giorno. Il resto è facoltativo e aggiunge stime.</p><div class="sec-t" style="margin-top:6px">Che tipo di lavoro hai?</div><div class="f"><div class="seg"><button type="button" id="kd-end" onclick="setKind('end')">Ho una data di fine</button><button type="button" id="kd-open" onclick="setKind('open')">Senza scadenza</button></div><p class="hint">Puoi cambiare quando vuoi: i tuoi dati restano.</p></div>
+  <p class="hint" style="margin:0 0 4px">Scegli che tipo di lavoro hai, poi compila giorni di lavoro e ore al giorno. Il resto è facoltativo e aggiunge stime.</p><div class="sec-t" style="margin-top:6px">Che tipo di lavoro hai?</div><div class="f"><div class="seg"><button type="button" id="kd-end" onclick="setKind('end', 1)">Ho una data di fine</button><button type="button" id="kd-open" onclick="setKind('open', 1)">Senza scadenza</button></div><p class="hint">Puoi cambiare quando vuoi: i tuoi dati restano.</p></div>
   <div id="endBox"><div class="sec-t" style="margin-top:6px">Traguardo (obbligatorio)</div>
   <div class="f"><label>Cosa stai aspettando?</label><input type="text" id="cLabel" maxlength="40" placeholder="Es. Fine contratto, Vacanze"></div>
   <div class="row2"><div class="f"><label>Data di inizio (vuota = oggi)</label><input type="date" id="cStart"></div><div class="f"><label>Data di fine *</label><input type="date" id="cEnd"></div></div>
@@ -422,7 +422,7 @@ function tappe(k) {
   while (d <= k.end && ft.some((t) => !t.date)) { const w = info(d).w; ft.forEach((t) => { if (!t.date && w === 1 && rem <= t.n) t.date = new Date(d); }); rem -= w; d.setDate(d.getDate() + 1); }
   return th.sort((a, b) => (a.past ? 0 : 1) - (b.past ? 0 : 1) || (a.date || 0) - (b.date || 0));
 }
-function renderHome() { const kd = kindOf(); if (kd === '') { $('v-home').innerHTML = obHtml(); return; } if (kd === 'open') { renderOpenHome(); return; } renderHome0(); }
+function renderHome() { const kd = kindOf(); if (kd === '') { $('v-home').innerHTML = obHtml(); return; } if (kd === 'open') { renderOpenHome2(); return; } renderHome0(); }
 function renderHome0() {
   const c = S.cfg, el = $('v-home'), k = calc();
   if (!k) {
@@ -505,7 +505,7 @@ function shift(n) { view = new Date(view.getFullYear(), view.getMonth() + n, 1);
 function goToday() { const t = new Date(); view = new Date(t.getFullYear(), t.getMonth(), 1); renderCal(); }
 
 /* ---------- STATISTICHE ---------- */
-function renderStats() { if (kindOf() === 'open') $('sAll').innerHTML = openStats(); else renderStats0(); $('sAll').insertAdjacentHTML('beforeend', advStats()); }
+function renderStats() { if (kindOf() === 'open') $('sAll').innerHTML = openStats2(); else renderStats0(); $('sAll').insertAdjacentHTML('beforeend', advStats()); }
 function renderStats0() {
   const c = S.cfg, today = todayD(), k = calc(), el = $('sAll'), y0 = today.getFullYear();
   if (!k || k.over) { el.innerHTML = '<div class="card" style="margin-top:14px"><h2>Statistiche</h2><p class="sub">Imposta una data di arrivo nelle impostazioni e qui trovi a che punto sei, i soldi, le ferie e i ponti.</p><button class="btn sec" onclick="openCfg()">Imposta la data</button></div>'; return; }
@@ -541,7 +541,7 @@ function go(t) {
   ['home', 'cal', 'stats', 'x'].forEach((v) => { $('v-' + v).hidden = v !== t; $('n-' + v).classList.toggle('on', v === t); });
   window.scrollTo(0, 0);
 }
-function render() { renderHome(); renderCal(); renderStats(); renderX(); }
+function render() { [renderHome, renderCal, renderStats, renderX].forEach((f) => { try { f(); } catch (e) { console.error(f.name, e); window.lastErr = f.name + ': ' + e.message; } }); if (window.lastErr) { toast('Errore in ' + window.lastErr); window.lastErr = ''; } }
 
 /* ---------- sheets ---------- */
 const openS = (n) => $('ov-' + n).classList.add('open');
@@ -942,7 +942,7 @@ function reportCard() {
 /* ---------- due modalità e guida al primo avvio ---------- */
 function kindOf() { return S.cfg.kind || (S.cfg.end ? 'end' : ''); }
 let tmpKind = 'end';
-function setKind(k) { tmpKind = k; seg('kd-', k, ['end', 'open']); $('endBox').hidden = k === 'open'; }
+function setKind(k, now) { tmpKind = k; seg('kd-', k, ['end', 'open']); $('endBox').hidden = k === 'open'; if (now && S.cfg.kind !== k) { S.cfg.kind = k; first = true; save(); toast(k === 'open' ? 'Ora usi Turno senza scadenza.' : 'Ora usi Turno con una data di fine.'); } }
 function renderOpenHome() {
   const c = S.cfg, el = $('v-home'), t = todayD(), y = t.getFullYear(), m = t.getMonth(), all = span(new Date(y, m, 1), new Date(y, m + 1, 0)), rest = span(t, new Date(y, m + 1, 0)), ms = monthStat(y, m), ti = info(t);
   const tmsg = { work: `Oggi lavori ${fh(ti.h)} ore.`, extra: `Oggi lavori ${fh(ti.h)} ore (extra).`, perm: `Oggi lavori ${fh(ti.h)} ore (permesso di ${fh(ti.ph)}).`, ferie: 'Oggi sei in ferie 🌴', libero: 'Oggi è un tuo giorno libero.', fest: `Oggi è festa: ${holName(t) || 'festività'}.`, off: 'Oggi non lavori.' }[ti.t];
@@ -988,6 +988,31 @@ function obHtml() {
   else if (ob.s === 3) b = `<h2>Quanto guadagni?</h2><p class="sub">Facoltativo: serve per le stime di guadagno e per ricordarti il giorno di paga. Puoi lasciare vuoto.</p><div class="seg">${Q('hour', "All'ora")}${Q('month', 'Al mese')}</div><div class="row2" style="margin-top:12px"><div class="f"><label>${ob.pm === 'month' ? 'Stipendio mensile (€)' : "Paga all'ora (€)"}</label><input type="number" id="obP" step="0.01" min="0" inputmode="decimal" value="${ob.pay}"></div><div class="f"><label>Giorno di paga (1-31)</label><input type="number" id="obD" min="0" max="31" inputmode="numeric" value="${ob.pd}"></div></div><p class="hint">31 = ultimo giorno del mese.</p>` + nav('Avanti');
   else b = `<h2>Tutto pronto 🎉</h2><p class="sub">Ecco cosa trovi nell'app:</p><div class="rows" style="margin:6px 0 10px"><div><span><b>Conto</b></span><b>${ob.kind === 'end' ? 'giorni di lavoro che mancano' : 'il tuo mese e i prossimi giorni'}</b></div><div><span><b>Calendario</b></span><b>tocca un giorno per ferie, permessi, note</b></div><div><span><b>Statistiche</b></span><b>ore, paga, ferie e ponti</b></div><div><span><b>Extra</b></span><b>${ob.kind === 'end' ? 'NASpI, TFR e checklist di uscita' : 'paga e banca ore'}</b></div></div><p class="hint">In ⚙︎ Impostazioni puoi aggiungere ferie, account e sincronizzazione, e cambiare tipo di lavoro quando vuoi.</p><div class="opts" style="margin-top:14px">${back}<button class="btn" onclick="obDone()">Inizia</button></div>`;
   return `<div class="card" style="margin-top:18px">${dots}${b}</div>`;
+}
+/* ---------- schermate "senza scadenza" riviste ---------- */
+function renderOpenHome2() {
+  const c = S.cfg, el = $('v-home'), t = todayD(), y = t.getFullYear(), m = t.getMonth(), f = new Date(y, m, 1), l = new Date(y, m + 1, 0);
+  const all = span(f, l), rest = span(t, l), done = t > f ? span(f, addD(t, -1)).n : 0, pct = all.n ? Math.round(done / all.n * 100) : 0, ms = monthStat(y, m), ti = info(t);
+  const R = 108, C = 2 * Math.PI * R, hr = t.getHours(), hi = hr < 12 ? 'Buongiorno' : hr < 18 ? 'Buon pomeriggio' : 'Buonasera';
+  const tmsg = { work: `Oggi lavori ${fh(ti.h)} ore.`, extra: `Oggi lavori ${fh(ti.h)} ore (extra).`, perm: `Oggi lavori ${fh(ti.h)} ore (permesso di ${fh(ti.ph)}).`, ferie: 'Oggi sei in ferie 🌴', libero: 'Oggi è un tuo giorno libero.', fest: `Oggi è festa: ${holName(t) || 'festività'}.`, off: 'Oggi non lavori.' }[ti.t];
+  const nf = nextWhere(t, ti.w === 1), nfTxt = nf ? `${ti.w === 1 ? 'Prossimo giorno libero' : 'Si torna al lavoro'}: <b>${fshort(nf)}</b> (${dd(t, nf) === 1 ? 'domani' : `tra ${dd(t, nf)} giorni`}).` : '', nt = S.notes[ymd(t)];
+  const dn = ['dom', 'lun', 'mar', 'mer', 'gio', 'ven', 'sab'], em = (d, x) => x.w ? (c.mode === 'rot' && PRO() && rotCode(d) ? SE[rotCode(d)] : '💼') : ({ ferie: '🌴', fest: '🎉', libero: '🛋' }[x.t] || '·');
+  const strip = [0, 1, 2, 3, 4, 5, 6].map((i) => { const d = addD(t, i), x = info(d); return `<div class="wd ${x.w ? 'on' : ''}" style="cursor:default;${i === 0 ? 'box-shadow:0 0 0 2px var(--tx)' : ''}"><span>${em(d, x)}</span><small>${dn[d.getDay()]} ${d.getDate()}</small></div>`; }).join('');
+  const us = ferieUsate(y), nx = paydays(t, new Date(y, m + 3, 1))[0];
+  const cPay = `<div class="card" style="margin:0"><h3>Prossima paga</h3><div class="big" style="font-size:1.5rem">${nx ? nx.toLocaleDateString('it-IT', { day: 'numeric', month: 'short' }) : '—'}</div><div class="sub">${nx ? (dd(t, nx) === 0 ? 'Oggi 💸' : `tra ${dd(t, nx)} giorni`) : 'Non impostata'}</div></div>`;
+  const cFer = `<div class="card" style="margin:0"><h3>Ferie ${y}</h3><div class="big" style="font-size:1.5rem">${c.ferie > 0 ? Math.max(0, c.ferie - us) : us}</div><div class="sub">${c.ferie > 0 ? `giorni rimasti su ${c.ferie}` : 'giorni segnati'}</div></div>`;
+  el.innerHTML = `<div class="ring"><svg viewBox="0 0 260 260"><circle cx="130" cy="130" r="${R}" fill="none" stroke="var(--s2)" stroke-width="9"/><circle cx="130" cy="130" r="${R}" fill="none" stroke="var(--ac)" stroke-width="9" stroke-linecap="round" stroke-dasharray="${C}" stroke-dashoffset="${C * (1 - pct / 100)}" transform="rotate(-90 130 130)"/></svg><div class="in"><div class="lab">${hi}</div><div class="cnt">${rest.n}</div><div class="lab2">giorni di lavoro rimasti</div></div></div>
+  <div class="trio"><div><b style="font-size:1.35rem">${fh(rest.h)}</b><span>ore ancora</span></div><div><b style="font-size:1.35rem">${all.n}</b><span>giorni nel mese</span></div><div><b style="font-size:1.35rem">${ms.money === null ? '—' : eur(ms.money)}</b><span>guadagno previsto</span></div></div>
+  <div class="date">${MESI[m]} ${y} · ${pct}% del mese · oggi incluso</div>
+  <div class="card"><h3>Prossimi 7 giorni</h3><div class="wg" style="margin-top:6px">${strip}</div></div>
+  <div class="card"><h3>Oggi</h3><div class="sub"><b>${tmsg}</b><br>${nfTxt}${nt ? `<br>📝 ${esc(nt)}` : ''}</div></div>
+  <div class="row2" style="margin-top:12px">${cPay}${cFer}</div>${liveHtml()}${bkHtml()}
+  <div class="acts"><button class="btn sec" onclick="pick(ymd(todayD()))">Segna oggi</button><button class="btn sec" onclick="go('cal')">Apri il calendario</button></div>
+  <div class="card" style="text-align:center"><div class="sub">Lavori senza una data di fine. Se cambia qualcosa, puoi cambiare modalità.</div><button class="btn sec" style="margin-top:10px" onclick="setKind('end', 1); if (!S.cfg.end) openCfg()">Ho una data di fine</button></div>`;
+}
+function openStats2() {
+  const c = S.cfg, t = todayD(), y = t.getFullYear(), m = t.getMonth(), us = ferieUsate(y), R = repData(y), mx = Math.max(1, ...R.map((r) => r.n)), cur = R[m], st = monthStat(y, m), row = (a, b) => `<div><span>${a}</span><b>${b}</b></div>`;
+  return `<div class="card" style="margin-top:14px"><h2 style="text-transform:capitalize">${MESI[m]} ${y}</h2><div class="rows" style="margin-top:6px">${row('Giorni di lavoro', cur.n)}${row('Ore', fh(cur.h) + ' h')}${row('Guadagno previsto', cur.e === null ? '—' : eur(cur.e))}${row('Ferie nel mese', st.ferie)}${row('Permessi/ROL nel mese', fh(st.perm) + ' h')}</div></div><div class="card"><h2>Ferie ${y}</h2>${c.ferie > 0 ? `<div class="big">${Math.max(0, c.ferie - us)}</div><div class="sub">giorni ancora da usare (ne hai segnati ${us} su ${c.ferie}).</div><div class="bar g"><i style="width:${Math.min(100, Math.round(us / c.ferie * 100))}%"></i></div>` : `<div class="sub">Ne hai segnati <b>${us}</b>. Scrivi quante ne hai all'anno nelle impostazioni per vedere quante restano.</div>`}<button class="btn sec sm" style="margin-top:10px" onclick="openCfg()">Modifica ferie e ROL</button></div><div class="card"><h2>Giorni di lavoro mese per mese</h2>${R.map((r, i) => `<div class="mr ${i === m ? 'cur' : ''}"><div class="mh"><span>${r.m}${i === m ? ' · adesso' : ''}</span><span>${r.n} giorni</span></div><div class="bar"><i style="width:${Math.round(r.n / mx * 100)}%"></i></div>${r.e !== null ? `<div class="ms">${eur(r.e)}</div>` : ''}</div>`).join('')}</div>`;
 }
 /* ---------- account e sincronizzazione (Firebase) ---------- */
 const FB = { apiKey: "AIzaSyBf9_RgZ7UGtlqu_ySIsLQQ4qk9ymJr6WI", authDomain: "turno-6b6fb.firebaseapp.com", projectId: "turno-6b6fb", storageBucket: "turno-6b6fb.firebasestorage.app", messagingSenderId: "5394387407", appId: "1:5394387407:web:1f4691b23b193fbdb882ba" };
