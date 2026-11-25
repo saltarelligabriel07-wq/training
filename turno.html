@@ -121,6 +121,11 @@ nav button{padding:10px 13px}
 #fkK button{aspect-ratio:1;border:0;border-radius:50%;background:#333;color:#fff;font-size:1.7rem}
 #fkK button:nth-child(4n){background:#ff9f0a}
 .lock{opacity:.4}
+.rp{width:100%;border-collapse:collapse;font-size:.8rem;text-align:right}
+.rp th{font-weight:600;color:var(--dim);padding:6px 0}
+.rp td{padding:7px 0;border-bottom:1px solid var(--line)}
+.rp td:first-child,.rp th:first-child{text-align:left;text-transform:capitalize}
+.rp tr.t td{font-weight:700;border:0}
 .pro-b{width:auto;padding:0 12px;font:700 .78rem Manrope,system-ui,sans-serif;letter-spacing:.04em;color:var(--on);background:var(--ac);border-color:var(--ac)}
 .pl{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
 .pc{border:1px solid var(--line);background:var(--s2);border-radius:16px;padding:14px;min-width:0}
@@ -228,6 +233,7 @@ nav button{flex:1;min-width:0;padding:10px 4px;font-size:.8rem;white-space:nowra
   <div id="proBox"></div>
   <div class="sec-t">Obiettivo, ferie e permessi (facoltativo)</div>
   <div class="row2"><div class="f"><label>Soldi che hai adesso (€)</label><input type="number" id="cSaved" step="1" min="0" inputmode="decimal"></div><div class="f"><label>Ferie annue spettanti (giorni)</label><input type="number" id="cFerie" step="1" min="0" inputmode="numeric"></div></div>
+  <div class="f"><label>ROL e permessi annui spettanti (ore)</label><input type="number" id="cRol" step="1" min="0" inputmode="decimal"></div>
   <div class="row2"><div class="f"><label>Cosa vuoi fare/comprare?</label><input type="text" id="cGoalN" maxlength="30" placeholder="Es. Viaggio, Auto"></div><div class="f"><label>Quanto serve (€)</label><input type="number" id="cGoalA" step="1" min="0" inputmode="decimal"></div></div>
   <label class="chk"><input type="checkbox" id="cHol"> Escludi le festività italiane</label><div class="f"><label>Festa del patrono della tua città (GG/MM, facoltativa)</label><input type="text" id="cPatron" maxlength="5" placeholder="Es. 21/05" inputmode="numeric"></div><p class="hint"><b>Ferie, permessi e ROL:</b> «Ferie annue spettanti» alimenta il conteggio usate/rimaste in Calendario e Statistiche. I singoli giorni di ferie e le ore di permesso/ROL si segnano toccando un giorno nel Calendario. «Ferie/ROL ancora da usare» (sezione stime) serve a calcolare l'ultimo giorno di lavoro in Extra.</p>
   <div class="sec-t">Per le stime (facoltativo)</div>
@@ -497,7 +503,8 @@ function shift(n) { view = new Date(view.getFullYear(), view.getMonth() + n, 1);
 function goToday() { const t = new Date(); view = new Date(t.getFullYear(), t.getMonth(), 1); renderCal(); }
 
 /* ---------- STATISTICHE ---------- */
-function renderStats() {
+function renderStats() { renderStats0(); $('sAll').insertAdjacentHTML('beforeend', advStats()); }
+function renderStats0() {
   const c = S.cfg, today = todayD(), k = calc(), el = $('sAll'), y0 = today.getFullYear();
   if (!k || k.over) { el.innerHTML = '<div class="card" style="margin-top:14px"><h2>Statistiche</h2><p class="sub">Imposta una data di arrivo nelle impostazioni e qui trovi a che punto sei, i soldi, le ferie e i ponti.</p><button class="btn sec" onclick="openCfg()">Imposta la data</button></div>'; return; }
   const start = c.start ? parse(c.start) : today, past = start < today ? span(start, addD(today, -1)) : { n: 0, h: 0 };
@@ -585,7 +592,7 @@ function openCfg() {
   const c = S.cfg;
   $('cLabel').value = c.label; $('cEnd').value = c.end; $('cStart').value = c.start; $('cHours').value = c.hours;
   $('cOn').value = c.cycleOn; $('cOff').value = c.cycleOff; $('cCy').value = c.cycleStart;
-  $('cPayday').value = c.payday || ''; $('cSaved').value = c.saved || ''; $('cFerie').value = c.ferie || '';
+  $('cPayday').value = c.payday || ''; $('cSaved').value = c.saved || ''; $('cFerie').value = c.ferie || ''; $('cRol').value = c.rolY || '';
   $('cGoalN').value = c.goalName; $('cGoalA').value = c.goalAmt || '';
   $('cPayAdj').checked = c.payAdj; $('cHol').checked = c.hol;
   $('cHire').value = c.hire; $('cPatron').value = c.patron || ''; $('cStT').value = c.stT; $('cRal').value = c.ral || ''; $('cResid').value = c.resid || ''; $('cPrev').value = c.prev || ''; $('cShake').checked = c.shake;
@@ -609,7 +616,7 @@ function saveCfg() {
   c.hours = hours; c.payMode = tmpPM; if (tmpPM === 'month') c.monthly = pay; else c.rate = pay;
   c.payday = pd; c.payAdj = $('cPayAdj').checked; c.saved = parseFloat($('cSaved').value) || 0;
   c.goalName = $('cGoalN').value.trim(); c.goalAmt = parseFloat($('cGoalA').value) || 0;
-  c.ferie = parseInt($('cFerie').value, 10) || 0; c.hol = $('cHol').checked; c.theme = tmpTh;
+  c.ferie = parseInt($('cFerie').value, 10) || 0; c.rolY = parseFloat($('cRol').value) || 0; c.hol = $('cHol').checked; c.theme = tmpTh;
   readPro(); c.patron = $('cPatron').value.trim(); Object.keys(HC).forEach((q) => delete HC[q]); c.hire = $('cHire').value; c.stT = $('cStT').value || '09:00'; c.ral = parseFloat($('cRal').value) || 0; c.resid = parseFloat($('cResid').value) || 0; c.prev = parseInt($('cPrev').value, 10) || 0; c.shake = $('cShake').checked; setupShake(c.shake);
   first = true; save(); closeS('cfg'); toast('Impostazioni salvate.');
 }
@@ -709,7 +716,7 @@ function setMood(v) { const k = ymd(todayD()); if (S.mood[k] === v) delete S.moo
 function renderX() {
   const c = S.cfg, k = calc(), el = $('v-x'), t = tenure(), today = todayD();
   let h = `<div class="card" style="margin-top:14px"><h2>Da quanto lavori</h2>${t ? `<div class="big">${t.y ? t.y + ' a ' : ''}${t.m} m ${t.d} g</div><div class="sub">${t.days} giorni dall'assunzione, circa <b>${t.worked}</b> giorni di lavoro effettivo.</div>` : `<div class="sub">Imposta la data di assunzione per vedere da quanto sei lì dentro.</div><button class="btn sec" style="margin-top:12px" onclick="openCfg()">Imposta</button>`}</div>`;
-  h += payHtml(); h += proPlus();
+  h += payHtml(); h += proPlus() + bankHtml();
   if (!k || k.over) { el.innerHTML = h + '<div class="card"><div class="sub">Imposta una data di arrivo nelle impostazioni per vedere il resto.</div></div>'; return; }
   const r = remDays(k);
   h += `<div class="card"><h2>Metriche del dolore</h2><div class="rows"><div><span>Lunedì da sopportare</span><b>${r.mon}</b></div><div><span>Venerdì (quasi liberi)</span><b>${r.fri}</b></div><div><span>Ore di lavoro effettivo</span><b>${fh(k.r.h)}</b></div></div></div>`;
@@ -850,7 +857,7 @@ function openPro() {
     row('Conto alla rovescia, calendario e statistiche', Y, Y), row('Ferie, permessi/ROL e ponti', Y, Y), row('Paga, obiettivo e paghe nel calendario', Y, Y),
     row('Stime TFR e NASpI', Y, Y), row('Account e sincronizzazione', Y, Y), row('Backup e condivisione come immagine', Y, Y),
     row('<b>Turni a rotazione</b> (mattina, pomeriggio, notte)', N, Y), row('<b>Maggiorazioni</b> di notte, festivi e straordinari', N, Y), row('<b>Controllo busta paga</b>', N, Y),
-    row('<b>Più traguardi</b> insieme', N, Y), row('<b>Planner ferie</b> intelligente', N, Y), row('<b>Report</b> PDF e Excel (CSV)', N, Y), row('Promemoria e notifiche', N, Z)
+    row('<b>Più traguardi</b> insieme', N, Y), row('<b>Planner ferie</b> intelligente', N, Y), row('<b>Report</b> PDF e Excel (CSV)', N, Y), row('<b>Banca ore</b>: ferie, ROL e ore extra', N, Y), row('<b>Statistiche avanzate</b> e previsioni', N, Y), row('Promemoria e notifiche', N, Z)
   ].join('');
   const cta = PRO() ? '<p class="sub" style="margin:14px 0 0"><b>✓ Hai già Pro.</b> Grazie! Le funzioni segnate «presto» le troverai qui appena pronte.</p>'
     : '<p class="sub" style="margin:14px 0 8px">Con Pro: prova gratuita di 14 giorni, poi disdici quando vuoi. <b>I pagamenti non sono ancora attivi</b>, quindi Pro non è ancora in vendita.</p><button class="btn" disabled style="opacity:.55">Presto disponibile</button>';
@@ -859,7 +866,7 @@ function openPro() {
 }
 /* ---------- planner ferie, traguardi, report (Pro) ---------- */
 let ppV = 0, rpY = new Date().getFullYear();
-function proPlus() { return PRO() ? plannerHtml() + goalsHtml() + reportHtml() : '<div class="card"><h2>Planner ferie, traguardi e report (Pro)</h2><p class="sub">🔒 Trova i giorni di ferie migliori, tieni più traguardi insieme e scarica il report in PDF o Excel. Disponibile con Pro.</p></div>'; }
+function proPlus() { return PRO() ? plannerHtml() + goalsHtml() + reportCard() : '<div class="card"><h2>Planner ferie, traguardi e report (Pro)</h2><p class="sub">🔒 Trova i giorni di ferie migliori, tieni più traguardi insieme scarica il report in PDF o Excel, tieni il conto di ferie, ROL e ore extra e vedi le statistiche avanzate. Disponibile con Pro.</p></div>'; }
 function planFerie(N, k) {
   const t0 = todayD(), lim = k ? k.end : addD(t0, 365), cand = [];
   for (let s = new Date(t0); s <= lim; s = addD(s, 1)) {
@@ -900,6 +907,35 @@ function repPdf() {
 function reportHtml() {
   const R = repData(rpY), tn = R.reduce((a, r) => a + r.n, 0), th = R.reduce((a, r) => a + r.h, 0), te = R.reduce((a, r) => a + (r.e || 0), 0), any = R.some((r) => r.e !== null);
   return `<div class="card"><h2>Report annuale</h2><div class="ch" style="margin:0 0 6px"><h2 style="font-size:1.05rem">Anno ${rpY}</h2><button class="sq" onclick="rpGo(-1)" aria-label="Anno precedente">‹</button><button class="sq" onclick="rpGo(1)" aria-label="Anno successivo">›</button></div><div class="rows"><div><span>Giorni di lavoro</span><b>${tn}</b></div><div><span>Ore</span><b>${fh(th)}</b></div>${any ? `<div><span>Guadagno previsto</span><b>${eur2(te)}</b></div>` : ''}</div><div class="opts" style="margin-top:12px"><button class="btn sec" onclick="repCsv()">Scarica per Excel (CSV)</button><button class="btn sec" onclick="repPdf()">Salva come PDF</button></div><p class="hint">Riepilogo mese per mese, calcolato dal tuo calendario. Sono stime: non sostituiscono la busta paga.</p></div>`;
+}
+/* ---------- banca ore, statistiche avanzate, report chiaro (Pro) ---------- */
+function bankHtml() {
+  if (!PRO()) return '';
+  const c = S.cfg, t = todayD(), y = t.getFullYear(), k = calc(), dec = new Date(y, 11, 31), dl = k && !k.over && k.end < dec ? k.end : dec;
+  let fu = 0, fp = 0, rh = 0, xh = 0;
+  Object.keys(S.ex).forEach((q) => { if (!q.startsWith(y + '-')) return; const e = S.ex[q], d = parse(q); if (e.t === 'ferie' && norm(d)) { if (d <= t) fu++; else fp++; } if (e.t === 'perm' && norm(d)) rh += e.h || 0; if (e.t === 'extra') xh += e.h || c.hours; });
+  const fy = c.ferie || 0, left = Math.max(0, fy - fu - fp), rl = c.rolY || 0, mat = fy * (dd(new Date(y, 0, 1), t) + 1) / 365, row = (a, b) => `<div><span>${a}</span><b>${b}</b></div>`;
+  const ferie = fy > 0 ? `<div class="rows">${row('Spettanti nell\'anno', fy + ' giorni')}${row('Maturate finora (circa)', fh(mat) + ' giorni')}${row('Già usate', fu)}${row('Programmate nel calendario', fp)}${row('<b>Ancora da pianificare</b>', '<b>' + left + '</b>')}</div>${left > 0 ? `<p class="sub" style="margin-top:8px">Hai <b>${left}</b> ${left === 1 ? 'giorno' : 'giorni'} di ferie da usare entro <b>${fdate(dl)}</b> (tra ${Math.max(0, dd(t, dl))} giorni).</p><button class="btn sec" onclick="ppV = ${left}; render()">Trova i giorni migliori nel planner</button>` : '<p class="sub" style="margin-top:8px"><b>✓ Hai già pianificato tutte le ferie.</b></p>'}` : '<p class="sub">Scrivi quante ferie hai all\'anno nelle impostazioni, e qui vedi quante ne restano.</p><button class="btn sec" onclick="openCfg()">Imposta le ferie</button>';
+  const rol = rl > 0 ? `<div class="rows">${row('Spettanti nell\'anno', fh(rl) + ' h')}${row('Già usate (permessi segnati)', fh(rh) + ' h')}${row('<b>Restano</b>', '<b>' + fh(Math.max(0, rl - rh)) + ' h</b>')}</div>` : `<p class="sub">Hai ${fh(rh)} ore di permesso/ROL segnate nel ${y}. Scrivi quante ne hai all'anno nelle impostazioni per vedere quante restano.</p>`;
+  return `<div class="card"><h2>Banca ore ${y}</h2><p class="hint" style="margin:0 0 8px">Il conto di ferie, permessi/ROL e ore extra. Si aggiorna da solo con quello che segni nel Calendario (tocca un giorno).</p><h3>Ferie</h3>${ferie}<h3 style="margin-top:16px">Permessi / ROL</h3>${rol}<h3 style="margin-top:16px">Ore extra</h3><p class="sub">Hai segnato <b>${fh(xh)} ore</b> di lavoro extra nell'anno${xh > 0 ? ` (circa ${fh(xh / c.hours)} giornate di lavoro)` : ''}.</p></div>`;
+}
+function advStats() {
+  if (!PRO()) return '<div class="card"><h2>Statistiche avanzate (Pro)</h2><p class="sub">🔒 Grafico dell\'anno, medie e previsione per il tuo obiettivo. Disponibile con Pro.</p></div>';
+  const c = S.cfg, t = todayD(), y = t.getFullYear(), k = calc(), R = repData(y), mx = Math.max(1, ...R.map((r) => r.h)), hy = R.reduce((a, r) => a + r.h, 0);
+  const ytd = span(new Date(y, 0, 1), t), wk = Math.max(1, (dd(new Date(y, 0, 1), t) + 1) / 7), best = R.reduce((a, r) => r.h > a.h ? r : a, R[0]), row = (a, b) => `<div><span>${a}</span><b>${b}</b></div>`;
+  let eta = '';
+  if (c.goalAmt > 0) {
+    let acc = c.saved || 0, found = null; const m0 = y * 12 + t.getMonth();
+    for (let q = m0; q < m0 + 60 && !found; q++) { const my = Math.floor(q / 12), mm = q % 12; if (k && !k.over && new Date(my, mm, 1) > k.end) break; const st = monthStat(my, mm); if (st.money === null) break; acc += st.money; if (acc >= c.goalAmt) found = new Date(my, mm, 1); }
+    eta = `<p class="sub" style="margin-top:10px">${found ? `A questo ritmo raggiungi «${esc(c.goalName || 'il tuo obiettivo')}» a <b>${MESI[found.getMonth()]} ${found.getFullYear()}</b>.` : 'Con la paga e il periodo che hai impostato non raggiungi l\'obiettivo.'} <span style="color:var(--faint)">(Calcolo sui guadagni previsti, senza le tue spese.)</span></p>`;
+  }
+  const bars = R.map((r) => `<div class="mr"><div class="mh"><span>${r.m}</span><span>${fh(r.h)} h${r.e !== null ? ' · ' + eur(r.e) : ''}</span></div><div class="bar"><i style="width:${Math.round(r.h / mx * 100)}%"></i></div></div>`).join('');
+  return `<div class="card"><h2>Statistiche avanzate ${y}</h2><div class="rows" style="margin-top:6px">${row('Ore lavorate da gennaio', fh(ytd.h) + ' h')}${row('Media a settimana', fh(ytd.h / wk) + ' h')}${row('Giorni di lavoro da gennaio', ytd.n)}${row('Ore previste nell\'anno', fh(hy) + ' h')}${row('Mese più pieno', best.h > 0 ? `${best.m} (${fh(best.h)} h)` : '—')}</div>${eta}<h3 style="margin-top:16px">Ore mese per mese</h3>${bars}</div>`;
+}
+function reportCard() {
+  const R = repData(rpY), nf = (v) => v === null ? '—' : eur(v), tn = R.reduce((a, r) => a + r.n, 0), th = R.reduce((a, r) => a + r.h, 0), tf = R.reduce((a, r) => a + r.f, 0), any = R.some((r) => r.e !== null), te = R.reduce((a, r) => a + (r.e || 0), 0);
+  const trs = R.map((r) => `<tr><td>${r.m}</td><td>${r.n}</td><td>${fh(r.h)}</td><td>${r.f}</td><td>${nf(r.e)}</td></tr>`).join('');
+  return `<div class="card"><h2>Riepilogo dell'anno</h2><p class="sub" style="margin:0 0 10px">Una tabella <b>mese per mese</b> con giorni lavorati, ore, ferie e guadagno previsto, calcolati dal tuo calendario. Utile per controllare la busta paga o per mostrarla a commercialista, banca o proprietario di casa.</p><div class="ch" style="margin:0 0 6px"><h2 style="font-size:1.05rem">Anno ${rpY}</h2><button class="sq" onclick="rpGo(-1)" aria-label="Anno precedente">‹</button><button class="sq" onclick="rpGo(1)" aria-label="Anno successivo">›</button></div><div style="overflow-x:auto"><table class="rp"><tr><th>Mese</th><th>Giorni</th><th>Ore</th><th>Ferie</th><th>Guadagno</th></tr>${trs}<tr class="t"><td>Totale</td><td>${tn}</td><td>${fh(th)}</td><td>${tf}</td><td>${any ? eur(te) : '—'}</td></tr></table></div><div class="opts" style="margin-top:12px"><button class="btn sec" onclick="repCsv()">Scarica per Excel (.csv)</button><button class="btn sec" onclick="repPdf()">Salva o stampa in PDF</button></div><p class="hint">Excel: apri il file scaricato. PDF: nella finestra di stampa scegli «Salva come PDF». Sono stime e non sostituiscono la busta paga.</p></div>`;
 }
 /* ---------- account e sincronizzazione (Firebase) ---------- */
 const FB = { apiKey: "AIzaSyBf9_RgZ7UGtlqu_ySIsLQQ4qk9ymJr6WI", authDomain: "turno-6b6fb.firebaseapp.com", projectId: "turno-6b6fb", storageBucket: "turno-6b6fb.firebasestorage.app", messagingSenderId: "5394387407", appId: "1:5394387407:web:1f4691b23b193fbdb882ba" };
