@@ -215,7 +215,8 @@ nav button{flex:1;min-width:0;padding:10px 4px;font-size:.8rem;white-space:nowra
 
 <div class="ov" id="ov-cfg" onclick="if(event.target===this)closeS('cfg')"><div class="sheet">
   <div class="sh"><h3>Impostazioni</h3><button class="ib" onclick="closeS('cfg')" aria-label="Chiudi">✕</button></div>
-  <p class="hint" style="margin:0 0 4px">Servono solo data di fine, giorni di lavoro e ore al giorno. Il resto è facoltativo e aggiunge stime.</p><div class="sec-t" style="margin-top:6px">Traguardo (obbligatorio)</div>
+  <p class="hint" style="margin:0 0 4px">Scegli che tipo di lavoro hai, poi compila giorni di lavoro e ore al giorno. Il resto è facoltativo e aggiunge stime.</p><div class="sec-t" style="margin-top:6px">Che tipo di lavoro hai?</div><div class="f"><div class="seg"><button type="button" id="kd-end" onclick="setKind('end')">Ho una data di fine</button><button type="button" id="kd-open" onclick="setKind('open')">Senza scadenza</button></div><p class="hint">Puoi cambiare quando vuoi: i tuoi dati restano.</p></div>
+  <div id="endBox"><div class="sec-t" style="margin-top:6px">Traguardo (obbligatorio)</div>
   <div class="f"><label>Cosa stai aspettando?</label><input type="text" id="cLabel" maxlength="40" placeholder="Es. Fine contratto, Vacanze"></div>
   <div class="row2"><div class="f"><label>Data di inizio (vuota = oggi)</label><input type="date" id="cStart"></div><div class="f"><label>Data di fine *</label><input type="date" id="cEnd"></div></div>
   <div class="sec-t">Orario (obbligatorio)</div>
@@ -367,7 +368,7 @@ function paydays(a, b) {
   return out;
 }
 function calc() {
-  const c = S.cfg, today = todayD(); if (!c.end) return null;
+  const c = S.cfg, today = todayD(); if (!c.end || kindOf() === 'open') return null;
   const end = parse(c.end); if (end < today) return { over: 1, end };
   const r = span(today, end), cal = dd(today, end) + 1, start = c.start ? parse(c.start) : today;
   const done = start <= addD(today, -1) ? span(start, addD(today, -1)).n : 0, tot = done + r.n;
@@ -421,7 +422,8 @@ function tappe(k) {
   while (d <= k.end && ft.some((t) => !t.date)) { const w = info(d).w; ft.forEach((t) => { if (!t.date && w === 1 && rem <= t.n) t.date = new Date(d); }); rem -= w; d.setDate(d.getDate() + 1); }
   return th.sort((a, b) => (a.past ? 0 : 1) - (b.past ? 0 : 1) || (a.date || 0) - (b.date || 0));
 }
-function renderHome() {
+function renderHome() { const kd = kindOf(); if (kd === '') { $('v-home').innerHTML = obHtml(); return; } if (kd === 'open') { renderOpenHome(); return; } renderHome0(); }
+function renderHome0() {
   const c = S.cfg, el = $('v-home'), k = calc();
   if (!k) {
     el.innerHTML = `<div class="card" style="margin-top:28px"><h2 style="font-size:1.6rem;line-height:1.2">Quanto manca?</h2><p class="sub">Ti dico quanti giorni di lavoro mancano a una data (fine contratto, vacanze, qualunque traguardo), escludendo riposi, festività e ferie.</p><p class="sub"><b>1 · Da compilare:</b> data di fine, giorni di lavoro, ore al giorno.<br><b>2 · Facoltativo:</b> paga, obiettivo, ferie, TFR e NASpI.<br><b>3 · Calcolato in automatico:</b> giorni, ore, guadagni, paghe, ponti.</p><p class="hint">L'account è facoltativo: senza, i dati restano su questo dispositivo. Lun-Ven e 8 ore sono solo valori di partenza: correggili con il tuo orario.</p><button class="btn" onclick="openCfg()">Comincia</button></div>`;
@@ -503,7 +505,7 @@ function shift(n) { view = new Date(view.getFullYear(), view.getMonth() + n, 1);
 function goToday() { const t = new Date(); view = new Date(t.getFullYear(), t.getMonth(), 1); renderCal(); }
 
 /* ---------- STATISTICHE ---------- */
-function renderStats() { renderStats0(); $('sAll').insertAdjacentHTML('beforeend', advStats()); }
+function renderStats() { if (kindOf() === 'open') $('sAll').innerHTML = openStats(); else renderStats0(); $('sAll').insertAdjacentHTML('beforeend', advStats()); }
 function renderStats0() {
   const c = S.cfg, today = todayD(), k = calc(), el = $('sAll'), y0 = today.getFullYear();
   if (!k || k.over) { el.innerHTML = '<div class="card" style="margin-top:14px"><h2>Statistiche</h2><p class="sub">Imposta una data di arrivo nelle impostazioni e qui trovi a che punto sei, i soldi, le ferie e i ponti.</p><button class="btn sec" onclick="openCfg()">Imposta la data</button></div>'; return; }
@@ -598,7 +600,7 @@ function openCfg() {
   $('cHire').value = c.hire; $('cPatron').value = c.patron || ''; $('cStT').value = c.stT; $('cRal').value = c.ral || ''; $('cResid').value = c.resid || ''; $('cPrev').value = c.prev || ''; $('cShake').checked = c.shake;
   tmpPM = c.payMode === 'month' ? 'hour' : 'month'; setPM(c.payMode);
   $('cPay').value = (c.payMode === 'month' ? c.monthly : c.rate) || '';
-  tmpDays = [...c.days]; drawPro(); drawChips(); setMode(c.mode === 'rot' && !PRO() ? 'week' : c.mode); setTh(c.theme); openS('cfg');
+  tmpDays = [...c.days]; setKind(kindOf() === 'open' ? 'open' : 'end'); drawPro(); drawChips(); setMode(c.mode === 'rot' && !PRO() ? 'week' : c.mode); setTh(c.theme); openS('cfg');
 }
 function saveCfg() {
   const hours = parseFloat($('cHours').value), pd = parseInt($('cPayday').value, 10) || 0;
@@ -612,7 +614,7 @@ function saveCfg() {
   const c = S.cfg, pay = parseFloat($('cPay').value) || 0;
   c.label = $('cLabel').value.trim() || 'Traguardo'; c.end = $('cEnd').value; c.start = $('cStart').value;
   if (c.end && !c.start) c.start = ymd(todayD());
-  c.mode = tmpMode; c.days = tmpDays.length ? tmpDays : c.days; c.cycleOn = on || c.cycleOn; c.cycleOff = offd; c.cycleStart = $('cCy').value;
+  c.kind = tmpKind; c.mode = tmpMode; c.days = tmpDays.length ? tmpDays : c.days; c.cycleOn = on || c.cycleOn; c.cycleOff = offd; c.cycleStart = $('cCy').value;
   c.hours = hours; c.payMode = tmpPM; if (tmpPM === 'month') c.monthly = pay; else c.rate = pay;
   c.payday = pd; c.payAdj = $('cPayAdj').checked; c.saved = parseFloat($('cSaved').value) || 0;
   c.goalName = $('cGoalN').value.trim(); c.goalAmt = parseFloat($('cGoalA').value) || 0;
@@ -717,7 +719,7 @@ function renderX() {
   const c = S.cfg, k = calc(), el = $('v-x'), t = tenure(), today = todayD();
   let h = `<div class="card" style="margin-top:14px"><h2>Da quanto lavori</h2>${t ? `<div class="big">${t.y ? t.y + ' a ' : ''}${t.m} m ${t.d} g</div><div class="sub">${t.days} giorni dall'assunzione, circa <b>${t.worked}</b> giorni di lavoro effettivo.</div>` : `<div class="sub">Imposta la data di assunzione per vedere da quanto sei lì dentro.</div><button class="btn sec" style="margin-top:12px" onclick="openCfg()">Imposta</button>`}</div>`;
   h += payHtml(); h += proPlus() + bankHtml();
-  if (!k || k.over) { el.innerHTML = h + '<div class="card"><div class="sub">Imposta una data di arrivo nelle impostazioni per vedere il resto.</div></div>'; return; }
+  if (!k || k.over) { el.innerHTML = h + (kindOf() === 'open' ? '' : '<div class="card"><div class="sub">Imposta una data di arrivo nelle impostazioni per vedere il resto.</div></div>'); return; }
   const r = remDays(k);
   h += `<div class="card"><h2>Metriche del dolore</h2><div class="rows"><div><span>Lunedì da sopportare</span><b>${r.mon}</b></div><div><span>Venerdì (quasi liberi)</span><b>${r.fri}</b></div><div><span>Ore di lavoro effettivo</span><b>${fh(k.r.h)}</b></div></div></div>`;
   const f = fuga(k);
@@ -754,7 +756,7 @@ async function setupShake(on) {
   window.addEventListener('devicemotion', onMotion);
 }
 setupShake(S.cfg.shake);
-function bkHtml() { const c = S.cfg; if (!c.end) return ''; const l = c.lastBackup ? dd(parse(c.lastBackup), todayD()) : 999; if (l < 30) return ''; return `<div class="card"><h3>Backup</h3><div class="sub">${c.lastBackup ? `Ultimo backup ${l} giorni fa.` : 'Non hai ancora fatto un backup.'} Senza account i dati sono solo su questo dispositivo: salvane una copia.</div><button class="btn sec" style="margin-top:12px" onclick="exp(); render()">Scarica backup</button></div>`; }
+function bkHtml() { const c = S.cfg; if (!c.end && kindOf() !== 'open') return ''; const l = c.lastBackup ? dd(parse(c.lastBackup), todayD()) : 999; if (l < 30) return ''; return `<div class="card"><h3>Backup</h3><div class="sub">${c.lastBackup ? `Ultimo backup ${l} giorni fa.` : 'Non hai ancora fatto un backup.'} Senza account i dati sono solo su questo dispositivo: salvane una copia.</div><button class="btn sec" style="margin-top:12px" onclick="exp(); render()">Scarica backup</button></div>`; }
 let dip = null; addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); dip = e; });
 addEventListener('appinstalled', () => { dip = null; toast('Turno installata.'); });
 function instApp() {
@@ -936,6 +938,56 @@ function reportCard() {
   const R = repData(rpY), nf = (v) => v === null ? '—' : eur(v), tn = R.reduce((a, r) => a + r.n, 0), th = R.reduce((a, r) => a + r.h, 0), tf = R.reduce((a, r) => a + r.f, 0), any = R.some((r) => r.e !== null), te = R.reduce((a, r) => a + (r.e || 0), 0);
   const trs = R.map((r) => `<tr><td>${r.m}</td><td>${r.n}</td><td>${fh(r.h)}</td><td>${r.f}</td><td>${nf(r.e)}</td></tr>`).join('');
   return `<div class="card"><h2>Riepilogo dell'anno</h2><p class="sub" style="margin:0 0 10px">Una tabella <b>mese per mese</b> con giorni lavorati, ore, ferie e guadagno previsto, calcolati dal tuo calendario. Utile per controllare la busta paga o per mostrarla a commercialista, banca o proprietario di casa.</p><div class="ch" style="margin:0 0 6px"><h2 style="font-size:1.05rem">Anno ${rpY}</h2><button class="sq" onclick="rpGo(-1)" aria-label="Anno precedente">‹</button><button class="sq" onclick="rpGo(1)" aria-label="Anno successivo">›</button></div><div style="overflow-x:auto"><table class="rp"><tr><th>Mese</th><th>Giorni</th><th>Ore</th><th>Ferie</th><th>Guadagno</th></tr>${trs}<tr class="t"><td>Totale</td><td>${tn}</td><td>${fh(th)}</td><td>${tf}</td><td>${any ? eur(te) : '—'}</td></tr></table></div><div class="opts" style="margin-top:12px"><button class="btn sec" onclick="repCsv()">Scarica per Excel (.csv)</button><button class="btn sec" onclick="repPdf()">Salva o stampa in PDF</button></div><p class="hint">Excel: apri il file scaricato. PDF: nella finestra di stampa scegli «Salva come PDF». Sono stime e non sostituiscono la busta paga.</p></div>`;
+}
+/* ---------- due modalità e guida al primo avvio ---------- */
+function kindOf() { return S.cfg.kind || (S.cfg.end ? 'end' : ''); }
+let tmpKind = 'end';
+function setKind(k) { tmpKind = k; seg('kd-', k, ['end', 'open']); $('endBox').hidden = k === 'open'; }
+function renderOpenHome() {
+  const c = S.cfg, el = $('v-home'), t = todayD(), y = t.getFullYear(), m = t.getMonth(), all = span(new Date(y, m, 1), new Date(y, m + 1, 0)), rest = span(t, new Date(y, m + 1, 0)), ms = monthStat(y, m), ti = info(t);
+  const tmsg = { work: `Oggi lavori ${fh(ti.h)} ore.`, extra: `Oggi lavori ${fh(ti.h)} ore (extra).`, perm: `Oggi lavori ${fh(ti.h)} ore (permesso di ${fh(ti.ph)}).`, ferie: 'Oggi sei in ferie 🌴', libero: 'Oggi è un tuo giorno libero.', fest: `Oggi è festa: ${holName(t) || 'festività'}.`, off: 'Oggi non lavori.' }[ti.t];
+  const nf = nextWhere(t, ti.w === 1), nfTxt = nf ? `${ti.w === 1 ? 'Prossimo giorno libero' : 'Si torna al lavoro'}: <b>${fshort(nf)}</b> (${dd(t, nf) === 1 ? 'domani' : `tra ${dd(t, nf)} giorni`}).` : '', nt = S.notes[ymd(t)], nx = paydays(t, new Date(y, m + 3, 1))[0];
+  const dn = ['dom', 'lun', 'mar', 'mer', 'gio', 'ven', 'sab'], em = (d, x) => x.w ? (c.mode === 'rot' && PRO() && rotCode(d) ? SE[rotCode(d)] : '💼') : ({ ferie: '🌴', fest: '🎉', libero: '🛋' }[x.t] || '·');
+  const strip = [0, 1, 2, 3, 4, 5, 6].map((i) => { const d = addD(t, i), x = info(d); return `<div class="wd ${x.w ? 'on' : ''}" style="cursor:default"><span>${em(d, x)}</span><small>${dn[d.getDay()]} ${d.getDate()}</small></div>`; }).join('');
+  const us = ferieUsate(y), fer = c.ferie > 0 ? `<div class="card"><h3>Ferie ${y}</h3><div class="big">${Math.max(0, c.ferie - us)}</div><div class="sub">giorni ancora da usare (ne hai segnati ${us} su ${c.ferie}).</div><div class="bar g"><i style="width:${Math.min(100, Math.round(us / c.ferie * 100))}%"></i></div></div>` : '';
+  const pg = nx ? `<div class="card"><h3>Prossima paga</h3><div class="big">${nx.toLocaleDateString('it-IT', { weekday: 'long', day: 'numeric', month: 'long' })}</div><div class="sub">${dd(t, nx) === 0 ? 'È oggi! Controlla il conto 💸' : `Tra ${dd(t, nx)} giorni.`}</div></div>` : '';
+  el.innerHTML = `<div class="card" style="margin-top:18px"><h3>${MESI[m]} ${y}</h3><div class="big">${rest.n}</div><div class="sub">giorni di lavoro ancora da fare questo mese (oggi incluso), su ${all.n}.<br><b>${fh(rest.h)}</b> ore ancora${ms.money !== null ? ` · guadagno previsto del mese <b>${eur(ms.money)}</b>` : ''}.</div></div><div class="card"><h3>Prossimi 7 giorni</h3><div class="wg" style="margin-top:6px">${strip}</div></div><div class="card"><h3>Oggi</h3><div class="sub"><b>${tmsg}</b><br>${nfTxt}${nt ? `<br>📝 ${esc(nt)}` : ''}</div></div>${pg}${liveHtml()}${fer}${bkHtml()}<div class="acts"><button class="btn sec" onclick="exportIcs()">Esporta nel calendario</button><button class="btn sec" onclick="openCfg()">Impostazioni</button></div><p class="hint" style="text-align:center;margin-top:14px">Lavori senza una data di fine. Se cambia qualcosa, passa a «Ho una data di fine» dalle impostazioni ⚙︎.</p>`;
+}
+function openStats() {
+  const c = S.cfg, y = todayD().getFullYear(), us = ferieUsate(y), R = repData(y), mx = Math.max(1, ...R.map((r) => r.n));
+  return `<div class="card" style="margin-top:14px"><h2>Ferie ${y}</h2>${c.ferie > 0 ? `<div class="big">${Math.max(0, c.ferie - us)}</div><div class="sub">giorni ancora da usare (ne hai segnati ${us} su ${c.ferie}).</div><div class="bar g"><i style="width:${Math.min(100, Math.round(us / c.ferie * 100))}%"></i></div>` : `<div class="sub">Ne hai segnati <b>${us}</b>. Scrivi quante ne hai all'anno nelle impostazioni per vedere quante restano.</div>`}<button class="btn sec sm" style="margin-top:10px" onclick="openCfg()">Modifica ferie e ROL</button></div><div class="card"><h2>Mese per mese ${y}</h2>${R.map((r) => `<div class="mr"><div class="mh"><span>${r.m}</span><span>${r.n} giorni</span></div><div class="bar"><i style="width:${Math.round(r.n / mx * 100)}%"></i></div>${r.e !== null ? `<div class="ms">${eur(r.e)}</div>` : ''}</div>`).join('')}</div>`;
+}
+let ob = { s: 0, kind: '', end: '', label: '', mode: 'week', days: [1, 2, 3, 4, 5], hours: 8, on: 4, off: 2, cy: '', pm: 'hour', pay: '', pd: '' };
+function obRead() { [['obE', 'end'], ['obL', 'label'], ['obH', 'hours'], ['obOn', 'on'], ['obOff', 'off'], ['obCy', 'cy'], ['obP', 'pay'], ['obD', 'pd']].forEach(([id, k]) => { const e = $(id); if (e) ob[k] = e.value; }); }
+function obPick(k) { ob.kind = k; ob.s = k === 'end' ? 1 : 2; renderHome(); window.scrollTo(0, 0); }
+function obSet(k, v) { obRead(); ob[k] = v; renderHome(); }
+function obDay(n) { obRead(); ob.days = ob.days.includes(n) ? ob.days.filter((x) => x !== n) : ob.days.concat(n); renderHome(); }
+function obBack() { obRead(); ob.s = ob.s === 2 && ob.kind === 'open' ? 0 : ob.s - 1; renderHome(); window.scrollTo(0, 0); }
+function obNext() {
+  obRead(); const h = parseFloat(String(ob.hours).replace(',', '.'));
+  if (ob.s === 1) { if (!ob.end) { toast('Scegli la data di fine.'); return; } if (parse(ob.end) < todayD()) { toast('La data di fine è già passata.'); return; } }
+  if (ob.s === 2) { if (ob.mode === 'week' && !ob.days.length) { toast('Scegli almeno un giorno di lavoro.'); return; } if (ob.mode === 'cycle' && (!(parseInt(ob.on, 10) >= 1) || !ob.cy)) { toast('Scrivi i giorni di lavoro di fila e quando è iniziato il ciclo.'); return; } if (!(h > 0)) { toast('Scrivi quante ore lavori al giorno.'); return; } }
+  ob.s++; renderHome(); window.scrollTo(0, 0);
+}
+function obDone() {
+  const c = S.cfg, t = todayD(), n = parseFloat(String(ob.pay).replace(',', '.')) || 0;
+  c.kind = ob.kind; if (ob.kind === 'end') { c.end = ob.end; c.start = ymd(t); c.label = (ob.label || '').trim() || 'Il mio traguardo'; }
+  c.mode = ob.mode; c.days = ob.days.length ? ob.days : c.days; c.hours = parseFloat(String(ob.hours).replace(',', '.')) || 8; c.cycleOn = parseInt(ob.on, 10) || 5; c.cycleOff = parseInt(ob.off, 10) || 0; c.cycleStart = ob.cy;
+  c.payMode = ob.pm; if (ob.pm === 'month') c.monthly = n; else c.rate = n; c.payday = Math.min(31, Math.max(0, parseInt(ob.pd, 10) || 0));
+  first = true; save(); toast('Tutto pronto!');
+}
+function obSkip() { S.cfg.kind = 'end'; save(); openCfg(); }
+function obHtml() {
+  const dots = '<div style="display:flex;gap:6px;margin:0 0 14px">' + [0, 1, 2, 3, 4].map((i) => `<i style="height:4px;flex:1;border-radius:9px;background:${i <= ob.s ? 'var(--ac)' : 'var(--s2)'}"></i>`).join('') + '</div>';
+  const back = ob.s > 0 ? '<button class="btn sec" onclick="obBack()">Indietro</button>' : '<span></span>', nav = (l) => `<div class="opts" style="margin-top:14px">${back}<button class="btn" onclick="obNext()">${l}</button></div>`;
+  const P = (m, l) => `<button type="button" class="${ob.mode === m ? 'on' : ''}" onclick="obSet('mode','${m}')">${l}</button>`, Q = (m, l) => `<button type="button" class="${ob.pm === m ? 'on' : ''}" onclick="obSet('pm','${m}')">${l}</button>`;
+  let b = '';
+  if (ob.s === 0) b = `<h2 style="font-size:1.5rem;line-height:1.2">Benvenuto in Turno 👋</h2><p class="sub">Ti aiuto a tenere il conto del tuo lavoro: giorni, ore, ferie e paga. Bastano 3 domande e potrai cambiare tutto dopo.</p><h3 style="margin-top:14px">Che tipo di lavoro hai?</h3><button class="btn sec" style="text-align:left;margin-bottom:8px" onclick="obPick('end')"><b>Ho una data di fine</b><br><span class="sub">Contratto a termine, stagione, stage, supplenza. Ti mostro quanti giorni di lavoro mancano.</span></button><button class="btn sec" style="text-align:left" onclick="obPick('open')"><b>Lavoro senza scadenza</b><br><span class="sub">Tempo indeterminato o nessuna data. Ti aiuto a seguire turni, ferie e paga.</span></button><p class="hint">Hai sbagliato, o a lavoro cambia qualcosa? Puoi cambiare scelta quando vuoi dalle impostazioni ⚙︎.</p><button class="quote" style="margin-top:10px" onclick="obSkip()"><small>Salta la guida e imposta da solo</small></button>`;
+  else if (ob.s === 1) b = `<h2>Quando finisce?</h2><p class="sub">Scegli l'ultimo giorno del tuo contratto o della tua stagione. Conterò solo i giorni in cui lavori davvero.</p><div class="f"><label>Data di fine *</label><input type="date" id="obE" value="${ob.end}"></div><div class="f"><label>Come lo chiami? (facoltativo)</label><input type="text" id="obL" maxlength="40" value="${esc(ob.label)}" placeholder="Es. Fine contratto, Fine stagione"></div>` + nav('Avanti');
+  else if (ob.s === 2) b = `<h2>Come lavori?</h2><p class="sub">Scegli come si ripetono i tuoi giorni di lavoro.</p><div class="seg">${P('week', 'Stessi giorni ogni settimana')}${P('cycle', 'A ciclo (lavoro e riposo)')}</div>` + (ob.mode === 'week' ? `<div class="f" style="margin-top:12px"><label>In quali giorni lavori?</label><div class="chips">${ORDER.map((n, i) => `<button type="button" class="chip ${ob.days.includes(n) ? 'on' : ''}" onclick="obDay(${n})">${LET[i]}</button>`).join('')}</div></div>` : `<div class="row2" style="margin-top:12px"><div class="f"><label>Giorni di lavoro di fila</label><input type="number" id="obOn" min="1" inputmode="numeric" value="${ob.on}"></div><div class="f"><label>Giorni di riposo di fila</label><input type="number" id="obOff" min="0" inputmode="numeric" value="${ob.off}"></div></div><div class="f"><label>Primo giorno di lavoro di un ciclo</label><input type="date" id="obCy" value="${ob.cy}"></div>`) + `<div class="f"><label>Ore di lavoro al giorno</label><input type="number" id="obH" step="0.5" min="0" inputmode="decimal" value="${ob.hours}"></div><p class="hint">Hai turni mattina, pomeriggio e notte, o maggiorazioni? Si impostano dopo dalle impostazioni, con Pro.</p>` + nav('Avanti');
+  else if (ob.s === 3) b = `<h2>Quanto guadagni?</h2><p class="sub">Facoltativo: serve per le stime di guadagno e per ricordarti il giorno di paga. Puoi lasciare vuoto.</p><div class="seg">${Q('hour', "All'ora")}${Q('month', 'Al mese')}</div><div class="row2" style="margin-top:12px"><div class="f"><label>${ob.pm === 'month' ? 'Stipendio mensile (€)' : "Paga all'ora (€)"}</label><input type="number" id="obP" step="0.01" min="0" inputmode="decimal" value="${ob.pay}"></div><div class="f"><label>Giorno di paga (1-31)</label><input type="number" id="obD" min="0" max="31" inputmode="numeric" value="${ob.pd}"></div></div><p class="hint">31 = ultimo giorno del mese.</p>` + nav('Avanti');
+  else b = `<h2>Tutto pronto 🎉</h2><p class="sub">Ecco cosa trovi nell'app:</p><div class="rows" style="margin:6px 0 10px"><div><span><b>Conto</b></span><b>${ob.kind === 'end' ? 'giorni di lavoro che mancano' : 'il tuo mese e i prossimi giorni'}</b></div><div><span><b>Calendario</b></span><b>tocca un giorno per ferie, permessi, note</b></div><div><span><b>Statistiche</b></span><b>ore, paga, ferie e ponti</b></div><div><span><b>Extra</b></span><b>${ob.kind === 'end' ? 'NASpI, TFR e checklist di uscita' : 'paga e banca ore'}</b></div></div><p class="hint">In ⚙︎ Impostazioni puoi aggiungere ferie, account e sincronizzazione, e cambiare tipo di lavoro quando vuoi.</p><div class="opts" style="margin-top:14px">${back}<button class="btn" onclick="obDone()">Inizia</button></div>`;
+  return `<div class="card" style="margin-top:18px">${dots}${b}</div>`;
 }
 /* ---------- account e sincronizzazione (Firebase) ---------- */
 const FB = { apiKey: "AIzaSyBf9_RgZ7UGtlqu_ySIsLQQ4qk9ymJr6WI", authDomain: "turno-6b6fb.firebaseapp.com", projectId: "turno-6b6fb", storageBucket: "turno-6b6fb.firebasestorage.app", messagingSenderId: "5394387407", appId: "1:5394387407:web:1f4691b23b193fbdb882ba" };
