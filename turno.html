@@ -180,6 +180,19 @@ nav button{flex:1;min-width:0;padding:10px 4px;font-size:.8rem;white-space:nowra
 #fkD{font-size:clamp(2.6rem,13vw,4.2rem);min-height:0;overflow:hidden}
 #fkK{max-width:min(420px,max(220px,calc((100dvh - 260px) / 1.25)))}
 #fkK button{font-size:clamp(1.2rem,6vw,1.7rem)}
+nav button{font-size:.74rem;padding:10px 2px}
+details.acc{background:var(--s1);border:1px solid var(--line);border-radius:20px;padding:0 18px;margin-top:12px}
+details.acc>summary{list-style:none;cursor:pointer;padding:14px 0;display:flex;align-items:center;gap:10px}
+details.acc>summary::-webkit-details-marker{display:none}
+details.acc>summary>div{min-width:0}
+details.acc>summary b{display:block;font:600 .98rem Sora,system-ui,sans-serif}
+details.acc>summary span{display:block;font-size:.76rem;color:var(--dim);margin-top:2px;line-height:1.3}
+details.acc>summary:after{content:"›";margin-left:auto;font-size:1.4rem;color:var(--dim);transition:transform .2s}
+details.acc[open]>summary:after{transform:rotate(90deg)}
+details.acc>.in{padding-bottom:16px}
+.card.pv{opacity:.88}
+.pv b{display:block;font:600 .98rem Sora,system-ui,sans-serif}
+.pv span{display:block;font-size:.76rem;color:var(--dim);margin-top:2px;line-height:1.3}
 </style>
 </head>
 <body>
@@ -196,9 +209,10 @@ nav button{flex:1;min-width:0;padding:10px 4px;font-size:.8rem;white-space:nowra
     <section class="card"><h2 id="msTitle" style="text-transform:capitalize"></h2><div class="rows" id="mStats"></div></section>
   </main>
   <main id="v-x" hidden></main>
+  <main id="v-pro" hidden></main>
   <main id="v-stats" hidden><div id="sAll"></div></main>
 </div>
-<nav><button id="n-home" class="on" onclick="go('home')">Conto</button><button id="n-cal" onclick="go('cal')">Calendario</button><button id="n-stats" onclick="go('stats')">Statistiche</button><button id="n-x" onclick="go('x')">Extra</button></nav>
+<nav><button id="n-home" class="on" onclick="go('home')">Conto</button><button id="n-cal" onclick="go('cal')">Calendario</button><button id="n-pro" onclick="go('pro')">Pro</button><button id="n-stats" onclick="go('stats')">Statistiche</button><button id="n-x" onclick="go('x')">Extra</button></nav>
 
 <div class="ov" id="ov-day" onclick="if(event.target===this)closeS('day')"><div class="sheet">
   <div class="sh"><h3 id="dTitle"></h3><button class="ib" onclick="closeS('day')" aria-label="Chiudi">✕</button></div>
@@ -516,7 +530,7 @@ function shift(n) { view = new Date(view.getFullYear(), view.getMonth() + n, 1);
 function goToday() { const t = new Date(); view = new Date(t.getFullYear(), t.getMonth(), 1); renderCal(); }
 
 /* ---------- STATISTICHE ---------- */
-function renderStats() { if (kindOf() === 'open') $('sAll').innerHTML = openStats2(); else renderStats0(); $('sAll').insertAdjacentHTML('beforeend', advStats()); }
+function renderStats() { if (kindOf() === 'open') $('sAll').innerHTML = openStats2(); else renderStats0(); }
 function renderStats0() {
   const c = S.cfg, today = todayD(), k = calc(), el = $('sAll'), y0 = today.getFullYear();
   if (!k || k.over) { el.innerHTML = '<div class="card" style="margin-top:14px"><h2>Statistiche</h2><p class="sub">Imposta una data di arrivo nelle impostazioni e qui trovi a che punto sei, i soldi, le ferie e i ponti.</p><button class="btn sec" onclick="openCfg()">Imposta la data</button></div>'; return; }
@@ -549,10 +563,10 @@ function takeBridge(k) { S.ex[k] = { t: 'ferie' }; save(); toast('Ferie segnate.
 
 /* ---------- navigazione ---------- */
 function go(t) {
-  ['home', 'cal', 'stats', 'x'].forEach((v) => { $('v-' + v).hidden = v !== t; $('n-' + v).classList.toggle('on', v === t); });
+  ['home', 'cal', 'stats', 'x', 'pro'].forEach((v) => { $('v-' + v).hidden = v !== t; $('n-' + v).classList.toggle('on', v === t); });
   window.scrollTo(0, 0);
 }
-function render() { [renderHome, renderCal, renderStats, renderX].forEach((f) => { try { f(); } catch (e) { console.error(f.name, e); window.lastErr = f.name + ': ' + e.message; } }); if (window.lastErr) { toast('Errore in ' + window.lastErr); window.lastErr = ''; } simBarUpdate(); }
+function render() { [renderHome, renderCal, renderStats, renderX, renderPro].forEach((f) => { try { f(); } catch (e) { console.error(f.name, e); window.lastErr = f.name + ': ' + e.message; } }); if (window.lastErr) { toast('Errore in ' + window.lastErr); window.lastErr = ''; } simBarUpdate(); }
 
 /* ---------- sheets ---------- */
 const openS = (n) => $('ov-' + n).classList.add('open');
@@ -726,10 +740,11 @@ const CK = [['li', 'Aggiorna LinkedIn e CV', 60], ['ct', 'Salva i contatti dei c
 function tick(id, v) { if (v) S.chk[id] = 1; else delete S.chk[id]; save(); }
 function setMood(v) { const k = ymd(todayD()); if (S.mood[k] === v) delete S.mood[k]; else S.mood[k] = v; save(); }
 
-function renderX() {
+function renderX() { renderX0(); accordify($('v-x'), EXSPEC); $('v-x').insertAdjacentHTML('afterbegin', extraNote()); }
+function renderX0() {
   const c = S.cfg, k = calc(), el = $('v-x'), t = tenure(), today = todayD();
   let h = `<div class="card" style="margin-top:14px"><h2>Da quanto lavori</h2>${t ? `<div class="big">${t.y ? t.y + ' a ' : ''}${t.m} m ${t.d} g</div><div class="sub">${t.days} giorni dall'assunzione, circa <b>${t.worked}</b> giorni di lavoro effettivo.</div>` : `<div class="sub">Imposta la data di assunzione per vedere da quanto sei lì dentro.</div><button class="btn sec" style="margin-top:12px" onclick="openCfg()">Imposta</button>`}</div>`;
-  h += payHtml(); h += deadHtml() + periodsHtml() + proPlus() + bankHtml() + cfHtml() + reconHtml() + finalHtml() + simHtml();
+  h += deadHtml() + periodsHtml();
   if (!k || k.over) { el.innerHTML = h + (kindOf() === 'open' ? '' : '<div class="card"><div class="sub">Imposta una data di arrivo nelle impostazioni per vedere il resto.</div></div>'); return; }
   const r = remDays(k);
   h += `<div class="card"><h2>Metriche del dolore</h2><div class="rows"><div><span>Lunedì da sopportare</span><b>${r.mon}</b></div><div><span>Venerdì (quasi liberi)</span><b>${r.fri}</b></div><div><span>Ore di lavoro effettivo</span><b>${fh(k.r.h)}</b></div></div></div>`;
@@ -1189,6 +1204,49 @@ function simBarUpdate() {
 function simHtml() {
   if (!PRO()) return '';
   return `<div class="card"><h2>Simulatore «E se…?»</h2><p class="sub" style="margin:0 0 10px">Prova ferie, permessi o altre modifiche al calendario senza cambiare i tuoi dati veri. Vedi subito come cambiano i giorni che mancano, l'incasso e le ferie rimaste. Alla fine scegli se scartare tutto o tenere le modifiche.</p>${window.SIM ? '<p class="sub"><b>Stai già simulando.</b> Usa i pulsanti in alto per uscire.</p>' : '<button class="btn sec" onclick="simStart()">Avvia una simulazione</button>'}<p class="hint">Durante la simulazione backup e sincronizzazione sono sospesi. Se chiudi l'app, la simulazione sparisce da sola.</p></div>`;
+}
+/* ---------- scheda Pro e menu a tendina ---------- */
+const OPEN = {};
+const EXSPEC = { 'Periodi di lavoro': 'Storico dei tuoi contratti e chiusura del periodo', 'Metriche del dolore': 'Lunedì, venerdì e ore che mancano', 'Ultimo giorno di lavoro': 'Quando finisce davvero, smaltendo ferie e ROL', 'NASpI e TFR (stime indicative)': 'Cosa potresti ricevere dopo e quanto TFR hai maturato', 'Checklist di uscita': 'Cosa fare prima di lasciare il lavoro', "Com'è andata oggi?": 'Segna i giorni no e sblocca le medaglie' };
+function accordify(root, spec) {
+  if (!root) return;
+  root.querySelectorAll(':scope > .card').forEach((c) => {
+    const h = c.querySelector(':scope > h2'), t = h && h.textContent.trim(); if (!t || !spec[t]) return;
+    const d = document.createElement('details'), sm = document.createElement('summary'), body = document.createElement('div');
+    d.className = 'acc'; if (OPEN['x-' + t]) d.open = true; d.addEventListener('toggle', () => { OPEN['x-' + t] = d.open; });
+    sm.innerHTML = `<div><b>${esc(t)}</b><span>${spec[t]}</span></div>`; body.className = 'in'; h.remove();
+    while (c.firstChild) body.appendChild(c.firstChild);
+    d.append(sm, body); c.replaceWith(d);
+  });
+}
+function extraNote() {
+  return `<div class="card" style="margin-top:14px;padding:12px 16px"><div class="sub">💡 Non trovi quello che ti serve? Controlla nella scheda <b>Pro</b>: banca ore, planner ferie, controllo busta paga e altro.</div><button class="btn sec sm" style="margin-top:8px" onclick="go('pro')">Apri la scheda Pro</button></div>`;
+}
+function acc(id, t, d, html) {
+  const inner = String(html || '').replace(/^<div class="card"[^>]*>/, '').replace(/<\/div>\s*$/, '').replace(/<h2[^>]*>[^<]*<\/h2>/, '');
+  if (!inner.trim()) return '';
+  return `<details class="acc" ${OPEN[id] ? 'open' : ''} ontoggle="OPEN['${id}'] = this.open"><summary><div><b>${t}</b><span>${d}</span></div></summary><div class="in">${inner}</div></details>`;
+}
+const PROFEAT = [
+  ['pay', 'Controllo busta paga', 'Quanto dovresti ricevere e se la busta torna', () => payHtml()],
+  ['rec', 'Riconciliazione per voce', 'Confronta ore ordinarie, notte, festive ed extra con la busta', () => reconHtml()],
+  ['pla', 'Planner ferie intelligente', 'Quali giorni prendere per stare a casa più a lungo', () => plannerHtml()],
+  ['ban', 'Banca ore', 'Ferie, permessi/ROL e ore extra, anno per anno', () => bankHtml()],
+  ['tur', 'Controllo turni', 'Avvisi su turni troppo ravvicinati o settimane senza riposo', () => cfHtml()],
+  ['sta', 'Statistiche avanzate', 'Ore, medie e previsione per il tuo obiettivo', () => advStats()],
+  ['rep', 'Riepilogo dell\'anno', 'Tabella mese per mese in Excel (CSV) o PDF', () => reportCard()],
+  ['fin', 'Riepilogo di fine rapporto', 'Pagina stampabile con ore, ferie, TFR e NASpI', () => finalHtml(), 1],
+  ['gol', 'Più traguardi', 'Vacanze, rate, esami: un conto alla rovescia per ognuno', () => goalsHtml()],
+  ['sim', 'Simulatore «E se…?»', 'Prova ferie e permessi senza toccare i dati veri', () => simHtml()],
+  ['rot', 'Turni a rotazione', 'Mattina, pomeriggio e notte che si ripetono (si imposta da ⚙︎)', null],
+  ['mag', 'Maggiorazioni', 'Notte, domeniche, festivi ed extra nelle stime (si imposta da ⚙︎)', null]
+];
+function renderPro() {
+  const el = $('v-pro'); if (!el) return; const on = PRO();
+  const head = on ? '<div class="card" style="margin-top:14px;padding:12px 16px"><div class="sub">✓ Hai <b>Pro</b>. Apri una voce per usarla. Turni a rotazione e maggiorazioni si impostano da ⚙︎ Impostazioni.</div></div>'
+    : '<div class="card" style="margin-top:14px"><h2>Turno Pro</h2><p class="sub" style="margin:0 0 10px">Strumenti per controllare i soldi e organizzare meglio turni e ferie. Qui sotto vedi cosa include: se ti manca qualcosa, è probabile che sia qui.</p><button class="btn" onclick="openPro()">Confronta Standard e Pro</button></div>';
+  const items = PROFEAT.filter((f) => !f[4] || (kindOf() === 'end' && S.cfg.end));
+  el.innerHTML = head + items.map((f) => on && f[3] ? acc('p-' + f[0], f[1], f[2], f[3]()) : `<div class="card pv"><b>${on ? '' : '🔒 '}${f[1]}</b><span>${f[2]}</span></div>`).join('');
 }
 /* ---------- account e sincronizzazione (Firebase) ---------- */
 const FB = { apiKey: "AIzaSyBf9_RgZ7UGtlqu_ySIsLQQ4qk9ymJr6WI", authDomain: "turno-6b6fb.firebaseapp.com", projectId: "turno-6b6fb", storageBucket: "turno-6b6fb.firebasestorage.app", messagingSenderId: "5394387407", appId: "1:5394387407:web:1f4691b23b193fbdb882ba" };
