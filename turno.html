@@ -295,7 +295,7 @@ function load() {
 }
 let S = load(), bump = 0, sel = null, first = true;
 let view = new Date(); view = new Date(view.getFullYear(), view.getMonth(), 1);
-function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); localStorage.setItem('turno_mod', Date.now()); } catch (e) { toast('Impossibile salvare su questo browser.'); } applyTheme(); render(); if (window.cloudPush) cloudPush(); }
+function save() { if (!window.SIM) try { localStorage.setItem(KEY, JSON.stringify(S)); localStorage.setItem('turno_mod', Date.now()); } catch (e) { toast('Impossibile salvare su questo browser.'); } applyTheme(); render(); if (!window.SIM && window.cloudPush) cloudPush(); }
 
 /* ---------- tema ---------- */
 const mq = matchMedia('(prefers-color-scheme: light)');
@@ -552,7 +552,7 @@ function go(t) {
   ['home', 'cal', 'stats', 'x'].forEach((v) => { $('v-' + v).hidden = v !== t; $('n-' + v).classList.toggle('on', v === t); });
   window.scrollTo(0, 0);
 }
-function render() { [renderHome, renderCal, renderStats, renderX].forEach((f) => { try { f(); } catch (e) { console.error(f.name, e); window.lastErr = f.name + ': ' + e.message; } }); if (window.lastErr) { toast('Errore in ' + window.lastErr); window.lastErr = ''; } }
+function render() { [renderHome, renderCal, renderStats, renderX].forEach((f) => { try { f(); } catch (e) { console.error(f.name, e); window.lastErr = f.name + ': ' + e.message; } }); if (window.lastErr) { toast('Errore in ' + window.lastErr); window.lastErr = ''; } simBarUpdate(); }
 
 /* ---------- sheets ---------- */
 const openS = (n) => $('ov-' + n).classList.add('open');
@@ -636,7 +636,7 @@ function saveCfg() {
 
 /* ---------- condividi / esporta ---------- */
 function download(blob, name) { const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 4000); }
-function exp() { S.cfg.lastBackup = ymd(new Date()); try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} download(new Blob([JSON.stringify(S)], { type: 'application/json' }), `turno-backup-${ymd(new Date())}.json`); }
+function exp() { if (window.SIM) { toast('Esci dalla simulazione prima di fare il backup.'); return; } S.cfg.lastBackup = ymd(new Date()); try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} download(new Blob([JSON.stringify(S)], { type: 'application/json' }), `turno-backup-${ymd(new Date())}.json`); }
 function imp(f) {
   if (!f) return;
   const r = new FileReader();
@@ -729,7 +729,7 @@ function setMood(v) { const k = ymd(todayD()); if (S.mood[k] === v) delete S.moo
 function renderX() {
   const c = S.cfg, k = calc(), el = $('v-x'), t = tenure(), today = todayD();
   let h = `<div class="card" style="margin-top:14px"><h2>Da quanto lavori</h2>${t ? `<div class="big">${t.y ? t.y + ' a ' : ''}${t.m} m ${t.d} g</div><div class="sub">${t.days} giorni dall'assunzione, circa <b>${t.worked}</b> giorni di lavoro effettivo.</div>` : `<div class="sub">Imposta la data di assunzione per vedere da quanto sei lì dentro.</div><button class="btn sec" style="margin-top:12px" onclick="openCfg()">Imposta</button>`}</div>`;
-  h += payHtml(); h += deadHtml() + periodsHtml() + proPlus() + bankHtml() + cfHtml() + reconHtml() + finalHtml();
+  h += payHtml(); h += deadHtml() + periodsHtml() + proPlus() + bankHtml() + cfHtml() + reconHtml() + finalHtml() + simHtml();
   if (!k || k.over) { el.innerHTML = h + (kindOf() === 'open' ? '' : '<div class="card"><div class="sub">Imposta una data di arrivo nelle impostazioni per vedere il resto.</div></div>'); return; }
   const r = remDays(k);
   h += `<div class="card"><h2>Metriche del dolore</h2><div class="rows"><div><span>Lunedì da sopportare</span><b>${r.mon}</b></div><div><span>Venerdì (quasi liberi)</span><b>${r.fri}</b></div><div><span>Ore di lavoro effettivo</span><b>${fh(k.r.h)}</b></div></div></div>`;
@@ -868,9 +868,9 @@ function openPro() {
   const row = (t, a, b) => `<div>${t}</div>${a}${b}`;
   const rows = [
     row('Conto alla rovescia, calendario e statistiche', Y, Y), row('Ferie, permessi/ROL e ponti', Y, Y), row('Paga, obiettivo e paghe nel calendario', Y, Y),
-    row('Stime TFR e NASpI', Y, Y), row('Account e sincronizzazione', Y, Y), row('Backup e condivisione come immagine', Y, Y),
+    row('Stime TFR e NASpI', Y, Y), row('Account e sincronizzazione', Y, Y), row('Backup e condivisione come immagine', Y, Y), row('Scadenze e storico dei periodi di lavoro', Y, Y),
     row('<b>Turni a rotazione</b> (mattina, pomeriggio, notte)', N, Y), row('<b>Maggiorazioni</b> di notte, festivi e straordinari', N, Y), row('<b>Controllo busta paga</b>', N, Y),
-    row('<b>Più traguardi</b> insieme', N, Y), row('<b>Planner ferie</b> intelligente', N, Y), row('<b>Report</b> PDF e Excel (CSV)', N, Y), row('<b>Banca ore</b>: ferie, ROL e ore extra', N, Y), row('<b>Statistiche avanzate</b> e previsioni', N, Y), row('Promemoria e notifiche', N, Z)
+    row('<b>Più traguardi</b> insieme', N, Y), row('<b>Planner ferie</b> intelligente', N, Y), row('<b>Report</b> PDF e Excel (CSV)', N, Y), row('<b>Banca ore</b>: ferie, ROL e ore extra', N, Y), row('<b>Statistiche avanzate</b> e previsioni', N, Y), row('<b>Controllo turni</b> e riepilogo di fine rapporto', N, Y), row('<b>Riconciliazione</b> busta paga e <b>simulatore</b> «E se…»', N, Y), row('Promemoria e notifiche', N, Z)
   ].join('');
   const cta = PRO() ? '<p class="sub" style="margin:14px 0 0"><b>✓ Hai già Pro.</b> Grazie! Le funzioni segnate «presto» le troverai qui appena pronte.</p>'
     : '<p class="sub" style="margin:14px 0 8px">Con Pro: prova gratuita di 14 giorni, poi disdici quando vuoi. <b>I pagamenti non sono ancora attivi</b>, quindi Pro non è ancora in vendita.</p><button class="btn" disabled style="opacity:.55">Presto disponibile</button>';
@@ -922,15 +922,16 @@ function reportHtml() {
   return `<div class="card"><h2>Report annuale</h2><div class="ch" style="margin:0 0 6px"><h2 style="font-size:1.05rem">Anno ${rpY}</h2><button class="sq" onclick="rpGo(-1)" aria-label="Anno precedente">‹</button><button class="sq" onclick="rpGo(1)" aria-label="Anno successivo">›</button></div><div class="rows"><div><span>Giorni di lavoro</span><b>${tn}</b></div><div><span>Ore</span><b>${fh(th)}</b></div>${any ? `<div><span>Guadagno previsto</span><b>${eur2(te)}</b></div>` : ''}</div><div class="opts" style="margin-top:12px"><button class="btn sec" onclick="repCsv()">Scarica per Excel (CSV)</button><button class="btn sec" onclick="repPdf()">Salva come PDF</button></div><p class="hint">Riepilogo mese per mese, calcolato dal tuo calendario. Sono stime: non sostituiscono la busta paga.</p></div>`;
 }
 /* ---------- banca ore, statistiche avanzate, report chiaro (Pro) ---------- */
-function bankHtml() {
+function bankHtml() { return bkY === new Date().getFullYear() ? bankHtml0() : bankPast(bkY); }
+function bankHtml0() {
   if (!PRO()) return '';
   const c = S.cfg, t = todayD(), y = t.getFullYear(), k = calc(), dec = new Date(y, 11, 31), dl = k && !k.over && k.end < dec ? k.end : dec;
   let fu = 0, fp = 0, rh = 0, xh = 0;
   Object.keys(S.ex).forEach((q) => { if (!q.startsWith(y + '-')) return; const e = S.ex[q], d = parse(q); if (e.t === 'ferie' && norm(d)) { if (d <= t) fu++; else fp++; } if (e.t === 'perm' && norm(d)) rh += e.h || 0; if (e.t === 'extra') xh += e.h || c.hours; });
   const fy = c.ferie || 0, left = Math.max(0, fy - fu - fp), rl = c.rolY || 0, mat = fy * (dd(new Date(y, 0, 1), t) + 1) / 365, row = (a, b) => `<div><span>${a}</span><b>${b}</b></div>`;
-  const ferie = fy > 0 ? `<div class="rows">${row('Spettanti nell\'anno', fy + ' giorni')}${row('Maturate finora (circa)', fh(mat) + ' giorni')}${row('Già usate', fu)}${row('Programmate nel calendario', fp)}${row('<b>Ancora da pianificare</b>', '<b>' + left + '</b>')}</div>${left > 0 ? `<p class="sub" style="margin-top:8px">Hai <b>${left}</b> ${left === 1 ? 'giorno' : 'giorni'} di ferie da usare entro <b>${fdate(dl)}</b> (tra ${Math.max(0, dd(t, dl))} giorni).</p><button class="btn sec" onclick="ppV = ${left}; render()">Trova i giorni migliori nel planner</button>` : '<p class="sub" style="margin-top:8px"><b>✓ Hai già pianificato tutte le ferie.</b></p>'}` : '<p class="sub">Scrivi quante ferie hai all\'anno nelle impostazioni, e qui vedi quante ne restano.</p><button class="btn sec" onclick="openCfg()">Imposta le ferie</button>';
+  const ferie = fy > 0 ? `<div class="rows">${row('Spettanti nell\'anno', fy + ' giorni')}${carryRow(y)}${row('Maturate finora (circa)', fh(mat) + ' giorni')}${row('Già usate', fu)}${row('Programmate nel calendario', fp)}${row('<b>Ancora da pianificare</b>', '<b>' + left + '</b>')}</div>${left > 0 ? `<p class="sub" style="margin-top:8px">Hai <b>${left}</b> ${left === 1 ? 'giorno' : 'giorni'} di ferie da usare entro <b>${fdate(dl)}</b> (tra ${Math.max(0, dd(t, dl))} giorni).</p><button class="btn sec" onclick="ppV = ${left}; render()">Trova i giorni migliori nel planner</button>` : '<p class="sub" style="margin-top:8px"><b>✓ Hai già pianificato tutte le ferie.</b></p>'}` : '<p class="sub">Scrivi quante ferie hai all\'anno nelle impostazioni, e qui vedi quante ne restano.</p><button class="btn sec" onclick="openCfg()">Imposta le ferie</button>';
   const rol = rl > 0 ? `<div class="rows">${row('Spettanti nell\'anno', fh(rl) + ' h')}${row('Già usate (permessi segnati)', fh(rh) + ' h')}${row('<b>Restano</b>', '<b>' + fh(Math.max(0, rl - rh)) + ' h</b>')}</div>` : `<p class="sub">Hai ${fh(rh)} ore di permesso/ROL segnate nel ${y}. Scrivi quante ne hai all'anno nelle impostazioni per vedere quante restano.</p>`;
-  return `<div class="card"><h2>Banca ore ${y}</h2><p class="hint" style="margin:0 0 8px">Il conto di ferie, permessi/ROL e ore extra. Si aggiorna da solo con quello che segni nel Calendario (tocca un giorno).</p><h3>Ferie</h3>${ferie}<h3 style="margin-top:16px">Permessi / ROL</h3>${rol}<h3 style="margin-top:16px">Ore extra</h3><p class="sub">Hai segnato <b>${fh(xh)} ore</b> di lavoro extra nell'anno${xh > 0 ? ` (circa ${fh(xh / c.hours)} giornate di lavoro)` : ''}.</p></div>`;
+  return `<div class="card"><h2>Banca ore</h2><div class="ch" style="margin:0 0 6px"><h2 style="font-size:1.05rem">Anno ${y}</h2><button class="sq" onclick="bkGo(-1)" aria-label="Anno precedente">‹</button><button class="sq" onclick="bkGo(1)" aria-label="Anno successivo">›</button></div><p class="hint" style="margin:0 0 8px">Il conto di ferie, permessi/ROL e ore extra. Si aggiorna da solo con quello che segni nel Calendario (tocca un giorno).</p><h3>Ferie</h3>${ferie}<h3 style="margin-top:16px">Permessi / ROL</h3>${rol}<h3 style="margin-top:16px">Ore extra</h3><p class="sub">Hai segnato <b>${fh(xh)} ore</b> di lavoro extra nell'anno${xh > 0 ? ` (circa ${fh(xh / c.hours)} giornate di lavoro)` : ''}.</p></div>`;
 }
 function advStats() {
   if (!PRO()) return '<div class="card"><h2>Statistiche avanzate (Pro)</h2><p class="sub">🔒 Grafico dell\'anno, medie e previsione per il tuo obiettivo. Disponibile con Pro.</p></div>';
@@ -1154,6 +1155,41 @@ function reconHtml() {
   }).join('');
   return `<div class="card"><h2>Riconciliazione per voce</h2><p class="hint" style="margin:0 0 6px">${MESI[m]} ${y} (il mese si sceglie in «Controllo busta paga»). Scrivi le ore che leggi in busta paga, voce per voce: se una non torna, il problema è lì. Se un campo è vuoto, la voce non viene confrontata.</p>${rows}</div>`;
 }
+/* ---------- simulatore "E se...", anni diversi ---------- */
+let bkY = new Date().getFullYear();
+function bkGo(n) { bkY += n; render(); }
+function carryRow(y) {
+  const c = S.cfg; if (!(c.ferie > 0)) return '';
+  const has = Object.keys(S.ex).some((q) => q.startsWith((y - 1) + '-') && S.ex[q].t === 'ferie') || (c.start && parse(c.start).getFullYear() < y);
+  const left = Math.max(0, c.ferie - ferieUsate(y - 1));
+  return has && left > 0 ? `<div><span>Non usate nel ${y - 1} (riporto, se previsto)</span><b>${left} giorni</b></div>` : '';
+}
+function bankPast(y) {
+  const c = S.cfg; let fu = 0, rh = 0, xh = 0;
+  Object.keys(S.ex).forEach((q) => { if (!q.startsWith(y + '-')) return; const e = S.ex[q], d = parse(q); if (e.t === 'ferie' && norm(d)) fu++; if (e.t === 'perm' && norm(d)) rh += e.h || 0; if (e.t === 'extra') xh += e.h || c.hours; });
+  const row = (a, b) => `<div><span>${a}</span><b>${b}</b></div>`;
+  return `<div class="card"><h2>Banca ore</h2><div class="ch" style="margin:0 0 6px"><h2 style="font-size:1.05rem">Anno ${y}</h2><button class="sq" onclick="bkGo(-1)" aria-label="Anno precedente">‹</button><button class="sq" onclick="bkGo(1)" aria-label="Anno successivo">›</button></div><div class="rows">${c.ferie > 0 ? row('Ferie spettanti', c.ferie + ' giorni') : ''}${row(y > new Date().getFullYear() ? 'Ferie programmate' : 'Ferie usate', fu)}${c.ferie > 0 ? row('Non ancora segnate', Math.max(0, c.ferie - fu) + ' giorni') : ''}${row('Permessi/ROL segnati', fh(rh) + ' h')}${row('Ore extra segnate', fh(xh) + ' h')}</div><p class="hint">Riepilogo dei giorni segnati nel calendario per quell'anno. Per gli anni futuri è la tua pianificazione. Torna all'anno corrente con le frecce.</p></div>`;
+}
+function simM() {
+  const k = calc(), t = todayD(), ok = k && !k.over, p = ok ? proj(k) : null;
+  return { g: ok ? k.r.n : null, m: p ? p.total : null, f: S.cfg.ferie > 0 ? S.cfg.ferie - ferieUsate(t.getFullYear()) : null };
+}
+function simStart() { window.SIM = JSON.stringify(S); window.simB = simM(); toast('Simulazione avviata: prova ferie, permessi o altro.'); go('cal'); render(); }
+function simStop(keep) {
+  if (keep) { if (!confirm('Tenere le modifiche della simulazione e renderle reali?')) return; window.SIM = null; first = true; save(); toast('Modifiche applicate ai dati reali.'); return; }
+  S = JSON.parse(window.SIM); window.SIM = null; first = true; applyTheme(); render(); toast('Simulazione scartata: i dati reali sono intatti.');
+}
+function simBarUpdate() {
+  let e = $('simBar');
+  if (!window.SIM) { if (e) e.remove(); return; }
+  if (!e) { e = document.createElement('div'); e.id = 'simBar'; e.style.cssText = 'position:sticky;top:0;z-index:60;background:var(--warn);color:var(--on);padding:10px 14px;font-size:.82rem;line-height:1.4'; document.body.prepend(e); }
+  const a = window.simB || {}, b = simM(), d = (l, x, y, f) => x === null || x === undefined || y === null ? '' : `<span style="margin-right:12px">${l}: <b>${x === y ? 'invariato' : f(x) + ' → ' + f(y)}</b></span>`;
+  e.innerHTML = `<div>🧪 <b>Simulazione</b>: i tuoi dati reali non cambiano.</div><div style="margin:4px 0 8px">${d('Giorni di lavoro rimasti', a.g, b.g, (v) => Math.round(v))}${d('Incasso fino al traguardo', a.m, b.m, eur)}${d('Ferie rimaste', a.f, b.f, (v) => v)}</div><button class="btn sm sec" style="margin-right:8px" onclick="simStop(false)">Esci e scarta</button><button class="btn sm" style="background:var(--on);color:var(--tx)" onclick="simStop(true)">Tieni le modifiche</button>`;
+}
+function simHtml() {
+  if (!PRO()) return '';
+  return `<div class="card"><h2>Simulatore «E se…?»</h2><p class="sub" style="margin:0 0 10px">Prova ferie, permessi o altre modifiche al calendario senza cambiare i tuoi dati veri. Vedi subito come cambiano i giorni che mancano, l'incasso e le ferie rimaste. Alla fine scegli se scartare tutto o tenere le modifiche.</p>${window.SIM ? '<p class="sub"><b>Stai già simulando.</b> Usa i pulsanti in alto per uscire.</p>' : '<button class="btn sec" onclick="simStart()">Avvia una simulazione</button>'}<p class="hint">Durante la simulazione backup e sincronizzazione sono sospesi. Se chiudi l'app, la simulazione sparisce da sola.</p></div>`;
+}
 /* ---------- account e sincronizzazione (Firebase) ---------- */
 const FB = { apiKey: "AIzaSyBf9_RgZ7UGtlqu_ySIsLQQ4qk9ymJr6WI", authDomain: "turno-6b6fb.firebaseapp.com", projectId: "turno-6b6fb", storageBucket: "turno-6b6fb.firebasestorage.app", messagingSenderId: "5394387407", appId: "1:5394387407:web:1f4691b23b193fbdb882ba" };
 let cloudUser = null, cloudDb = null, pushT = null, cloudReady = false;
@@ -1169,9 +1205,9 @@ async function acDel() {
   try { await cloudDb.collection('users').doc(cloudUser.uid).delete(); await cloudUser.delete(); toast('Account eliminato.'); }
   catch (e) { toast(e.code === 'auth/requires-recent-login' ? 'Per sicurezza esci, rientra e riprova.' : 'Errore: ' + (e.code || e.message)); }
 }
-async function cloudPushNow() { if (!cloudUser) return; const ts = Date.now(); await cloudDb.collection('users').doc(cloudUser.uid).set({ data: JSON.stringify(S), updated: ts }); localStorage.setItem('turno_mod', ts); }
+async function cloudPushNow() { if (!cloudUser || window.SIM) return; const ts = Date.now(); await cloudDb.collection('users').doc(cloudUser.uid).set({ data: JSON.stringify(S), updated: ts }); localStorage.setItem('turno_mod', ts); }
 function cloudPush() { if (!cloudUser || !cloudReady) return; clearTimeout(pushT); pushT = setTimeout(() => cloudPushNow().catch(() => {}), 1500); }
-async function cloudSync() {
+async function cloudSync() { if (window.SIM) return;
   if (!cloudUser) return;
   try {
     const snap = await cloudDb.collection('users').doc(cloudUser.uid).get(), mod = +localStorage.getItem('turno_mod') || 0;
