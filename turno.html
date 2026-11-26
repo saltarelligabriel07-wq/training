@@ -144,6 +144,9 @@ nav button{padding:10px 13px}
 .wd{aspect-ratio:1;border-radius:12px;border:1.5px solid var(--line);background:var(--s2);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:0;cursor:pointer;font-size:1.15rem}
 .wd small{font:600 .56rem Manrope;color:var(--dim)}
 .wd.on{border-color:var(--ac);background:rgba(138,180,255,.16)}
+.day.mg{box-shadow:inset 0 -3px 0 var(--warn)}
+.day.cf{box-shadow:inset 0 0 0 2px var(--bad)}
+.day.mg.cf{box-shadow:inset 0 0 0 2px var(--bad),inset 0 -3px 0 var(--warn)}
 /* --- telefono: spazi e sovrapposizioni --- */
 html,body{overflow-x:hidden}
 body{min-height:100dvh}
@@ -187,7 +190,7 @@ nav button{flex:1;min-width:0;padding:10px 4px;font-size:.8rem;white-space:nowra
     <section class="card" style="margin-top:14px">
       <div class="ch"><h2 id="mTitle"></h2><button class="sq" onclick="goToday()">Oggi</button><button class="sq" onclick="shift(-1)" aria-label="Mese precedente">‹</button><button class="sq" onclick="shift(1)" aria-label="Mese successivo">›</button></div>
       <div class="grid" id="dows"></div><div class="grid" id="cal" style="margin-top:5px"></div>
-      <div class="leg"><span style="--c:var(--ac)">Lavoro extra</span><span style="--c:var(--ac2)">Ferie</span><span style="--c:var(--warn)">Permesso / nota</span><span style="--c:var(--bad)">Festività</span></div>
+      <div class="leg"><span style="--c:var(--ac)">Lavoro extra</span><span style="--c:var(--ac2)">Ferie</span><span style="--c:var(--warn)">Permesso / nota</span><span style="--c:var(--bad)">Festività</span><span style="--c:var(--warn)">Maggiorazione</span><span style="--c:var(--bad)">⚠ Da controllare</span></div>
       <p class="hint">€ = giorno di paga. Tocca un giorno per ferie, permessi, note.</p>
     </section>
     <section class="card"><h2 id="msTitle" style="text-transform:capitalize"></h2><div class="rows" id="mStats"></div></section>
@@ -430,7 +433,7 @@ function tappe(k) {
   while (d <= k.end && ft.some((t) => !t.date)) { const w = info(d).w; ft.forEach((t) => { if (!t.date && w === 1 && rem <= t.n) t.date = new Date(d); }); rem -= w; d.setDate(d.getDate() + 1); }
   return th.sort((a, b) => (a.past ? 0 : 1) - (b.past ? 0 : 1) || (a.date || 0) - (b.date || 0));
 }
-function renderHome() { const kd = kindOf(); if (kd === '') { $('v-home').innerHTML = obHtml(); return; } if (kd === 'open') { renderOpenHome2(); return; } renderHome0(); }
+function renderHome() { const kd = kindOf(); if (kd === '') { $('v-home').innerHTML = obHtml(); return; } if (kd === 'open') { renderOpenHome2(); $('v-home').insertAdjacentHTML('afterbegin', quickBar()); return; } renderHome0(); $('v-home').insertAdjacentHTML('afterbegin', quickBar()); }
 function renderHome0() {
   const c = S.cfg, el = $('v-home'), k = calc();
   if (!k) {
@@ -493,13 +496,13 @@ function renderCal() {
     const d = new Date(y, m, n), i = info(d), k = ymd(d);
     const cls = { work: '', off: 'off', fest: 'fest', ferie: 'ferie', perm: 'perm', libero: 'libero', extra: 'extra' }[i.t];
     const tag = { work: (S.ex[k] && S.ex[k].t === 'work' ? '<small>cambio</small>' : S.cfg.mode === 'rot' && rotTok(d) ? `<small>${esc(rotTok(d))}</small>` : '<i></i>'), ferie: '<small>ferie</small>', perm: `<small>${fh(i.ph || 0)}h</small>`, extra: '<small>extra</small>', fest: '<small>festa</small>' }[i.t] || '';
-    html += `<button class="day ${cls} ${k === ymd(today) ? 'today' : ''} ${k === pk ? 'pd' : ''} ${S.notes[k] ? 'nt' : ''}" onclick="pick('${k}')" aria-label="${n} ${MESI[m]}">${n}${tag}</button>`;
+    html += `<button class="day ${cls} ${k === ymd(today) ? 'today' : ''} ${k === pk ? 'pd' : ''} ${S.notes[k] ? 'nt' : ''} ${mgDay(d) ? 'mg' : ''} ${cfDay(d) ? 'cf' : ''}" onclick="pick('${k}')" aria-label="${n} ${MESI[m]}">${n}${tag}</button>`;
   }
   $('cal').innerHTML = html;
   const f = new Date(y, m, 1), l = new Date(y, m, dim), all = span(f, l), cur = today >= f && today <= l, rest = cur ? span(today, l) : null;
   const ms = monthStat(y, m), month = c.payMode === 'month';
   $('msTitle').textContent = `Riepilogo di ${MESI[m]}`;
-  $('mStats').innerHTML = `<div><span>Giorni di lavoro</span><b>${all.n}</b></div>${rest ? `<div><span>Ancora da fare (oggi incluso)</span><b>${rest.n}</b></div>` : ''}<div><span>Ore</span><b>${fh(all.h)}</b></div><div><span>${month ? 'Stipendio mensile' : 'Guadagno previsto'}</span><b>${ms.money === null ? '—' : eur(ms.money)}</b></div>${pd ? `<div><span>Giorno di paga</span><b>${fshort(pd)}</b></div>` : ''}<div><span>Ferie nel mese</span><b>${ms.ferie}</b></div><div><span>Permessi/ROL nel mese</span><b>${fh(ms.perm)} h</b></div><div><span>Ferie ${y}</span><b>${c.ferie > 0 ? `${ferieUsate(y)} / ${c.ferie} (restano ${Math.max(0, c.ferie - ferieUsate(y))})` : ferieUsate(y)}</b></div>`;
+  $('mStats').innerHTML = `<div><span>Giorni di lavoro</span><b>${all.n}</b></div>${rest ? `<div><span>Ancora da fare (oggi incluso)</span><b>${rest.n}</b></div>` : ''}<div><span>Ore</span><b>${fh(all.h)}</b></div><div><span>${month ? 'Stipendio mensile' : 'Guadagno previsto'}</span><b>${ms.money === null ? '—' : eur(ms.money)}</b></div>${bonusRows(y, m)}${pd ? `<div><span>Giorno di paga</span><b>${fshort(pd)}</b></div>` : ''}<div><span>Ferie nel mese</span><b>${ms.ferie}</b></div><div><span>Permessi/ROL nel mese</span><b>${fh(ms.perm)} h</b></div><div><span>Ferie ${y}</span><b>${c.ferie > 0 ? `${ferieUsate(y)} / ${c.ferie} (restano ${Math.max(0, c.ferie - ferieUsate(y))})` : ferieUsate(y)}</b></div>`;
 }
 function monthStat(y, m) {
   const c = S.cfg, dim = new Date(y, m + 1, 0).getDate(), all = span(new Date(y, m, 1), new Date(y, m, dim));
@@ -726,7 +729,7 @@ function setMood(v) { const k = ymd(todayD()); if (S.mood[k] === v) delete S.moo
 function renderX() {
   const c = S.cfg, k = calc(), el = $('v-x'), t = tenure(), today = todayD();
   let h = `<div class="card" style="margin-top:14px"><h2>Da quanto lavori</h2>${t ? `<div class="big">${t.y ? t.y + ' a ' : ''}${t.m} m ${t.d} g</div><div class="sub">${t.days} giorni dall'assunzione, circa <b>${t.worked}</b> giorni di lavoro effettivo.</div>` : `<div class="sub">Imposta la data di assunzione per vedere da quanto sei lì dentro.</div><button class="btn sec" style="margin-top:12px" onclick="openCfg()">Imposta</button>`}</div>`;
-  h += payHtml(); h += proPlus() + bankHtml();
+  h += payHtml(); h += deadHtml() + periodsHtml() + proPlus() + bankHtml() + cfHtml() + reconHtml() + finalHtml();
   if (!k || k.over) { el.innerHTML = h + (kindOf() === 'open' ? '' : '<div class="card"><div class="sub">Imposta una data di arrivo nelle impostazioni per vedere il resto.</div></div>'); return; }
   const r = remDays(k);
   h += `<div class="card"><h2>Metriche del dolore</h2><div class="rows"><div><span>Lunedì da sopportare</span><b>${r.mon}</b></div><div><span>Venerdì (quasi liberi)</span><b>${r.fri}</b></div><div><span>Ore di lavoro effettivo</span><b>${fh(k.r.h)}</b></div></div></div>`;
@@ -1042,6 +1045,114 @@ function swapApply() {
   if (out) { S.ex[k] = F(o); S.ex[o] = W(k); } else { S.ex[k] = W(o); S.ex[o] = F(k); }
   if (!S.notes[k]) S.notes[k] = 'Cambio turno';
   save(); closeS('day'); toast('Cambio turno segnato.');
+}
+/* ---------- trasparenza maggiorazioni, scadenze, storico, controlli, riconciliazione ---------- */
+function bonusParts(a, b) {
+  const c = S.cfg, hr = hourly(), o = { n: 0, f: 0, x: 0 }; if (!PRO() || !hr) return o;
+  for (let d = new Date(a); d <= b; d.setDate(d.getDate() + 1)) {
+    const i = info(d); if (!i.w) continue;
+    const s = c.mode === 'rot' ? rotShift(d) : null, fest = hol(d) || d.getDay() === 0;
+    if (s && c.nightPct > 0 && i.t !== 'extra') o.n += nightH(s) * hr * c.nightPct / 100;
+    if (fest && c.holPct > 0) o.f += i.h * hr * c.holPct / 100;
+    if (i.t === 'extra' && c.otPct > 0) o.x += i.h * hr * c.otPct / 100;
+  }
+  return o;
+}
+function bonusRows(y, m) {
+  const p = bonusParts(new Date(y, m, 1), new Date(y, m + 1, 0)), t = p.n + p.f + p.x, ms = monthStat(y, m);
+  if (!(t > 0) || ms.money === null) return '';
+  const r = (a, v) => `<div><span>${a}</span><b>${eur(v)}</b></div>`;
+  return r('↳ di cui paga base', ms.money - t) + (p.n > 0 ? r('↳ maggiorazione notte', p.n) : '') + (p.f > 0 ? r('↳ domeniche e festivi', p.f) : '') + (p.x > 0 ? r('↳ lavoro extra', p.x) : '');
+}
+function mgDay(d) {
+  const c = S.cfg; if (!PRO()) return false; const i = info(d); if (!i.w) return false;
+  const s = c.mode === 'rot' ? rotShift(d) : null, fest = hol(d) || d.getDay() === 0;
+  return !!((fest && c.holPct > 0) || (s && c.nightPct > 0 && i.t !== 'extra' && nightH(s) > 0) || (i.t === 'extra' && c.otPct > 0));
+}
+function cfWhy(d) {
+  if (!PRO() || !info(d).w) return '';
+  let run = 0; for (let i = 0; i < 7; i++) { if (info(addD(d, -i)).w) run++; else break; }
+  if (run >= 7) return 'Sette giorni di lavoro di fila, senza un giorno di riposo';
+  if (S.cfg.mode === 'rot') {
+    const s = rotShift(d), p = rotShift(addD(d, -1));
+    if (s && p && info(addD(d, -1)).w) { let pe = tmin(p.end); if (pe <= tmin(p.start)) pe += 1440; const gap = 1440 + tmin(s.start) - pe; if (gap < 660) return `Solo ${fh(Math.max(0, gap) / 60)} ore di riposo dal turno di ieri (meno di 11)`; }
+  }
+  return '';
+}
+const cfDay = (d) => !!cfWhy(d);
+function cfHtml() {
+  if (!PRO()) return '';
+  const t = todayD(), L = []; for (let i = 0; i < 30; i++) { const d = addD(t, i), w = cfWhy(d); if (w) L.push({ d, w }); }
+  return `<div class="card"><h2>Controllo turni</h2><p class="hint" style="margin:0 0 8px">Ti segnalo i turni da guardare nei prossimi 30 giorni: sette giorni di fila senza riposo, o meno di 11 ore tra un turno e l'altro. Il tuo contratto può prevedere eccezioni: è un promemoria, non un giudizio. Sul calendario questi giorni hanno il bordo rosso.</p>${L.length ? L.slice(0, 8).map((x) => `<div class="br"><div><b>⚠ ${fshort(x.d)}</b><span>${x.w}</span></div></div>`).join('') : '<p class="sub">✓ Nessun problema nei prossimi 30 giorni.</p>'}</div>`;
+}
+function deadList() {
+  const c = S.cfg, t = todayD(), y = t.getFullYear(), k = calc(), L = [];
+  paydays(t, addD(t, 200)).slice(0, 6).forEach((d) => L.push({ d, t: '💸 Giorno di paga', p: 1 }));
+  if (k && !k.over) { L.push({ d: k.end, t: `🎉 ${c.label}` }); L.push({ d: addD(k.end, 68), t: '📄 Ultimo giorno per la domanda NASpI (68 giorni dalla fine; verifica sul sito INPS)' }); }
+  if (c.ferie > 0) { const left = c.ferie - ferieUsate(y), dec = new Date(y, 11, 31), dl = k && !k.over && k.end < dec ? k.end : dec; if (left > 0) L.push({ d: dl, t: `🌴 Ultimo giorno per usare ${left} giorni di ferie` }); }
+  return L.filter((x) => x.d >= t).sort((a, b) => a.d - b.d);
+}
+function deadHtml() {
+  const t = todayD(); let pg = 0; const L = deadList().filter((x) => !x.p || !pg++).slice(0, 5);
+  if (!L.length) return '';
+  return `<div class="card"><h2>Scadenze</h2>${L.map((x) => `<div class="br"><div><b>${fshort(x.d)}</b><span>${x.t}</span></div><span style="white-space:nowrap">${dd(t, x.d) === 0 ? 'oggi' : `tra ${dd(t, x.d)} gg`}</span></div>`).join('')}<button class="btn sec" style="margin-top:12px" onclick="exportDead()">Aggiungi le scadenze al calendario del telefono</button></div>`;
+}
+function exportDead() {
+  const L = deadList(); if (!L.length) { toast('Nessuna scadenza da esportare.'); return; }
+  const stamp = new Date().toISOString().replace(/[-:]/g, '').slice(0, 15) + 'Z', fd = (d) => ymd(d).replace(/-/g, ''), ev = [];
+  L.forEach((x, n) => ev.push('BEGIN:VEVENT', `UID:turno-d${n}-${fd(x.d)}@turno`, `DTSTAMP:${stamp}`, `DTSTART;VALUE=DATE:${fd(x.d)}`, `DTEND;VALUE=DATE:${fd(addD(x.d, 1))}`, `SUMMARY:${x.t.split(' (')[0]}`, 'BEGIN:VALARM', 'ACTION:DISPLAY', `DESCRIPTION:${x.t.split(' (')[0]}`, 'TRIGGER:-P1D', 'END:VALARM', 'END:VEVENT'));
+  download(new Blob([['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Turno//IT', 'CALSCALE:GREGORIAN', ...ev, 'END:VCALENDAR'].join('\r\n')], { type: 'text/calendar' }), 'turno-scadenze.ics');
+  toast('Aprilo per aggiungere le scadenze al calendario.');
+}
+function quickBar() {
+  const t = todayD(), k = calc(); if (kindOf() === 'end' && !k) return '';
+  const i = info(t), nx = paydays(t, new Date(t.getFullYear(), t.getMonth() + 3, 1))[0];
+  const oggi = i.w ? `lavori ${fh(i.h)} h` : ({ ferie: 'ferie 🌴', fest: 'festa 🎉', libero: 'libero' }[i.t] || 'riposo'), P = [`Oggi: <b>${oggi}</b>`];
+  if (nx) P.push(`Paga: <b>${dd(t, nx) === 0 ? 'oggi' : `tra ${dd(t, nx)} gg`}</b>`);
+  if (k && !k.over) P.push(`Mancano: <b>${k.r.n} gg di lavoro</b>`);
+  return `<div class="card" style="margin:12px 0 0;padding:12px 16px"><div class="sub" style="display:flex;flex-wrap:wrap;gap:4px 16px">${P.map((x) => `<span>${x}</span>`).join('')}</div></div>`;
+}
+function perSummary(a, b) {
+  const c = S.cfg; let n = 0, h = 0, fe = 0, pe = 0, xh = 0;
+  for (let d = new Date(a); d <= b; d.setDate(d.getDate() + 1)) { const i = info(d), e = S.ex[ymd(d)]; n += i.w; h += i.h; if (e && e.t === 'ferie' && norm(d)) fe++; if (i.t === 'perm') pe += i.ph || 0; if (i.t === 'extra') xh += i.h; }
+  const m = c.payMode === 'month' ? (c.monthly > 0 ? c.monthly * (dd(a, b) + 1) / 30.44 + bonus(a, b) : null) : (c.rate > 0 ? h * c.rate + bonus(a, b) : null);
+  return { d: n, h, fe, pe, xh, m };
+}
+function closePeriod() {
+  const c = S.cfg, t = todayD(); if (!c.end) { toast('Non c\'è un periodo da chiudere.'); return; }
+  if (!confirm(`Chiudere «${c.label}»? Il riepilogo va nello storico e puoi iniziare il periodo successivo. I giorni segnati nel calendario restano.`)) return;
+  const a = c.start ? parse(c.start) : t, e = parse(c.end); let b = e < t ? e : t; if (b < a) b = a;
+  c.hist = (c.hist || []).concat({ nm: c.label, a: ymd(a), b: ymd(b), ...perSummary(a, b) });
+  c.end = ''; c.start = ymd(t); c.label = 'Nuovo periodo'; first = true; save(); toast('Periodo salvato nello storico.'); openCfg();
+}
+function histDel(i) { if (!confirm('Eliminare questo periodo dallo storico?')) return; S.cfg.hist.splice(i, 1); save(); }
+function periodsHtml() {
+  const c = S.cfg, hs = c.hist || [], can = kindOf() === 'end' && c.end; if (!hs.length && !can) return '';
+  const rows = hs.map((x, i) => `<div class="br"><div><b>${esc(x.nm)}</b><span>${fshort(parse(x.a))} → ${fshort(parse(x.b))} · ${x.d} giorni · ${fh(x.h)} h${x.m !== null && x.m !== undefined ? ' · ' + eur(x.m) : ''}${x.fe ? ' · ' + x.fe + ' ferie' : ''}</span></div><button class="btn sm sec" onclick="histDel(${i})" aria-label="Elimina">✕</button></div>`).reverse().join('');
+  return `<div class="card"><h2>Periodi di lavoro</h2><p class="hint" style="margin:0 0 6px">Quando un contratto finisce, chiudilo qui: il riepilogo resta nello storico e riparti con il periodo successivo, senza perdere i dati.</p>${rows || '<p class="sub">Nessun periodo chiuso ancora.</p>'}${can ? '<button class="btn sec" style="margin-top:12px" onclick="closePeriod()">Chiudi questo periodo e inizia il prossimo</button>' : ''}</div>`;
+}
+function finalHtml() {
+  if (!PRO() || kindOf() !== 'end' || !S.cfg.end) return '';
+  return '<div class="card"><h2>Riepilogo di fine rapporto</h2><p class="sub" style="margin:0 0 10px">Una pagina con ore, ferie, permessi, ore extra, guadagno e stime di TFR e NASpI, da stampare o salvare in PDF. Utile per un controllo personale, per CAF, patronato o commercialista.</p><button class="btn sec" onclick="endRepPdf()">Apri il riepilogo (stampa / PDF)</button></div>';
+}
+function endRepPdf() {
+  const c = S.cfg, t = todayD(), k = calc(), a = c.start ? parse(c.start) : t, e = c.end ? parse(c.end) : t, w = window.open('', '_blank');
+  if (!w) { toast('Consenti i popup per creare il PDF.'); return; }
+  const s1 = perSummary(a, e < t ? e : (t < a ? a : t)), s2 = perSummary(a, e), tf = k && !k.over ? tfr(k) : null, ns = k && !k.over ? nas(k) : null, mny = (v) => v === null ? '—' : eur2(v);
+  const tb = (s) => `<table><tr><td>Giorni di lavoro</td><td>${s.d}</td></tr><tr><td>Ore</td><td>${fh(s.h)} h</td></tr><tr><td>Ferie usate</td><td>${s.fe} giorni</td></tr><tr><td>Permessi / ROL</td><td>${fh(s.pe)} h</td></tr><tr><td>Ore extra</td><td>${fh(s.xh)} h</td></tr><tr><td>Guadagno stimato</td><td>${mny(s.m)}</td></tr></table>`;
+  w.document.write(`<!DOCTYPE html><html lang="it"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Riepilogo ${esc(c.label)}</title><style>body{font:14px system-ui,sans-serif;padding:24px;max-width:640px;margin:0 auto}table{border-collapse:collapse;width:100%;margin-bottom:8px}td{border-bottom:1px solid #ccc;padding:8px}td:last-child{text-align:right}h2{margin:20px 0 6px;font-size:1.05rem}</style><h1>Turno · ${esc(c.label)}</h1><p>Periodo: ${fdate(a)} → ${fdate(e)}</p><h2>Fino a oggi</h2>${tb(s1)}<h2>Periodo completo (previsto)</h2>${tb(s2)}<h2>Stime</h2><table><tr><td>TFR maturato oggi (stima)</td><td>${tf ? eur2(tf.now) : '—'}</td></tr><tr><td>TFR a fine contratto (stima)</td><td>${tf ? eur2(tf.end) : '—'}</td></tr><tr><td>NASpI (stima)</td><td>${ns && !ns.err ? eur2(ns.base) + ' al mese per ' + fh(ns.mesi) + ' mesi' : '—'}</td></tr></table><p style="color:#666">Stime calcolate da Turno: non sono documenti ufficiali. Per cifre ufficiali rivolgiti a CAF, patronato o commercialista.</p>`);
+  w.document.close(); w.focus(); setTimeout(() => w.print(), 400);
+}
+const rcKey = (k) => 'rc-' + pcKey().slice(4) + '-' + k;
+function rcSet(k, v) { const n = parseFloat(String(v).replace(',', '.')); if (String(v).trim() !== '' && n >= 0) S.chk[rcKey(k)] = n; else delete S.chk[rcKey(k)]; save(); }
+function reconHtml() {
+  if (!PRO()) return '';
+  const y = pcV.getFullYear(), m = pcV.getMonth(), o = payCalc(y, m), I = 'style="width:84px;background:var(--s2);border:1.5px solid var(--line);border-radius:10px;color:var(--tx);padding:8px;font:inherit"';
+  const rows = [['o', 'Ore ordinarie', o.h], ['n', 'Ore notturne', o.nt], ['f', 'Ore domenica e festivi', o.fs], ['x', 'Ore extra', o.ex]].map(([k, l, v]) => {
+    const real = S.chk[rcKey(k)], has = real !== undefined, df = has ? real - v : 0, ok = Math.abs(df) <= 0.5;
+    return `<div class="br"><div><b>${l}</b><span>Stimate da Turno: ${fh(v)} h${has ? (ok ? ' · <b style="color:var(--ac2)">✓ torna</b>' : ` · <b style="color:var(--warn)">⚠ ${df > 0 ? '+' : ''}${fh(df)} h in busta</b>`) : ''}</span></div><input type="number" step="0.5" min="0" inputmode="decimal" placeholder="busta" value="${has ? real : ''}" onchange="rcSet('${k}', this.value)" ${I}></div>`;
+  }).join('');
+  return `<div class="card"><h2>Riconciliazione per voce</h2><p class="hint" style="margin:0 0 6px">${MESI[m]} ${y} (il mese si sceglie in «Controllo busta paga»). Scrivi le ore che leggi in busta paga, voce per voce: se una non torna, il problema è lì. Se un campo è vuoto, la voce non viene confrontata.</p>${rows}</div>`;
 }
 /* ---------- account e sincronizzazione (Firebase) ---------- */
 const FB = { apiKey: "AIzaSyBf9_RgZ7UGtlqu_ySIsLQQ4qk9ymJr6WI", authDomain: "turno-6b6fb.firebaseapp.com", projectId: "turno-6b6fb", storageBucket: "turno-6b6fb.firebasestorage.app", messagingSenderId: "5394387407", appId: "1:5394387407:web:1f4691b23b193fbdb882ba" };
