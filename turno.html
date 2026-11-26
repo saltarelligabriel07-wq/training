@@ -205,6 +205,12 @@ nav button{flex:1;min-width:0;padding:10px 4px;font-size:.8rem;white-space:nowra
     <div class="f"><label>Fino al giorno (facoltativo)</label><input type="date" id="dEnd"></div>
   </div>
   <div class="f"><label>Nota per questo giorno (facoltativa)</label><input type="text" id="dNote" maxlength="120" placeholder="Es. visita, colloquio, cena"></div>
+  <div class="sec-t" style="margin-top:6px">Cambio turno</div>
+  <p class="hint" id="swT" style="margin:0 0 8px"></p>
+  <div class="f"><label id="swB">Giorno</label><input type="date" id="dSw"></div>
+  <div class="f" id="dShW" hidden><label>Turno da fare (facoltativo: se vuoto resta lo stesso)</label><select id="dSh" style="width:100%;background:var(--s2);border:1.5px solid var(--line);border-radius:12px;color:var(--tx);padding:11px;font:inherit;font-size:.93rem"><option value="">Lo stesso di prima</option><option value="M">☀️ Mattina</option><option value="P">🌆 Pomeriggio</option><option value="N">🌙 Notte</option></select></div>
+  <button class="btn sec" type="button" onclick="swapApply()">🔁 Segna cambio turno</button>
+  <p class="hint" id="swS"></p>
   <div class="err" id="dErr"></div>
   <div class="opts">
     <button class="btn sec" onclick="apply('ferie')">🌴 Ferie</button><button class="btn sec" onclick="apply('perm')">⏱ Permesso / ROL</button>
@@ -335,6 +341,7 @@ function info(d) {
   if (e) {
     if (e.t === 'extra') return { w: 1, h: e.h || c.hours, t: 'extra' };
     if (e.t === 'ferie') return { w: 0, h: 0, t: 'ferie' };
+    if (e.t === 'work') return { w: 1, h: e.h || shiftH(d) || c.hours, t: 'work' };
     if (e.t === 'libero') return { w: 0, h: 0, t: 'libero' };
     if (e.t === 'perm' && norm(d)) { const hh = Math.max(0, (shiftH(d) || c.hours) - (e.h || 0)); return { w: hh > 0 ? 1 : 0, h: hh, t: 'perm', ph: e.h || 0 }; }
   }
@@ -484,7 +491,7 @@ function renderCal() {
   for (let n = 1; n <= dim; n++) {
     const d = new Date(y, m, n), i = info(d), k = ymd(d);
     const cls = { work: '', off: 'off', fest: 'fest', ferie: 'ferie', perm: 'perm', libero: 'libero', extra: 'extra' }[i.t];
-    const tag = { work: (S.cfg.mode === 'rot' && rotTok(d) ? `<small>${esc(rotTok(d))}</small>` : '<i></i>'), ferie: '<small>ferie</small>', perm: `<small>${fh(i.ph || 0)}h</small>`, extra: '<small>extra</small>', fest: '<small>festa</small>' }[i.t] || '';
+    const tag = { work: (S.ex[k] && S.ex[k].t === 'work' ? '<small>cambio</small>' : S.cfg.mode === 'rot' && rotTok(d) ? `<small>${esc(rotTok(d))}</small>` : '<i></i>'), ferie: '<small>ferie</small>', perm: `<small>${fh(i.ph || 0)}h</small>`, extra: '<small>extra</small>', fest: '<small>festa</small>' }[i.t] || '';
     html += `<button class="day ${cls} ${k === ymd(today) ? 'today' : ''} ${k === pk ? 'pd' : ''} ${S.notes[k] ? 'nt' : ''}" onclick="pick('${k}')" aria-label="${n} ${MESI[m]}">${n}${tag}</button>`;
   }
   $('cal').innerHTML = html;
@@ -554,7 +561,7 @@ function pick(k) {
   const d = parse(k), i = info(d), e = S.ex[k];
   $('dTitle').textContent = d.toLocaleDateString('it-IT', { weekday: 'long', day: 'numeric', month: 'long' });
   $('dState').textContent = { work: `Giorno di lavoro · ${fh(i.h)} ore`, off: 'Giorno libero (di solito non lavori)', fest: holName(d) || 'Festività', ferie: 'Ferie', perm: `Permesso di ${fh(i.ph || 0)} ore · lavori ${fh(i.h)} ore`, libero: 'Giorno libero segnato da te', extra: `Lavoro extra · ${fh(i.h)} ore` }[i.t];
-  $('dH').value = e && e.h ? e.h : ''; $('dEnd').value = ''; $('dNote').value = S.notes[k] || ''; $('dErr').textContent = '';
+  $('dH').value = e && e.h ? e.h : ''; swPrep(k); $('dEnd').value = ''; $('dNote').value = S.notes[k] || ''; $('dErr').textContent = '';
   openS('day');
 }
 function setNote(k, v) { v = v.trim(); if (v) S.notes[k] = v; else delete S.notes[k]; }
@@ -568,7 +575,7 @@ function apply(t) {
   const d = new Date(a); let n = 0;
   while (d <= b) {
     const k = ymd(d);
-    if (t === 'reset') { if (S.ex[k]) { delete S.ex[k]; n++; } }
+    if (t === 'reset') { const e0 = S.ex[k]; if (e0) { if (e0.sw && S.ex[e0.sw] && S.ex[e0.sw].sw === k) delete S.ex[e0.sw]; delete S.ex[k]; n++; } }
     else if (single || (t === 'extra' ? !norm(d) : norm(d))) { S.ex[k] = t === 'perm' ? { t, h } : (t === 'extra' && h > 0 ? { t, h } : { t }); n++; }
     d.setDate(d.getDate() + 1);
   }
@@ -773,7 +780,7 @@ const tmin = (s) => { const p = String(s || '0:0').split(':').map(Number); retur
 const SN = { M: 'Mattina', P: 'Pomeriggio', N: 'Notte' }, SL = { M: 'mat', P: 'pom', N: 'notte' }, SE = { '': '—', M: '☀️', P: '🌆', N: '🌙' }, SO = ['', 'M', 'P', 'N'];
 const SDEF = { M: ['06:00', '14:00'], P: ['14:00', '22:00'], N: ['22:00', '06:00'] };
 function PD() { const c = S.cfg, t = {}; ['M', 'P', 'N'].forEach((k) => { const x = c.pt && c.pt[k]; t[k] = x && x[0] && x[1] ? x : SDEF[k]; }); return { n: Math.min(4, Math.max(1, c.pn || 1)), w: c.pw || [], t, s: c.ps || '' }; }
-function rotCode(d) { const p = PD(); if (!p.s) return ''; const st = parse(p.s), mon = addD(st, -((st.getDay() + 6) % 7)), n = dd(mon, d), wk = ((Math.floor(n / 7) % p.n) + p.n) % p.n; return ((p.w[wk] || [])[((n % 7) + 7) % 7]) || ''; }
+function rotCode(d) { const xe = S.ex[ymd(d)]; if (xe && xe.t === 'work' && xe.sh) return xe.sh; const p = PD(); if (!p.s) return ''; const st = parse(p.s), mon = addD(st, -((st.getDay() + 6) % 7)), n = dd(mon, d), wk = ((Math.floor(n / 7) % p.n) + p.n) % p.n; return ((p.w[wk] || [])[((n % 7) + 7) % 7]) || ''; }
 function rotTok(d) { if (!PRO()) return null; const k = rotCode(d); return k ? SL[k] : null; }
 function rotShift(d) { if (!PRO()) return null; const k = rotCode(d); if (!k) return null; const t = PD().t[k]; return { code: k, start: t[0], end: t[1] }; }
 function shiftH(d) { if (S.cfg.mode !== 'rot' || !PRO()) return 0; const s = rotShift(d); if (!s) return 0; const a = tmin(s.start); let b = tmin(s.end); if (b <= a) b += 1440; return (b - a) / 60; }
@@ -1013,6 +1020,27 @@ function renderOpenHome2() {
 function openStats2() {
   const c = S.cfg, t = todayD(), y = t.getFullYear(), m = t.getMonth(), us = ferieUsate(y), R = repData(y), mx = Math.max(1, ...R.map((r) => r.n)), cur = R[m], st = monthStat(y, m), row = (a, b) => `<div><span>${a}</span><b>${b}</b></div>`;
   return `<div class="card" style="margin-top:14px"><h2 style="text-transform:capitalize">${MESI[m]} ${y}</h2><div class="rows" style="margin-top:6px">${row('Giorni di lavoro', cur.n)}${row('Ore', fh(cur.h) + ' h')}${row('Guadagno previsto', cur.e === null ? '—' : eur(cur.e))}${row('Ferie nel mese', st.ferie)}${row('Permessi/ROL nel mese', fh(st.perm) + ' h')}</div></div><div class="card"><h2>Ferie ${y}</h2>${c.ferie > 0 ? `<div class="big">${Math.max(0, c.ferie - us)}</div><div class="sub">giorni ancora da usare (ne hai segnati ${us} su ${c.ferie}).</div><div class="bar g"><i style="width:${Math.min(100, Math.round(us / c.ferie * 100))}%"></i></div>` : `<div class="sub">Ne hai segnati <b>${us}</b>. Scrivi quante ne hai all'anno nelle impostazioni per vedere quante restano.</div>`}<button class="btn sec sm" style="margin-top:10px" onclick="openCfg()">Modifica ferie e ROL</button></div><div class="card"><h2>Giorni di lavoro mese per mese</h2>${R.map((r, i) => `<div class="mr ${i === m ? 'cur' : ''}"><div class="mh"><span>${r.m}${i === m ? ' · adesso' : ''}</span><span>${r.n} giorni</span></div><div class="bar"><i style="width:${Math.round(r.n / mx * 100)}%"></i></div>${r.e !== null ? `<div class="ms">${eur(r.e)}</div>` : ''}</div>`).join('')}</div>`;
+}
+/* ---------- cambio turno ---------- */
+function swPrep(k) {
+  const d = parse(k), out = info(d).w === 1, e = S.ex[k];
+  $('dSw').value = ''; $('dSh').value = '';
+  $('swT').textContent = out ? 'Questo giorno di solito lavori. Se il datore ti chiede di lavorare in un altro giorno, scegli quale: questo diventa libero.' : 'Questo giorno di solito non lavori. Se oggi lavori al posto di un altro giorno, scegli quale: quello diventa libero.';
+  $('swB').textContent = out ? 'Lavori invece il giorno…' : 'Lavori oggi al posto del giorno…';
+  $('dShW').hidden = !(S.cfg.mode === 'rot' && PRO());
+  $('swS').textContent = e && e.sw ? `Cambio turno collegato al ${fdate(parse(e.sw))}. «Giorno normale» annulla il cambio su entrambi i giorni.` : '';
+}
+function swapApply() {
+  const k = sel, o = $('dSw').value, err = $('dErr'), c = S.cfg;
+  if (!o) { err.textContent = 'Scegli l\'altro giorno.'; return; }
+  if (o === k) { err.textContent = 'Scegli un giorno diverso da questo.'; return; }
+  const d = parse(k), od = parse(o), out = info(d).w === 1, a = S.ex[k], b = S.ex[o];
+  if ((a && a.t === 'ferie') || (b && b.t === 'ferie')) { err.textContent = 'Uno dei due giorni è segnato come ferie: toglilo prima.'; return; }
+  const rot = c.mode === 'rot' && PRO(), pk = $('dSh').value, sh = pk || (rot ? rotCode(out ? d : od) : '');
+  const W = (p) => sh ? { t: 'work', sh, sw: p } : { t: 'work', sw: p }, F = (p) => ({ t: 'libero', sw: p });
+  if (out) { S.ex[k] = F(o); S.ex[o] = W(k); } else { S.ex[k] = W(o); S.ex[o] = F(k); }
+  if (!S.notes[k]) S.notes[k] = 'Cambio turno';
+  save(); closeS('day'); toast('Cambio turno segnato.');
 }
 /* ---------- account e sincronizzazione (Firebase) ---------- */
 const FB = { apiKey: "AIzaSyBf9_RgZ7UGtlqu_ySIsLQQ4qk9ymJr6WI", authDomain: "turno-6b6fb.firebaseapp.com", projectId: "turno-6b6fb", storageBucket: "turno-6b6fb.firebasestorage.app", messagingSenderId: "5394387407", appId: "1:5394387407:web:1f4691b23b193fbdb882ba" };
