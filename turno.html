@@ -217,6 +217,7 @@ details.acc>.in{padding-bottom:16px}
 <div class="ov" id="ov-day" onclick="if(event.target===this)closeS('day')"><div class="sheet">
   <div class="sh"><h3 id="dTitle"></h3><button class="ib" onclick="closeS('day')" aria-label="Chiudi">✕</button></div>
   <p id="dState" class="sub" style="margin:0 0 14px"></p>
+  <p id="dMg" class="sub" style="margin:-8px 0 14px"></p>
   <div class="row2">
     <div class="f"><label>Ore (permesso/ROL: ore di assenza · extra: ore lavorate)</label><input type="number" id="dH" step="0.5" min="0" inputmode="decimal"></div>
     <div class="f"><label>Fino al giorno (facoltativo)</label><input type="date" id="dEnd"></div>
@@ -399,7 +400,7 @@ function calc() {
   const done = start <= addD(today, -1) ? span(start, addD(today, -1)).n : 0, tot = done + r.n;
   return { today, end, r, cal, done, tot, pct: tot ? Math.round(done / tot * 100) : 0 };
 }
-function proj(k) { const p = proj0(k); if (!p) return p; const b = bonus(k.today, k.end); return b > 0 ? { ...p, total: p.total + b, sub: p.sub + ` + ${eur(b)} di maggiorazioni` } : p; }
+function proj(k) { const p = proj0(k); if (!p) return p; const b = bonus(k.today, k.end); return b > 0 ? { ...p, total: p.total + b, sub: p.sub + bonusTxt(k, b) } : p; }
 function proj0(k) {
   const c = S.cfg, pays = paydays(k.today, k.end);
   if (c.payMode === 'month' && c.monthly > 0) {
@@ -579,7 +580,7 @@ function pick(k) {
   const d = parse(k), i = info(d), e = S.ex[k];
   $('dTitle').textContent = d.toLocaleDateString('it-IT', { weekday: 'long', day: 'numeric', month: 'long' });
   $('dState').textContent = { work: `Giorno di lavoro · ${fh(i.h)} ore`, off: 'Giorno libero (di solito non lavori)', fest: holName(d) || 'Festività', ferie: 'Ferie', perm: `Permesso di ${fh(i.ph || 0)} ore · lavori ${fh(i.h)} ore`, libero: 'Giorno libero segnato da te', extra: `Lavoro extra · ${fh(i.h)} ore` }[i.t];
-  $('dH').value = e && e.h ? e.h : ''; swPrep(k); $('dEnd').value = ''; $('dNote').value = S.notes[k] || ''; $('dErr').textContent = '';
+  $('dH').value = e && e.h ? e.h : ''; swPrep(k); dayMg(k); $('dEnd').value = ''; $('dNote').value = S.notes[k] || ''; $('dErr').textContent = '';
   openS('day');
 }
 function setNote(k, v) { v = v.trim(); if (v) S.notes[k] = v; else delete S.notes[k]; }
@@ -950,16 +951,16 @@ function bankHtml0() {
 }
 function advStats() {
   if (!PRO()) return '<div class="card"><h2>Statistiche avanzate (Pro)</h2><p class="sub">🔒 Grafico dell\'anno, medie e previsione per il tuo obiettivo. Disponibile con Pro.</p></div>';
-  const c = S.cfg, t = todayD(), y = t.getFullYear(), k = calc(), R = repData(y), mx = Math.max(1, ...R.map((r) => r.h)), hy = R.reduce((a, r) => a + r.h, 0);
-  const ytd = span(new Date(y, 0, 1), t), wk = Math.max(1, (dd(new Date(y, 0, 1), t) + 1) / 7), best = R.reduce((a, r) => r.h > a.h ? r : a, R[0]), row = (a, b) => `<div><span>${a}</span><b>${b}</b></div>`;
+  const c = S.cfg, t = todayD(), y = asY, k = calc(), R = repData(y), mx = Math.max(1, ...R.map((r) => r.h)), hy = R.reduce((a, r) => a + r.h, 0);
+  const te = y < t.getFullYear() ? new Date(y, 11, 31) : y > t.getFullYear() ? new Date(y, 0, 0) : t, ytd = span(new Date(y, 0, 1), te), wk = Math.max(1, (dd(new Date(y, 0, 1), te) + 1) / 7), best = R.reduce((a, r) => r.h > a.h ? r : a, R[0]), row = (a, b) => `<div><span>${a}</span><b>${b}</b></div>`;
   let eta = '';
   if (c.goalAmt > 0) {
-    let acc = c.saved || 0, found = null; const m0 = y * 12 + t.getMonth();
+    let acc = c.saved || 0, found = null; const m0 = t.getFullYear() * 12 + t.getMonth();
     for (let q = m0; q < m0 + 60 && !found; q++) { const my = Math.floor(q / 12), mm = q % 12; if (k && !k.over && new Date(my, mm, 1) > k.end) break; const st = monthStat(my, mm); if (st.money === null) break; acc += st.money; if (acc >= c.goalAmt) found = new Date(my, mm, 1); }
     eta = `<p class="sub" style="margin-top:10px">${found ? `A questo ritmo raggiungi «${esc(c.goalName || 'il tuo obiettivo')}» a <b>${MESI[found.getMonth()]} ${found.getFullYear()}</b>.` : 'Con la paga e il periodo che hai impostato non raggiungi l\'obiettivo.'} <span style="color:var(--faint)">(Calcolo sui guadagni previsti, senza le tue spese.)</span></p>`;
   }
   const bars = R.map((r) => `<div class="mr"><div class="mh"><span>${r.m}</span><span>${fh(r.h)} h${r.e !== null ? ' · ' + eur(r.e) : ''}</span></div><div class="bar"><i style="width:${Math.round(r.h / mx * 100)}%"></i></div></div>`).join('');
-  return `<div class="card"><h2>Statistiche avanzate ${y}</h2><div class="rows" style="margin-top:6px">${row('Ore lavorate da gennaio', fh(ytd.h) + ' h')}${row('Media a settimana', fh(ytd.h / wk) + ' h')}${row('Giorni di lavoro da gennaio', ytd.n)}${row('Ore previste nell\'anno', fh(hy) + ' h')}${row('Mese più pieno', best.h > 0 ? `${best.m} (${fh(best.h)} h)` : '—')}</div>${eta}<h3 style="margin-top:16px">Ore mese per mese</h3>${bars}</div>`;
+  return `<div class="card"><h2>Statistiche avanzate</h2><div class="ch" style="margin:0 0 6px"><h2 style="font-size:1.05rem">Anno ${y}</h2><button class="sq" onclick="asGo(-1)" aria-label="Anno precedente">‹</button><button class="sq" onclick="asGo(1)" aria-label="Anno successivo">›</button></div><div class="rows" style="margin-top:6px">${row('Ore lavorate da gennaio', fh(ytd.h) + ' h')}${row('Media a settimana', fh(ytd.h / wk) + ' h')}${row('Giorni di lavoro da gennaio', ytd.n)}${row('Ore previste nell\'anno', fh(hy) + ' h')}${row('Mese più pieno', best.h > 0 ? `${best.m} (${fh(best.h)} h)` : '—')}</div>${eta}<h3 style="margin-top:16px">Ore mese per mese</h3>${bars}</div>`;
 }
 function reportCard() {
   const R = repData(rpY), nf = (v) => v === null ? '—' : eur(v), tn = R.reduce((a, r) => a + r.n, 0), th = R.reduce((a, r) => a + r.h, 0), tf = R.reduce((a, r) => a + r.f, 0), any = R.some((r) => r.e !== null), te = R.reduce((a, r) => a + (r.e || 0), 0);
@@ -1203,7 +1204,7 @@ function simBarUpdate() {
 }
 function simHtml() {
   if (!PRO()) return '';
-  return `<div class="card"><h2>Simulatore «E se…?»</h2><p class="sub" style="margin:0 0 10px">Prova ferie, permessi o altre modifiche al calendario senza cambiare i tuoi dati veri. Vedi subito come cambiano i giorni che mancano, l'incasso e le ferie rimaste. Alla fine scegli se scartare tutto o tenere le modifiche.</p>${window.SIM ? '<p class="sub"><b>Stai già simulando.</b> Usa i pulsanti in alto per uscire.</p>' : '<button class="btn sec" onclick="simStart()">Avvia una simulazione</button>'}<p class="hint">Durante la simulazione backup e sincronizzazione sono sospesi. Se chiudi l'app, la simulazione sparisce da sola.</p></div>`;
+  return `<div class="card"><h2>Simulatore «E se…?»</h2><p class="sub" style="margin:0 0 10px">Prova ferie, permessi o altre modifiche al calendario senza cambiare i tuoi dati veri. Vedi subito come cambiano i giorni che mancano, l'incasso e le ferie rimaste. Alla fine scegli se scartare tutto o tenere le modifiche.</p>${window.SIM ? '<p class="sub"><b>Stai già simulando.</b> Usa i pulsanti in alto per uscire.</p>' : '<button class="btn sec" onclick="simStart()">Avvia una simulazione</button>'}${simQuickHtml()}<p class="hint">Durante la simulazione backup e sincronizzazione sono sospesi. Se chiudi l'app, la simulazione sparisce da sola.</p></div>`;
 }
 /* ---------- scheda Pro e menu a tendina ---------- */
 const OPEN = {};
@@ -1247,6 +1248,36 @@ function renderPro() {
     : '<div class="card" style="margin-top:14px"><h2>Turno Pro</h2><p class="sub" style="margin:0 0 10px">Strumenti per controllare i soldi e organizzare meglio turni e ferie. Qui sotto vedi cosa include: se ti manca qualcosa, è probabile che sia qui.</p><button class="btn" onclick="openPro()">Confronta Standard e Pro</button></div>';
   const items = PROFEAT.filter((f) => !f[4] || (kindOf() === 'end' && S.cfg.end));
   el.innerHTML = head + items.map((f) => on && f[3] ? acc('p-' + f[0], f[1], f[2], f[3]()) : `<div class="card pv"><b>${on ? '' : '🔒 '}${f[1]}</b><span>${f[2]}</span></div>`).join('');
+}
+/* ---------- anni diversi, maggiorazioni nel giorno, scorciatoie simulatore ---------- */
+let asY = new Date().getFullYear();
+function asGo(n) { asY += n; render(); }
+function bonusTxt(k, b) {
+  const p = bonusParts(k.today, k.end), L = [p.n > 0 ? `notte ${eur(p.n)}` : '', p.f > 0 ? `festivi ${eur(p.f)}` : '', p.x > 0 ? `extra ${eur(p.x)}` : ''].filter(Boolean);
+  return ` + ${eur(b)} di maggiorazioni` + (L.length > 1 ? ` (${L.join(', ')})` : '');
+}
+function dayMg(k) {
+  const el = $('dMg'); if (!el) return; el.innerHTML = ''; if (!PRO()) return;
+  const d = parse(k), i = info(d), hr = hourly(); if (!i.w || !hr) return;
+  const p = bonusParts(d, d), t = p.n + p.f + p.x; if (!(t > 0)) return;
+  const base = i.h * hr;
+  el.innerHTML = `💶 Paga prevista del giorno: <b>${eur(base + t)}</b> (base ${eur(base)}${p.n > 0 ? ` + notte ${eur(p.n)}` : ''}${p.f > 0 ? ` + festivo ${eur(p.f)}` : ''}${p.x > 0 ? ` + extra ${eur(p.x)}` : ''})`;
+}
+function simQuick(kd) {
+  const c = S.cfg, k = calc();
+  if (!window.SIM) { window.SIM = JSON.stringify(S); window.simB = simM(); }
+  if (kd === 'f5') {
+    const res = planFerie(5, k && !k.over ? k : null);
+    if (!res.length) { toast('Nessun periodo conveniente trovato.'); simBarUpdate(); return; }
+    res.forEach((o) => ppApply(ymd(o.s), ymd(o.e))); return;
+  }
+  if (kd === 'e7') { if (!c.end) return; c.end = ymd(addD(parse(c.end), -7)); }
+  if (kd === 'p10') { if (c.payMode === 'month') c.monthly = Math.round(c.monthly * 110) / 100; else c.rate = Math.round(c.rate * 110) / 100; }
+  first = true; save(); toast('Simulazione: guarda il riquadro in alto.');
+}
+function simQuickHtml() {
+  const c = S.cfg, B = (k, t) => `<button class="btn sec sm" style="margin:6px 6px 0 0" onclick="simQuick('${k}')">${t}</button>`, k = calc();
+  return `<div style="margin-top:10px"><div class="hint" style="margin:0 0 2px">Scorciatoie per provare subito:</div>${B('f5', 'E se prendo 5 giorni di ferie?')}${k && !k.over ? B('e7', 'E se finisco 7 giorni prima?') : ''}${(c.payMode === 'month' ? c.monthly : c.rate) > 0 ? B('p10', 'E se la paga sale del 10%?') : ''}</div>`;
 }
 /* ---------- account e sincronizzazione (Firebase) ---------- */
 const FB = { apiKey: "AIzaSyBf9_RgZ7UGtlqu_ySIsLQQ4qk9ymJr6WI", authDomain: "turno-6b6fb.firebaseapp.com", projectId: "turno-6b6fb", storageBucket: "turno-6b6fb.firebasestorage.app", messagingSenderId: "5394387407", appId: "1:5394387407:web:1f4691b23b193fbdb882ba" };
